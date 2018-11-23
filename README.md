@@ -375,6 +375,9 @@ import webbrowser
 webbrowser.open("test.html")
 ```
 
+This code will open up a webbrowser and show the following page. As you can see, the interactive Bokeh plot is embedded nicely into the HTML layout. The **return_html** option is ideal for the use in a templating engine like [Jinja](http://jinja.pocoo.org/). 
+
+![Embedded HTML](Documentation/Images/embedded_HTML.png)
 
 
 
