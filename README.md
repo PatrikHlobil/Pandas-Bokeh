@@ -1,13 +1,13 @@
 # Pandas Bokeh
 
-**Pandas Bokeh** provides a [Bokeh](https://bokeh.pydata.org/en/latest/) plotting backend for [Pandas](https://pandas.pydata.org/), similar to the already existing [Visualization](https://pandas.pydata.org/pandas-docs/stable/visualization.html) feature of Pandas. Importing the library adds a complementary plotting method ***plot_bokeh()*** on **DataFrames** and **Series** (and also on **GeoDataFrames**).
+**Pandas Bokeh** provides a [Bokeh](https://bokeh.pydata.org/en/latest/) plotting backend for [Pandas](https://pandas.pydata.org/) and [GeoPandas](http://geopandas.org/), similar to the already existing [Visualization](https://pandas.pydata.org/pandas-docs/stable/visualization.html) feature of Pandas. Importing the library adds a complementary plotting method ***plot_bokeh()*** on **DataFrames** and **Series** (and also on **GeoDataFrames**).
 
 With **Pandas Bokeh**, creating stunning, interactive, HTML-based visualization is as easy as calling:
 ```python
 df.plot_bokeh()
 ```
 
-For more information have a look at the [Examples](#Examples) below or at  notebooks on the [Github Repository](TODO???) of this project. 
+For more information have a look at the [Examples](#Examples) below or at  notebooks on the [Github Repository](https://github.com/PatrikHlobil/Pandas-Bokeh/tree/master/Documentation) of this project. 
 
 ![Startimage](Documentation/Images/Startimage.gif)
 
@@ -15,11 +15,11 @@ For more information have a look at the [Examples](#Examples) below or at  noteb
 
 ## Installation
 
-You can install the Real Python Feed Reader from [PyPI](TODO):
+You can install **Pandas Bokeh** from [PyPI](TODO) via *pip*:
 
     pip install pandas-bokeh
 
-The reader is supported on Python 2.7, as well as Python 3.6 and above.
+**Pandas Bokeh** is supported on Python 2.7, as well as Python 3.6 and above.
 
 <br>
 

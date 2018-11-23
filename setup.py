@@ -1,6 +1,6 @@
 import setuptools
 
-with open("README.md", "r") as fh:
+with open("README_PyPI.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
@@ -11,7 +11,7 @@ setuptools.setup(
     description="Bokeh plotting backend for pandas.DataFrame.plot functionality",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/????????",
+    url="https://github.com/PatrikHlobil/Pandas-Bokeh",
     packages=setuptools.find_packages(),
     install_requires=["bokeh"],
     classifiers=[
