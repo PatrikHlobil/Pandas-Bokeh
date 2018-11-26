@@ -94,7 +94,7 @@ def geoplot(gdf_in,
             show_figure=True,
             return_figure=True,
             return_html=False,
-            legend="GeoLayer",
+            legend=True,
             **kwargs):
     """Doc-String: TODO"""
     
@@ -257,6 +257,9 @@ def geoplot(gdf_in,
     #Add Tile Source as Background:
     p = _add_backgroundtile(p, tile_provider, tile_provider_url)
 
+    # Hide legend if wanted:
+    if not legend:
+        p.legend.visible = False
     
     #Define colormapper:
     if len(colormap) == 1:
@@ -481,6 +484,10 @@ def geoplot(gdf_in,
     # Display plot and if wanted return plot:
     if isinstance(layout, type(None)):
         layout = p
+    
+    # Hide legend if wanted:
+    if not legend:
+        p.legend.visible = False
 
     # Display plot if wanted
     if show_figure:

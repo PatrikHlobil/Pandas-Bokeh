@@ -306,7 +306,126 @@ df_hist.plot_bokeh(
 
 <br>
 
-<<p id="Layouts"></p>
+## Geoplots
+
+**Pandas Bokeh** also allows for interactive plotting of Maps using [GeoPandas](http://geopandas.org/) by providing a **geopandas.GeoDataFrame.plot_bokeh()** method.  It allows to plot the following geodata on a map :
+
+* Points/MultiPoints
+* Lines/MultiLines
+* Polygons/MultiPolygons
+
+**Note**: t is not possible to mix up the objects types, i.e. a GeoDataFrame with Points and Lines is for example not allowed. 
+
+Les us start with a simple example using the ["World Borders Dataset"](http://thematicmapping.org/downloads/world_borders.php) . Let us first import all neccessary libraries and read the shapefile:
+```python
+import requests
+import geopandas as gpd
+import pandas as pd
+import pandas_bokeh
+pandas_bokeh.output_notebook()
+
+#Download GeoJSON example data:
+
+geojson = requests.get(r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata/states/states.geojson").text
+with open("states.geojson", "w") as f:
+    f.write(geojson)
+    
+#Read in GeoJSON:
+df_states = gpd.read_file("states.geojson")
+    
+#Plot Data on Map:
+df_states.plot_bokeh(simplify_shapes=10000)
+```
+
+![US_States_1](Documentation/Images/US_States_1.gif)
+
+We also passed the optional parameter **simplify_shapes** (~meter) to improve plotting performance (for a reference see [shapely.object.simplify](https://shapely.readthedocs.io/en/stable/manual.html#object.simplify)). The above geolayer thus has an accuracy of about 10km.
+
+Many keyword arguments like *xlabel, ylabel, title, colormap, hovertool, ...* for costumizing the plot are also available for the geoplotting API and can be uses as in the examples shown above. There are however also many other options especially for plotting geodata:
+* **hovertool_columns**: Specify column names, for which values should be shown in hovertool
+* **colormap_uselog**: If set *True*, the colormapper is using a logscale. *Default: False*
+* **colormap_range**: Specify the value range of the colormapper via (min, max) tuple
+* **tile_provider**: Define build-in tile provider for background maps. Possible values: *'CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA', 'STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS'. Default: CARTODBPOSITRON_RETINA* 
+* **tile_provider_url**: An arbitraty tile_provider_url of the form '<url>/{Z}/{X}/{Y}*.png' can be passed to be used a background map. 
+* **legend**: Hide or show legend. *Default: True* 
+
+One of the most common usage of map plots are [choropleth maps](https://en.wikipedia.org/wiki/Choropleth_map), where the color of a the objects is determined by the property of the object itself. There are 3 ways of drawing choropleth maps using **Pandas Bokeh**, which are described below.
+
+### Categories
+This is the simplest way. Just provide the **category** keyword for the selection of the property column:
+* **category**: Specifies the column of the GeoDataFrame that should be used to draw a [choropleth map](https://en.wikipedia.org/wiki/Choropleth_map)
+* **show_colorbar**: Whether or not to show a colorbar for categorical plots. *Default: True*
+    
+Let us now draw the regions as a **choropleth plot** using the **category** keyword (at the moment, only numerical columns are supported for choropleth plots):
+```python
+df_states.REGION = df_states.REGION.astype(int)
+
+df_states.plot_bokeh(
+    figsize=(900, 600),
+    simplify_shapes=5000,
+    category="REGION",
+    show_colorbar=False,
+    colormap=["blue", "yellow", "green", "red"],
+    hovertool_columns=["STATE_NAME", "REGION"],
+    tile_provider="STAMEN_TERRAIN_RETINA")
+```
+
+![US_States_2](Documentation/Images/US_States_2.png)
+
+### Dropdown
+By passing a *list of column names* of the GeoDataFrame as the **dropdown** keyword argument, a dropdown menu is shown above the map. This dropdown menu can be used to select the choropleth layer by the user. 
+```python
+df_states.plot_bokeh(
+    figsize=(900, 600),
+    simplify_shapes=5000,
+    dropdown=["POPESTIMATE2010", "POPESTIMATE2017"],
+    colormap="Viridis",
+    hovertool_columns=["STATE_NAME", "POPESTIMATE2010", "POPESTIMATE2017"],
+    tile_provider_url=r"http://c.tile.stamen.com/watercolor/{Z}/{X}/{Y}.jpg"
+    )
+```
+
+![US_States_3](Documentation/Images/US_States_3.gif)
+
+When hovering over the states, the state-name and the population of 2010 and 2017 are shown as specified in the **hovertool_columns** argument.
+
+### Sliders
+
+Another option for interactive *choropleth* maps is the **slider** implementation of *Pandas Bokeh*. The possible keyword arguments are here:
+
+* **slider**: By passing a *list of column names* of the GeoDataFrame, a slider can be used to . This dropdown menu can be used to select the choropleth layer by the user.
+* **slider_range**: Pass a range (or numpy.arange) of numbers object to relate the sliders values with the *slider* columns. By passing range(0,10), the slider will have values [0, 1, 2, ..., 9], when passing numpy.arange(3,5,0.5), the slider will have values [3, 3.5, 4, 4.5]. *Default: range(0, len(slider))*
+* **slider_name**: Specifies the title of the slider. *Default is an empty string.*
+
+This can be used to display the change in population relative to the year 2010:
+```python
+#Calculate change of population relative to 2010:
+for i in range(8):
+    df_states["Delta_Population_201%d"%i] = ((df_states["POPESTIMATE201%d"%i] / df_states["POPESTIMATE2010"]) -1 ) * 100
+
+#Specify slider columns:
+slider_columns = ["Delta_Population_201%d"%i for i in range(8)]
+
+#Specify slider-range (Maps "Delta_Population_2010" -> 2010, 
+#                           "Delta_Population_2011" -> 2011, ...):
+slider_range = range(2010, 2018)
+
+#Make slider plot:
+df_states.plot_bokeh(
+    figsize=(900, 600),
+    simplify_shapes=5000,
+    slider=slider_columns,
+    slider_range=slider_range,
+    slider_name="Year", 
+    colormap="Inferno",
+    hovertool_columns=["STATE_NAME"] + slider_columns,
+    title="Change of Population [%]")
+```
+![US_States_4](Documentation/Images/US_States_4.gif)
+
+<br>
+
+<p id="Layouts"></p>
 
 
 ## Outputs and Layouts
