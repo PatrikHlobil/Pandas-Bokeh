@@ -260,6 +260,7 @@ def geoplot(gdf_in,
     # Hide legend if wanted:
     if not legend:
         p.legend.visible = False
+    legend = "GeoLayer"
     
     #Define colormapper:
     if len(colormap) == 1:
@@ -382,12 +383,12 @@ def geoplot(gdf_in,
     if "Point" in layertypes:
         if "line_color" not in kwargs:
             kwargs["line_color"] = kwargs["fill_color"]
-        p.scatter(x="x", y="y", source=geo_source, **kwargs)
+        p.scatter(x="x", y="y", source=geo_source, legend=legend, **kwargs)
 
     if "Line" in layertypes:
         if "line_color" not in kwargs:
             kwargs["line_color"] = kwargs["fill_color"]
-        p.multi_line(xs="xs", ys="ys", source=geo_source, **kwargs)
+        p.multi_line(xs="xs", ys="ys", source=geo_source, legend=legend, **kwargs)
 
     if "Polygon" in layertypes:
         
@@ -484,10 +485,6 @@ def geoplot(gdf_in,
     # Display plot and if wanted return plot:
     if isinstance(layout, type(None)):
         layout = p
-    
-    # Hide legend if wanted:
-    if not legend:
-        p.legend.visible = False
 
     # Display plot if wanted
     if show_figure:

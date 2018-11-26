@@ -94,7 +94,7 @@ def geoplot(gdf_in,
             show_figure=True,
             return_figure=True,
             return_html=False,
-            legend="GeoLayer",
+            legend=True,
             **kwargs):
     """Doc-String: TODO"""
     
@@ -257,6 +257,10 @@ def geoplot(gdf_in,
     #Add Tile Source as Background:
     p = _add_backgroundtile(p, tile_provider, tile_provider_url)
 
+    # Hide legend if wanted:
+    if not legend:
+        p.legend.visible = False
+    legend = "GeoLayer"
     
     #Define colormapper:
     if len(colormap) == 1:
@@ -379,12 +383,12 @@ def geoplot(gdf_in,
     if "Point" in layertypes:
         if "line_color" not in kwargs:
             kwargs["line_color"] = kwargs["fill_color"]
-        p.scatter(x="x", y="y", source=geo_source, **kwargs)
+        p.scatter(x="x", y="y", source=geo_source, legend=legend, **kwargs)
 
     if "Line" in layertypes:
         if "line_color" not in kwargs:
             kwargs["line_color"] = kwargs["fill_color"]
-        p.multi_line(xs="xs", ys="ys", source=geo_source, **kwargs)
+        p.multi_line(xs="xs", ys="ys", source=geo_source, legend=legend, **kwargs)
 
     if "Polygon" in layertypes:
         
