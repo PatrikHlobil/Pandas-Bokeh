@@ -1,6 +1,6 @@
 # TODO: Do not define new figure if figure is provided by user (plot several glyphs on the same graph)
 # TODO: Change Legend title when selecting new column in dropdown (in CustomJS)
-# TODO: 
+# TODO: Implement xrange, yrange
 # TODO: Doc-String
 # TODO: GMaps Tile provider
 # TODO: Also keep kwarg columns, if they are in geodataframe (then it is possible to use e.g. column values for the width or alpha value of lines ...)
@@ -92,6 +92,7 @@ def geoplot(gdf_in,
             tile_provider_url=None,
             toolbar_location=None,
             show_figure=True,
+            return_figure=True,
             return_html=False,
             legend="GeoLayer",
             **kwargs):
@@ -264,7 +265,7 @@ def geoplot(gdf_in,
     elif not isinstance(category, type(None)):
         #Check if category column is numerical:
         if not issubclass(gdf[category].dtype.type, np.number):
-            raise NotImplementedError("<category> plot only yet implemented for numerical columns. Column '%s' is not numerical."%col)
+            raise NotImplementedError("<category> plot only yet implemented for numerical columns. Column '%s' is not numerical."%category)
 
         field = category
         colormapper_options = {"palette": colormap}
@@ -490,6 +491,7 @@ def geoplot(gdf_in,
         return embedded_html(layout)
         
     #Return plot:
-    return layout
+    if return_figure:
+        return layout
 
 

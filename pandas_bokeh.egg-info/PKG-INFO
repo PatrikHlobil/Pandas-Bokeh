@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: pandas-bokeh
-Version: 0.0.2
+Version: 0.0.1
 Summary: Bokeh plotting backend for pandas.DataFrame.plot functionality
 Home-page: https://github.com/PatrikHlobil/Pandas-Bokeh
 Author: Patrik Hlobil
@@ -8,7 +8,7 @@ Author-email: patrik.hlobil@googlemail.com
 License: UNKNOWN
 Description: # Pandas Bokeh
         
-        **Pandas Bokeh** provides a [Bokeh](https://bokeh.pydata.org/en/latest/) plotting backend for [Pandas](https://pandas.pydata.org/), similar to the already existing [Visualization](https://pandas.pydata.org/pandas-docs/stable/visualization.html) feature of Pandas. Importing the library adds a complementary plotting method ***plot_bokeh()*** on **DataFrames** and **Series** (and also on **GeoDataFrames**).
+        **Pandas Bokeh** provides a [Bokeh](https://bokeh.pydata.org/en/latest/) plotting backend for [Pandas](https://pandas.pydata.org/) and [GeoPandas](http://geopandas.org/), similar to the already existing [Visualization](https://pandas.pydata.org/pandas-docs/stable/visualization.html) feature of Pandas. Importing the library adds a complementary plotting method ***plot_bokeh()*** on **DataFrames** and **Series** (and also on **GeoDataFrames**).
         
         For more information and examples have a look at the [Github Repository](https://github.com/PatrikHlobil/Pandas-Bokeh).
         

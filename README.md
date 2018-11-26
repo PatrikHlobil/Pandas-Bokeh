@@ -95,6 +95,7 @@ There are various optional parameters to tune the plots, for example:
 * **xlabel**/**ylabel**: Set x- and y-labels
 * **logx**/**logy**: Set log-scale on x-/y-axis
 * **xticks**/**yticks**: Explicitly set the ticks on the axes
+* **color**: Defines a single color for a plot.
 * **colormap**: Defines the colors to plot. Can be either a list of colors or the name of a [Bokeh color palette](https://bokeh.pydata.org/en/latest/docs/reference/palettes.html)
 * **hovertool**: If True a Hovertool is active, else if False no Hovertool is drawn.
 
