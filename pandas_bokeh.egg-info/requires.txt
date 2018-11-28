@@ -1,1 +1,2 @@
 bokeh
+pandas

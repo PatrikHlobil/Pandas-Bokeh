@@ -52,16 +52,16 @@ Plots like scatterplot or histogram also have many more additional customization
 """
 
 setuptools.setup(
-    name="pandas_bokeh",
-    version="0.0.1",
+    name="pandas-bokeh",
+    version="0.0.2",
     author="Patrik Hlobil",
     author_email="patrik.hlobil@googlemail.com",
-    description="Bokeh plotting backend for pandas.DataFrame.plot functionality",
+    description="Bokeh plotting backend for Pandas.DataFrames",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/PatrikHlobil/Pandas-Bokeh",
     packages=setuptools.find_packages(),
-    install_requires=["bokeh"],
+    install_requires=["bokeh", "pandas"],
     classifiers=[
         'Programming Language :: Python :: 2.7',
         "Programming Language :: Python :: 3",

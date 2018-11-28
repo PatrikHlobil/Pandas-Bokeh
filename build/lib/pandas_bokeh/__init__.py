@@ -8,24 +8,27 @@ from bokeh.layouts import column, row, layout
 
 import warnings
 
-__version__ = "0.0.1"
+__version__ = "0.0.02"
 
-#Define Bokeh-plot method for Pandas DataFrame and Series:
+# Define Bokeh-plot method for Pandas DataFrame and Series:
 try:
     import pandas as pd
+
     pd.DataFrame.plot_bokeh = plot
     pd.Series.plot_bokeh = plot
 except Exception as e:
-    warnings.warn("Could not define plot method for Pandas DataFrame and Series. Please make sure that Pandas is installed if you wish to use Bokeh as plotting backend for Pandas.",
-                  Warning)
+    warnings.warn(
+        "Could not define plot method for Pandas DataFrame and Series. Please make sure that Pandas is installed if you wish to use Bokeh as plotting backend for Pandas.",
+        Warning,
+    )
 
 
-#Define Bokeh-plot method for GeoPandas and Series:
+# Define Bokeh-plot method for GeoPandas and Series:
 try:
     import geopandas as gpd
+
     gpd.GeoDataFrame.plot_bokeh = geoplot
     gpd.GeoSeries.plot_bokeh = geoplot
 except:
     pass
-
 

@@ -1,4 +1,5 @@
 README.md
+setup.cfg
 setup.py
 pandas_bokeh/__init__.py
 pandas_bokeh/base.py

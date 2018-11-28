@@ -5,9 +5,15 @@ from bokeh.plotting import figure, show
 import bokeh.plotting
 import pandas as pd
 import numpy as np
-from bokeh.models import (HoverTool, ColumnDataSource, DatetimeTickFormatter,
-                          LinearColorMapper, LogColorMapper, 
-                          CategoricalColorMapper, ColorBar)
+from bokeh.models import (
+    HoverTool,
+    ColumnDataSource,
+    DatetimeTickFormatter,
+    LinearColorMapper,
+    LogColorMapper,
+    CategoricalColorMapper,
+    ColorBar,
+)
 from bokeh.models.tickers import FixedTicker, AdaptiveTicker
 from bokeh.palettes import all_palettes, Inferno256
 from bokeh.layouts import gridplot
@@ -19,26 +25,6 @@ import datetime
 import numbers
 import warnings
 
-
-# TODO: Proper implementation of "check_type" function
-# TODO: Histogram standard only on y-axis (don't consider x-axis, but only look at the columns provided by y)
-# TODO: Better check for categorical (e.g. multiindex problem etc.)
-# TODO: For Histogram, when creating figure, do not give x_range parameters
-# TODO: Category and colormap for scatterplot
-# TODO: Datetime and Categorical Indices for Barplot (do not convert datetime to string!)
-# TODO: Stacked barplots
-# TODO: Horizontal barplots
-# TODO: Horizontal/Vertical Boxplots
-# TODO: Area Plots
-# TODO: Pieplot
-# TODO: For Scatterplot, also enable histograms at the side (see https://github.com/bokeh/bokeh/blob/master/examples/app/selection_histogram.py, https://demo.bokehplots.com/apps/selection_histogram)
-# TODO: reset-button
-# TODO: Filter options
-# TODO: Categorical line plot (or just setting index = range(N)?)
-# TODO: Barplot --> Datetime Formatting?, delete "category" variable?
-# TODO: panning/zooming parameters implementation
-# TODO: x_axis_format, y_axis_format implementation
-# TODO: export = "bla.png" oder "bla.svg"
 
 def plot_grid(children, show_plot=True, return_html=False, **kwargs):
     """Create a grid of plots rendered on separate canvases and shows the layout. 
@@ -127,28 +113,33 @@ def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
     ----------------------------------------------------------------
     None"""
     bokeh.plotting.reset_output()
-    bokeh.plotting.output_file(
-        filename, title=title, mode=mode, root_dir=root_dir)
+    bokeh.plotting.output_file(filename, title=title, mode=mode, root_dir=root_dir)
 
 
-def embedded_html(fig): 
+def embedded_html(fig):
     """Returns an html string that contains all neccessary CSS&JS files, 
     together with the div containing the Bokeh plot. As input, a figure fig
     is expected."""
 
-    #Pack CDN resources:
+    # Pack CDN resources:
     html_embedded = ""
     for css in CDN.css_files:
-        html_embedded += """<link
+        html_embedded += (
+            """<link
         href="%s"
         rel="stylesheet" type="text/css">
-    """%css
-        
-    for js in CDN.js_files:
-        html_embedded += """<script src="%s"></script>
-    """%js
+    """
+            % css
+        )
 
-    #Add plot script and div
+    for js in CDN.js_files:
+        html_embedded += (
+            """<script src="%s"></script>
+    """
+            % js
+        )
+
+    # Add plot script and div
     script, div = components(fig)
     html_embedded += "\n\n" + script + "\n\n" + div
 
@@ -160,9 +151,7 @@ def check_type(data):
 
     if isinstance(data[0], numbers.Number):
         return "numeric"
-    elif isinstance(
-        data[0], (np.datetime64, datetime.datetime, datetime.date)
-    ):
+    elif isinstance(data[0], (np.datetime64, datetime.datetime, datetime.date)):
         return "datetime"
     else:
         return "object"
@@ -192,20 +181,26 @@ def get_colormap(colormap, N_cols):
                 colormap = colormap * int(N_cols / len(colormap) + 1)
                 colormap = colormap[:N_cols]
         else:
-            raise ValueError("Could not find <colormap> with name %s. The following predefined colormaps are supported (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): %s"%(colormap, list(all_palettes.keys())))
+            raise ValueError(
+                "Could not find <colormap> with name %s. The following predefined colormaps are supported (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): %s"
+                % (colormap, list(all_palettes.keys()))
+            )
     elif isinstance(colormap, (list, tuple)):
         colormap = colormap * int(N_cols / len(colormap) + 1)
         colormap = colormap[:N_cols]
     else:
-        raise ValueError("<colormap> can onyl be None, a name of a colorpalette as string( see https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ) or a list/tuple of colors.")
+        raise ValueError(
+            "<colormap> can onyl be None, a name of a colorpalette as string( see https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ) or a list/tuple of colors."
+        )
 
     return colormap
+
 
 def plot(
     df_in,
     x=None,
     y=None,
-    kind="line",  # TODO:
+    kind="line",  
     figsize=None,
     use_index=True,
     title="",
@@ -222,7 +217,7 @@ def plot(
     fontsize=None,  # TODO:
     color=None,
     colormap=None,
-    category=None,  #TODO
+    category=None,  
     histogram_type="topontop",
     weights=None,
     bins=None,
@@ -238,7 +233,7 @@ def plot(
     toolbar_location=None,
     hovertool=True,
     vertical_xlabel=False,
-    **kwargs  # TODO:
+    **kwargs 
 ):
     # TODO: Make docstring
     """docstring ... todo????"""
@@ -284,7 +279,7 @@ def plot(
         elif len(ylim) != 2:
             raise ValueError("<ylim> must be a list/tuple of form (y_min, y_max).")
         else:
-            figure_options["y_range"] = ylim 
+            figure_options["y_range"] = ylim
 
     if "line_width" not in kwargs:
         kwargs["line_width"] = 2
@@ -364,14 +359,16 @@ def plot(
     for i, col in enumerate(cols):
         if col not in df.columns:
             raise Exception(
-                "Could not find '%s' in the columns of the provided DataFrame/Series. Please provide for the <y> parameter either a column name of the DataFrame/Series or an array of the same length."%col)
+                "Could not find '%s' in the columns of the provided DataFrame/Series. Please provide for the <y> parameter either a column name of the DataFrame/Series or an array of the same length."
+                % col
+            )
         if np.issubdtype(df[col].dtype, np.number):
             data_cols.append(col)
     N_cols = len(data_cols)
     if N_cols == 0:
         raise Exception("No numeric data columns found for plotting.")
 
-    #Delete x column if provided:
+    # Delete x column if provided:
     if delete_in_y != None:
         if delete_in_y in data_cols:
             data_cols.remove(delete_in_y)
@@ -445,11 +442,22 @@ def plot(
             category_values = df[category].values
         elif not isinstance(category, type(None)):
             raise Exception(
-                "<category> parameter has to be either None or the name of a single column of the DataFrame")
+                "<category> parameter has to be either None or the name of a single column of the DataFrame"
+            )
 
-        scatterplot(p, x, y, category, category_values, colormap, hovertool, 
-                    x_axis_type=figure_options["x_axis_type"],
-                    xlabelname=xlabelname, ylabelname=str(y_column), **kwargs)
+        scatterplot(
+            p,
+            x,
+            y,
+            category,
+            category_values,
+            colormap,
+            hovertool,
+            x_axis_type=figure_options["x_axis_type"],
+            xlabelname=xlabelname,
+            ylabelname=str(y_column),
+            **kwargs
+        )
 
     if kind == "bar":
 
@@ -463,7 +471,6 @@ def plot(
         del figure_options["x_axis_type"]
         p = figure(**figure_options)
         figure_options["x_axis_type"] = None
-        
 
         if N_cols >= 3:
             base_width = 0.5
@@ -504,20 +511,21 @@ def plot(
 
     if kind == "hist":
 
-        if len(data_cols) == 1 and  xlabel == None:
+        if len(data_cols) == 1 and xlabel == None:
             p.xaxis.axis_label = data_cols[0]
 
-        # If Histogram should be plotted, calculate bins, aggregates and 
+        # If Histogram should be plotted, calculate bins, aggregates and
         # averages:
         if isinstance(bins, type(None)):
-            values= df[data_cols].values
+            values = df[data_cols].values
             values = values[~np.isnan(values)]
             data, bins = np.histogram(values)
 
         if not isinstance(weights, type(None)):
             if weights not in df.columns:
                 raise ValueError(
-                    "Columns '%s' for <weights> is not in provided DataFrame.")
+                    "Columns '%s' for <weights> is not in provided DataFrame."
+                )
             else:
                 weights = df[weights].values
 
@@ -526,27 +534,32 @@ def plot(
         for col in data_cols:
             values = df[col].values
             if not isinstance(weights, type(None)):
-                not_nan = ~(np.isnan(values)|np.isnan(weights))
+                not_nan = ~(np.isnan(values) | np.isnan(weights))
                 values_not_nan = values[not_nan]
                 weights_not_nan = weights[not_nan]
                 if sum(not_nan) < len(not_nan):
-                    warnings.warn("There are NaN values in column '%s' or in the <weights> column. For the histogram, these rows have been neglected."%col,
-                                  Warning)
+                    warnings.warn(
+                        "There are NaN values in column '%s' or in the <weights> column. For the histogram, these rows have been neglected."
+                        % col,
+                        Warning,
+                    )
             else:
                 not_nan = ~np.isnan(values)
                 values_not_nan = values[not_nan]
                 weights_not_nan = None
                 if sum(not_nan) < len(not_nan):
-                    warnings.warn("There are NaN values in column '%s'. For the histogram, these rows have been neglected."%col,
-                                  Warning)
-
-            
+                    warnings.warn(
+                        "There are NaN values in column '%s'. For the histogram, these rows have been neglected."
+                        % col,
+                        Warning,
+                    )
 
             average = np.average(values_not_nan, weights=weights_not_nan)
             averages.append(average)
 
             data, bins = np.histogram(
-                values_not_nan, bins=bins, weights=weights_not_nan)
+                values_not_nan, bins=bins, weights=weights_not_nan
+            )
             if normed:
                 data = data / np.sum(data) * normed
             if cumulative:
@@ -603,11 +616,11 @@ def plot(
     if show_figure:
         show(p)
 
-    #Return as (embeddable) HTML if wanted:
+    # Return as (embeddable) HTML if wanted:
     if return_html:
         return embedded_html(p)
 
-    #Return plot:
+    # Return plot:
     return p
 
 
@@ -629,7 +642,7 @@ def lineplot(
         marker = kwargs["marker"]
         del kwargs["marker"]
     else:
-        marker="circle"
+        marker = "circle"
 
     # Add line (and optional scatter glyphs) to figure:
     for name, color in zip(data_cols, colormap):
@@ -662,8 +675,10 @@ def lineplot(
                 ]
                 my_hover.formatters = {"x": "datetime"}
             else:
-                my_hover.tooltips = [(xlabelname, "@x"),
-                                     (str(name), "@{%s}" % str(name))]
+                my_hover.tooltips = [
+                    (xlabelname, "@x"),
+                    (str(name), "@{%s}" % str(name)),
+                ]
             p.add_tools(my_hover)
 
     return p
@@ -719,38 +734,51 @@ def pointplot(
                 ]
                 my_hover.formatters = {"x": "datetime"}
             else:
-                my_hover.tooltips = [(xlabelname, "@x"),
-                                     (str(name), "@{%s}" % str(name))]
+                my_hover.tooltips = [
+                    (xlabelname, "@x"),
+                    (str(name), "@{%s}" % str(name)),
+                ]
             p.add_tools(my_hover)
 
     return p
 
 
-def scatterplot(p, x, y, category, category_values, colormap, hovertool, x_axis_type, xlabelname,
-                ylabelname, **kwargs):
+def scatterplot(
+    p,
+    x,
+    y,
+    category,
+    category_values,
+    colormap,
+    hovertool,
+    x_axis_type,
+    xlabelname,
+    ylabelname,
+    **kwargs
+):
     """Adds a scatterplot to figure p for each data_col."""
 
-    #Set standard size and linecolor of markers:
+    # Set standard size and linecolor of markers:
     if "size" not in kwargs:
         kwargs["size"] = 10
     if "line_color" not in kwargs:
         kwargs["line_color"] = "black"
 
-    #Define source:
+    # Define source:
     source = ColumnDataSource({"x": x, "y": y})
 
-    #Define Colormapper for categorical scatterplot:
+    # Define Colormapper for categorical scatterplot:
     if not isinstance(category, type(None)):
 
         category = str(category)
         source.data[category] = category_values
-                
-        #Make numerical categorical scatterplot:
+
+        # Make numerical categorical scatterplot:
         if check_type(category_values) == "numeric":
-            
+
             kwargs["legend"] = category + " "
 
-            #Define colormapper for numerical scatterplot:
+            # Define colormapper for numerical scatterplot:
             if colormap == None:
                 colormap = Inferno256
             elif isinstance(colormap, str):
@@ -759,73 +787,76 @@ def scatterplot(p, x, y, category, category_values, colormap, hovertool, x_axis_
                     max_key = max(colormap.keys())
                     colormap = colormap[max_key]
                 else:
-                    raise ValueError("Could not find <colormap> with name %s. The following predefined colormaps are supported (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): %s"%(colormap, list(all_palettes.keys())))
+                    raise ValueError(
+                        "Could not find <colormap> with name %s. The following predefined colormaps are supported (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): %s"
+                        % (colormap, list(all_palettes.keys()))
+                    )
             elif isinstance(colormap, (list, tuple)):
                 pass
             else:
-                raise ValueError("<colormap> can onyl be None, a name of a colorpalette as string( see https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ) or a list/tuple of colors.")
+                raise ValueError(
+                    "<colormap> can onyl be None, a name of a colorpalette as string( see https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ) or a list/tuple of colors."
+                )
 
             colormapper = LinearColorMapper(palette=colormap)
 
-            #Set fill-color to colormapper:
-            kwargs["fill_color"] = {'field': category,
-                                'transform': colormapper}
+            # Set fill-color to colormapper:
+            kwargs["fill_color"] = {"field": category, "transform": colormapper}
 
-            #Define Colorbar:
-            colorbar_options = {"color_mapper": colormapper,
-                                "label_standoff": 0,
-                                "border_line_color": None,
-                                "location": (0,0)}
+            # Define Colorbar:
+            colorbar_options = {
+                "color_mapper": colormapper,
+                "label_standoff": 0,
+                "border_line_color": None,
+                "location": (0, 0),
+            }
             colorbar = ColorBar(**colorbar_options)
             p.add_layout(colorbar, "right")
 
-            #Draw glyph:
+            # Draw glyph:
             glyph = p.scatter(x="x", y="y", source=source, **kwargs)
 
-            #Add Hovertool
+            # Add Hovertool
             if hovertool:
                 my_hover = HoverTool(renderers=[glyph])
                 if x_axis_type == "datetime":
-                    my_hover.tooltips = [
-                        (xlabelname, "@x{%F}"),
-                        (ylabelname, "@y"),
-                    ]
+                    my_hover.tooltips = [(xlabelname, "@x{%F}"), (ylabelname, "@y")]
                     my_hover.formatters = {"x": "datetime"}
                 else:
                     my_hover.tooltips = [(xlabelname, "@x"), (ylabelname, "@y")]
-                my_hover.tooltips.append((str(category), "@{%s}"%category))
+                my_hover.tooltips.append((str(category), "@{%s}" % category))
                 p.add_tools(my_hover)
 
-
-        #Make categorical scatterplot:
+        # Make categorical scatterplot:
         elif check_type(category_values) == "object":
 
-            #Define colormapper for categorical scatterplot:
+            # Define colormapper for categorical scatterplot:
             labels, categories = pd.factorize(category_values)
             colormap = get_colormap(colormap, len(categories))
 
-            #Draw each category as separate glyph:
+            # Draw each category as separate glyph:
             x, y = source.data["x"], source.data["y"]
             for cat, color in zip(categories, colormap):
-                x_cat = x[category_values==cat]
-                y_cat = y[category_values==cat]
-                cat_cat = category_values[category_values==cat]
-                source = ColumnDataSource({"x": x_cat,
-                                           "y": y_cat,
-                                           "category": cat_cat})
+                x_cat = x[category_values == cat]
+                y_cat = y[category_values == cat]
+                cat_cat = category_values[category_values == cat]
+                source = ColumnDataSource({"x": x_cat, "y": y_cat, "category": cat_cat})
 
-                #Draw glyph:
-                glyph = p.scatter(x="x", y="y", legend=str(cat)+" ",
-                                  source=source, color=color, **kwargs)
-            
-                #Add Hovertool
+                # Draw glyph:
+                glyph = p.scatter(
+                    x="x",
+                    y="y",
+                    legend=str(cat) + " ",
+                    source=source,
+                    color=color,
+                    **kwargs
+                )
+
+                # Add Hovertool
                 if hovertool:
                     my_hover = HoverTool(renderers=[glyph])
                     if x_axis_type == "datetime":
-                        my_hover.tooltips = [
-                            (xlabelname, "@x{%F}"),
-                            (ylabelname, "@y"),
-                        ]
+                        my_hover.tooltips = [(xlabelname, "@x{%F}"), (ylabelname, "@y")]
                         my_hover.formatters = {"x": "datetime"}
                     else:
                         my_hover.tooltips = [(xlabelname, "@x"), (ylabelname, "@y")]
@@ -833,32 +864,29 @@ def scatterplot(p, x, y, category, category_values, colormap, hovertool, x_axis_
                     p.add_tools(my_hover)
 
             if len(categories) > 5:
-                warnings.warn("There are more than 5 categories in the scatterplot. The legend might be crowded, to hide the axis you can pass 'legend=False' as an optional argument.")
+                warnings.warn(
+                    "There are more than 5 categories in the scatterplot. The legend might be crowded, to hide the axis you can pass 'legend=False' as an optional argument."
+                )
 
-        
         else:
-            raise ValueError("<category> is not supported with datetime objects. Consider casting the datetime objects to strings, which can be used as <category> values.")
+            raise ValueError(
+                "<category> is not supported with datetime objects. Consider casting the datetime objects to strings, which can be used as <category> values."
+            )
 
-        
-
-    #Draw non categorical plot:
+    # Draw non categorical plot:
     else:
-        #Draw glyph:
+        # Draw glyph:
         glyph = p.scatter(x="x", y="y", source=source, **kwargs)
 
-        #Add Hovertool:
+        # Add Hovertool:
         if hovertool:
             my_hover = HoverTool(renderers=[glyph])
             if x_axis_type == "datetime":
-                my_hover.tooltips = [
-                    (xlabelname, "@x{%F}"),
-                    (ylabelname, "@y"),
-                ]
+                my_hover.tooltips = [(xlabelname, "@x{%F}"), (ylabelname, "@y")]
                 my_hover.formatters = {"x": "datetime"}
             else:
                 my_hover.tooltips = [(xlabelname, "@x"), (ylabelname, "@y")]
             p.add_tools(my_hover)
-
 
     return p
 
@@ -888,18 +916,17 @@ def histogram(
 
         if histogram_type not in ["sidebyside", "topontop", "stacked"]:
             raise ValueError(
-                '<histogram_type> can only be one of ["sidebyside", "topontop", "stacked"].')
+                '<histogram_type> can only be one of ["sidebyside", "topontop", "stacked"].'
+            )
 
         # Get bar edges to plot for side-by-side display
         if histogram_type == "sidebyside":
             left = [
-                bins[index] + float(i) / N_cols *
-                (bins[index + 1] - bins[index])
+                bins[index] + float(i) / N_cols * (bins[index + 1] - bins[index])
                 for index in range(len(bins) - 1)
             ]
             right = [
-                bins[index] + float(i + 1) / N_cols *
-                (bins[index + 1] - bins[index])
+                bins[index] + float(i + 1) / N_cols * (bins[index + 1] - bins[index])
                 for index in range(len(bins) - 1)
             ]
             bottom = [0] * len(left)
@@ -954,8 +981,7 @@ def histogram(
         if hovertool:
             my_hover = HoverTool(mode="vline", renderers=[g1])
             my_hover.tooltips = (
-                """<h3> %s: </h3> <h4>bin=@bins</h4> <h4>value=@top </h4>""" % (
-                    name)
+                """<h3> %s: </h3> <h4>bin=@bins</h4> <h4>value=@top </h4>""" % (name)
             )
             p.add_tools(my_hover)
 

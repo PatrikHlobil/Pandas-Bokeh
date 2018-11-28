@@ -1,7 +1,7 @@
 Metadata-Version: 2.1
 Name: pandas-bokeh
-Version: 0.0.1
-Summary: Bokeh plotting backend for pandas.DataFrame.plot functionality
+Version: 0.0.2
+Summary: Bokeh plotting backend for Pandas.DataFrames
 Home-page: https://github.com/PatrikHlobil/Pandas-Bokeh
 Author: Patrik Hlobil
 Author-email: patrik.hlobil@googlemail.com
