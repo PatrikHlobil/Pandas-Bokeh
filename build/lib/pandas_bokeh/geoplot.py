@@ -1,5 +1,5 @@
 import numbers
-from collections import OrderedDict, Iterable
+from collections import OrderedDict, Iterable, Hashable
 
 import numpy as np
 from bokeh.plotting import figure, show, output_file, output_notebook
@@ -99,11 +99,12 @@ def geoplot(
     simplify_shapes=None,
     tile_provider="CARTODBPOSITRON_RETINA",
     tile_provider_url=None,
-    toolbar_location=None,
+    toolbar_location="right",
     show_figure=True,
     return_figure=True,
     return_html=False,
     legend=True,
+    webgl=True,
     **kwargs
 ):
     """Doc-String: TODO"""
@@ -138,6 +139,8 @@ def geoplot(
         width, height = figsize
         figure_options["plot_width"] = width
         figure_options["plot_height"] = height
+    if webgl:
+        figure_options["output_backend"] = "webgl"
 
     if not isinstance(fig, type(None)):
         raise NotImplementedError("Parameter <figure> not yet implemented.")
@@ -270,8 +273,6 @@ def geoplot(
             )
 
     # Create Figure to draw:
-    if "Point" in layertypes or "Line" in layertypes:
-        figure_options["output_backend"] = "webgl"
     p = figure(x_axis_type="mercator", y_axis_type="mercator", **figure_options)
 
     # Get ridd of zoom on axes:
@@ -285,7 +286,10 @@ def geoplot(
     # Hide legend if wanted:
     if not legend:
         p.legend.visible = False
-    legend = "GeoLayer"
+    elif isinstance(legend, str):
+        pass
+    else:
+        legend = "GeoLayer"
 
     # Define colormapper:
     if len(colormap) == 1:
@@ -317,7 +321,8 @@ def geoplot(
         else:
             colormapper = LinearColorMapper(**colormapper_options)
         kwargs["fill_color"] = {"field": "Colormap", "transform": colormapper}
-        legend = str(field)
+        if not isinstance(legend, str):
+            legend = str(field)
 
     elif not isinstance(dropdown, type(None)):
         # Check if all columns in dropdown selection are numerical:
@@ -346,7 +351,8 @@ def geoplot(
         else:
             colormapper = LinearColorMapper(**colormapper_options)
         kwargs["fill_color"] = {"field": "Colormap", "transform": colormapper}
-        legend = "Geolayer"  ##str(field)
+        if not isinstance(legend, str):
+            legend = "Geolayer"
 
     elif not isinstance(slider, type(None)):
         # Check if all columns in dropdown selection are numerical:
@@ -375,7 +381,8 @@ def geoplot(
         else:
             colormapper = LinearColorMapper(**colormapper_options)
         kwargs["fill_color"] = {"field": "Colormap", "transform": colormapper}
-        legend = "Geolayer"  ##str(field)
+        if not isinstance(legend, str):
+            legend = "Geolayer"
 
     # Check for Hovertool columns:
     if hovertool:
@@ -411,12 +418,18 @@ def geoplot(
             hovertool_columns = [category]
 
     # Reduce DataFrame to needed columns:
+    additional_columns = []
+    for kwarg, value in kwargs.items():
+        if isinstance(value, Hashable):
+            if value in gdf.columns:
+                additional_columns.append(value)
     if category_options == 0:
-        gdf = gdf[hovertool_columns + ["geometry"]]
+        gdf = gdf[list(set(hovertool_columns) | set(additional_columns)) + ["geometry"]]
     else:
-        gdf = gdf[list(set(hovertool_columns) | set(category_columns)) + ["geometry"]]
+        gdf = gdf[list(set(hovertool_columns) | set(category_columns) | set(additional_columns)) + ["geometry"]]
         gdf["Colormap"] = gdf[field]
         field = "Colormap"
+
 
     # Create GeoJSON DataSource for Plot:
     geo_source = GeoJSONDataSource(geojson=gdf.to_json())
@@ -431,6 +444,7 @@ def geoplot(
     if "Line" in layertypes:
         if "line_color" not in kwargs:
             kwargs["line_color"] = kwargs["fill_color"]
+            del kwargs["fill_color"]
         p.multi_line(xs="xs", ys="ys", source=geo_source, legend=legend, **kwargs)
 
     if "Polygon" in layertypes:

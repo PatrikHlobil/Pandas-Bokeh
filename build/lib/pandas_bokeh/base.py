@@ -230,9 +230,10 @@ def plot(
     return_html=False,
     panning=True,
     zooming=True,
-    toolbar_location=None,
+    toolbar_location="right",
     hovertool=True,
     vertical_xlabel=False,
+    webgl=True,
     **kwargs 
 ):
     # TODO: Make docstring
@@ -280,6 +281,8 @@ def plot(
             raise ValueError("<ylim> must be a list/tuple of form (y_min, y_max).")
         else:
             figure_options["y_range"] = ylim
+    if webgl:
+        figure_options["output_backend"] = "webgl"
 
     if "line_width" not in kwargs:
         kwargs["line_width"] = 2

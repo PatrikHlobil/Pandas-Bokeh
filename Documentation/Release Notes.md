@@ -1,6 +1,6 @@
 # Release Notes
 
-# 0.0.1
+## 0.0.1
 
 In this early version, the following plot types are supported:
 
@@ -25,7 +25,12 @@ In the near future many more will be implemented as horizontal barplot, boxplots
 
 Plots like scatterplot or histogram also have many more additional customization options.
 
+## 0.0.2:
+
+Changes:
+
+* Fixed Error when importing **Pandas Bokeh** in Python 2.7 
+* Small refactoring and *Black* code formatting
+
 ## 0.1
 
-  * Fixed Error when importing **Pandas Bokeh** in Python 2.7 
-  * 
