@@ -7,3 +7,4 @@ build/
 *.code-workspace
 .vscode/
 .ipynb_checkpoints/
+Tests/

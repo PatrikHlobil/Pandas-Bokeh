@@ -35,5 +35,8 @@ Changes:
 ## 0.1
 
 * Added <tile_attribution> parameter for background tiles of geoplots
-* 
+* WebGL now as plotting backend as default (plots and geoplots)
+* Code Refactoring
+* Toolbar now visible per default
+* Kwargs names are checked in columns of (Geo)DataFrame and kept if there is a match
 

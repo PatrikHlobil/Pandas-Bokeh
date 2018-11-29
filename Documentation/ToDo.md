@@ -4,16 +4,18 @@
  
 - Add WebGL plotting backend as default (plots and geoplots) ✓
 - Integrate **check_type** function in all places --> Better check for categorical (e.g. multiindex problem --> raise Exception when x-axis is a multiindex)
-- Replace isinstance(???, None)
+- Replace isinstance(???, None) ✓
+- Smarter setting of xticks (do not use all x-values if length of dataframe is too large)
+- Legend for barplots
 - Histogram standard only on y-axis (don't consider x-axis, but only look at the columns provided by y)
 - For Histogram, when creating figure, do not give x_range parameters 
-- Proper String conversion for barplot with datetimes (look is ms exist, s/m/h exist, ...) --> delete "category" variable?
+- Proper String conversion for barplot with datetimes (look if ms exist, s/m/h exist, ...) --> delete "category" variable?
 - Stacked barplots
 - Horizontal barplots
 - Horizontal/Vertical Boxplots
 - Area Plots
 - Pieplot
-- Show toolbar as standard option (alternatively define a reset button) ✓
+- Show toolbar as standard option ✓
 - Categorical line  & point plot (set x = range(N) and define mapping from integers to categorical string representations)
 - panning/zooming=True/False parameters implementation
 - export_options = "bla.png" oder "bla.svg"
@@ -21,7 +23,7 @@
 - Implement xrange, yrange for Geoplots
 - Docstring Documentation
 - Also keep kwarg columns, if they are in geodataframe (then it is possible to use e.g. column values for the width or alpha value of lines ...) for geoplots ✓
-- Added <tile_attribution> parameter for background tiles of geoplots ✓
+- Add<tile_attribution> parameter for background tiles of geoplots ✓
 
 
 ## Release 0.2:

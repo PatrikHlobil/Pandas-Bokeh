@@ -15,7 +15,7 @@ For more information have a look at the [Examples](#Examples) below or at  noteb
 
 ## Installation
 
-You can install **Pandas Bokeh** from [PyPI](TODO) via *pip*:
+You can install **Pandas Bokeh** from [PyPI](https://pypi.org/project/pandas-bokeh/) via *pip*:
 
     pip install pandas-bokeh
 
