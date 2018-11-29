@@ -162,7 +162,7 @@ def get_colormap(colormap, N_cols):
     """Returns a colormap with <N_cols> colors. <colormap> can be either None,
     a string with the name of a Bokeh color palette or a list/tuple of colors."""
 
-    if colormap == None:
+    if colormap is None:
         if N_cols <= 10:
             colormap = all_palettes["Category10"][10][:N_cols]
         elif N_cols <= 20:
@@ -255,7 +255,7 @@ def plot(
         "output_backend": "webgl",
     }
 
-    if figsize != None:
+    if not figsize is None:
         width, height = figsize
         figure_options["plot_width"] = width
         figure_options["plot_height"] = height
@@ -263,18 +263,18 @@ def plot(
         figure_options["x_axis_type"] = "log"
     if logy:
         figure_options["y_axis_type"] = "log"
-    if xlabel != None:
+    if not xlabel is None:
         figure_options["x_axis_label"] = xlabel
-    if ylabel != None:
+    if not ylabel is None:
         figure_options["y_axis_label"] = ylabel
-    if xlim != None:
+    if not xlim is None:
         if not isinstance(xlim, (tuple, list)):
             raise ValueError("<xlim> must be a list/tuple of form (x_min, x_max).")
         elif len(xlim) != 2:
             raise ValueError("<xlim> must be a list/tuple of form (x_min, x_max).")
         else:
             figure_options["x_range"] = xlim
-    if ylim != None:
+    if not ylim is None:
         if not isinstance(ylim, (tuple, list)):
             raise ValueError("<ylim> must be a list/tuple of form (y_min, y_max).")
         elif len(ylim) != 2:
@@ -289,7 +289,7 @@ def plot(
 
     # Get x-axis Name and Values:
     delete_in_y = None
-    if x != None:
+    if not x is None:
         if x in df.columns:
             delete_in_y = x
             name = str(x)
@@ -309,7 +309,7 @@ def plot(
     else:
         if use_index:
             x = df.index.values
-            if df.index.name != None:
+            if not df.index.name is None:
                 name = str(df.index.name)
             else:
                 name = ""
@@ -317,14 +317,14 @@ def plot(
             x = np.linspace(0, len(df) - 1, len(df))
             name = ""
 
-    if "x_axis_label" not in figure_options and name != None:
+    if "x_axis_label" not in figure_options and not name is None:
         figure_options["x_axis_label"] = name
 
     # Check type of x-axis:
     if check_type(x) == "datetime":
         figure_options["x_axis_type"] = "datetime"
         xaxis_type = "datetime"
-        if xlim != None:
+        if not xlim is None:
             starttime, endtime = xlim
             try:
                 starttime = pd.to_datetime(starttime)
@@ -352,7 +352,7 @@ def plot(
             del figure_options["x_axis_type"]
 
     # Determine data cols to plot (only plot numeric data):
-    if y == None:
+    if y is None:
         cols = df.columns
     elif not isinstance(y, (list, tuple)):
         cols = [y]
@@ -372,7 +372,7 @@ def plot(
         raise Exception("No numeric data columns found for plotting.")
 
     # Delete x column if provided:
-    if delete_in_y != None:
+    if not delete_in_y is None:
         if delete_in_y in data_cols:
             data_cols.remove(delete_in_y)
 
@@ -395,7 +395,7 @@ def plot(
     if kind != "scatter":
         colormap = get_colormap(colormap, N_cols)
 
-    if color != None:
+    if not color is None:
         colormap = get_colormap([color], N_cols)
 
     # Add Glyphs to Plot:
@@ -443,7 +443,7 @@ def plot(
         category_values = None
         if category in df.columns:
             category_values = df[category].values
-        elif not isinstance(category, type(None)):
+        elif not category is None:
             raise Exception(
                 "<category> parameter has to be either None or the name of a single column of the DataFrame"
             )
@@ -514,17 +514,17 @@ def plot(
 
     if kind == "hist":
 
-        if len(data_cols) == 1 and xlabel == None:
+        if len(data_cols) == 1 and xlabel is None:
             p.xaxis.axis_label = data_cols[0]
 
         # If Histogram should be plotted, calculate bins, aggregates and
         # averages:
-        if isinstance(bins, type(None)):
+        if bins is None:
             values = df[data_cols].values
             values = values[~np.isnan(values)]
             data, bins = np.histogram(values)
 
-        if not isinstance(weights, type(None)):
+        if not weights is None:
             if weights not in df.columns:
                 raise ValueError(
                     "Columns '%s' for <weights> is not in provided DataFrame."
@@ -536,7 +536,7 @@ def plot(
         averages = []
         for col in data_cols:
             values = df[col].values
-            if not isinstance(weights, type(None)):
+            if not weights is None:
                 not_nan = ~(np.isnan(values) | np.isnan(weights))
                 values_not_nan = values[not_nan]
                 weights_not_nan = weights[not_nan]
@@ -585,11 +585,11 @@ def plot(
         )
 
     # Set xticks:
-    if not isinstance(xticks, type(None)):
+    if not xticks is None:
         p.xaxis[0].ticker = list(xticks)
     elif xaxis_type == "numerical" and kind not in ["hist", "scatter"]:
         p.xaxis.ticker = x
-    if not isinstance(yticks, type(None)):
+    if not yticks is None:
         p.yaxis.ticker = yticks
 
     # Format datetime ticks correctly:
@@ -771,7 +771,7 @@ def scatterplot(
     source = ColumnDataSource({"x": x, "y": y})
 
     # Define Colormapper for categorical scatterplot:
-    if not isinstance(category, type(None)):
+    if not category is None:
 
         category = str(category)
         source.data[category] = category_values
@@ -948,7 +948,7 @@ def histogram(
         elif histogram_type == "stacked":
             left = bins[:-1]
             right = bins[1:]
-            if isinstance(bottom, type(None)):
+            if bottom is None:
                 bottom = [0] * len(left)
                 top = [0] * len(left)
             else:

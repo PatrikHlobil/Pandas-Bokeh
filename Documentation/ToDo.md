@@ -21,6 +21,7 @@
 - Implement xrange, yrange for Geoplots
 - Docstring Documentation
 - Also keep kwarg columns, if they are in geodataframe (then it is possible to use e.g. column values for the width or alpha value of lines ...) for geoplots ✓
+- Added <tile_attribution> parameter for background tiles of geoplots ✓
 
 
 ## Release 0.2:

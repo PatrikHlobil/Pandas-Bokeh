@@ -5,3 +5,5 @@ old_dist/
 build/
 *.egg-info/
 *.code-workspace
+.vscode/
+.ipynb_checkpoints/

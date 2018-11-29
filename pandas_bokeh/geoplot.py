@@ -27,7 +27,7 @@ from .base import embedded_html
 blue_colormap = [RGB(255 - i, 255 - i, 255) for i in range(256)]
 
 
-def _add_backgroundtile(p, tile_provider, tile_provider_url):
+def _add_backgroundtile(p, tile_provider, tile_provider_url, tile_attribution):
     """Add a background tile to the plot. Either uses predefined Tiles from Bokeh 
     (parameter: tile_provider) or user passed a tile_provider_url of the form 
     '<url>/{Z}/{X}/{Y}*.png'."""
@@ -53,14 +53,16 @@ def _add_backgroundtile(p, tile_provider, tile_provider_url):
         "STAMEN_TONER_LABELS": STAMEN_TONER_LABELS,
     }
 
-    if not isinstance(tile_provider_url, type(None)):
+    if not tile_provider_url is None:
         if "/{Z}/{X}/{Y}" not in tile_provider_url:
             raise ValueError(
                 "<tile_provider_url> has to be of the form '<url>/{Z}/{X}/{Y}*.png'."
             )
-        p.add_tile(WMTSTileSource(url=tile_provider_url))
+        if not isinstance(tile_attribution, str):
+            raise ValueError("<tile_attribution> has to be a string.")
+        p.add_tile(WMTSTileSource(url=tile_provider_url, attribution=tile_attribution))
 
-    elif not isinstance(tile_provider, type(None)):
+    elif not tile_provider is None:
         if not isinstance(tile_provider, str):
             raise ValueError(
                 "<tile_provider> only accepts the values: %s" % tile_dict.keys()
@@ -99,6 +101,7 @@ def geoplot(
     simplify_shapes=None,
     tile_provider="CARTODBPOSITRON_RETINA",
     tile_provider_url=None,
+    tile_attribution="",
     toolbar_location="right",
     show_figure=True,
     return_figure=True,
@@ -135,14 +138,14 @@ def geoplot(
         "toolbar_location": toolbar_location,
         "active_scroll": "wheel_zoom",
     }
-    if not isinstance(figsize, type(None)):
+    if not figsize is None:
         width, height = figsize
         figure_options["plot_width"] = width
         figure_options["plot_height"] = height
     if webgl:
         figure_options["output_backend"] = "webgl"
 
-    if not isinstance(fig, type(None)):
+    if not fig is None:
         raise NotImplementedError("Parameter <figure> not yet implemented.")
 
     # Convert GeoDataFrame to Web Mercador Projection:
@@ -152,18 +155,18 @@ def geoplot(
     if isinstance(simplify_shapes, numbers.Number):
         if layertypes[0] in ["Line", "Polygon"]:
             gdf["geometry"] = gdf["geometry"].simplify(simplify_shapes)
-    elif not isinstance(simplify_shapes, type(None)):
+    elif not simplify_shapes is None:
         raise ValueError("<simplify_shapes> parameter only accepts numbers or None.")
 
     # Check for category, dropdown or slider (choropleth map column):
     category_options = 0
-    if not isinstance(category, type(None)):
+    if not category is None:
         category_options += 1
         category_columns = [category]
-    if not isinstance(dropdown, type(None)):
+    if not dropdown is None:
         category_options += 1
         category_columns = dropdown
-    if not isinstance(slider, type(None)):
+    if not slider is None:
         category_options += 1
         category_columns = slider
     if category_options > 1:
@@ -172,7 +175,7 @@ def geoplot(
         )
 
     # Check for category (single choropleth plot):
-    if isinstance(category, type(None)):
+    if category is None:
         pass
     elif isinstance(category, (list, tuple)):
         raise ValueError(
@@ -187,7 +190,7 @@ def geoplot(
         )
 
     # Check for dropdown (multiple choropleth plots via dropdown selection):
-    if isinstance(dropdown, type(None)):
+    if dropdown is None:
         pass
     elif not isinstance(dropdown, (list, tuple)):
         raise ValueError(
@@ -201,7 +204,7 @@ def geoplot(
                 )
 
     # Check for slider (multiple choropleth plots via slider selection):
-    if isinstance(slider, type(None)):
+    if slider is None:
         pass
     elif not isinstance(slider, (list, tuple)):
         raise ValueError(
@@ -214,7 +217,7 @@ def geoplot(
                     "Could not find column '%s' for <slider> in GeoDataFrame. " % col
                 )
 
-        if not isinstance(slider_range, type(None)):
+        if not slider_range is None:
             if not isinstance(slider_range, Iterable):
                 raise ValueError(
                     "<slider_range> has to be a type that is iterable like list, tuple, range, ..."
@@ -240,7 +243,7 @@ def geoplot(
 
     # Check colormap if either <category>, <dropdown> or <slider> is choosen:
     if category_options == 1:
-        if isinstance(colormap, type(None)):
+        if colormap is None:
             colormap = blue_colormap
         elif isinstance(colormap, (tuple, list)):
             if len(colormap) > 1:
@@ -281,7 +284,7 @@ def geoplot(
             t.zoom_on_axis = False
 
     # Add Tile Source as Background:
-    p = _add_backgroundtile(p, tile_provider, tile_provider_url)
+    p = _add_backgroundtile(p, tile_provider, tile_provider_url, tile_attribution)
 
     # Hide legend if wanted:
     if not legend:
@@ -295,7 +298,7 @@ def geoplot(
     if len(colormap) == 1:
         kwargs["fill_color"] = colormap[0]
 
-    elif not isinstance(category, type(None)):
+    elif not category is None:
         # Check if category column is numerical:
         if not issubclass(gdf[category].dtype.type, np.number):
             raise NotImplementedError(
@@ -305,7 +308,7 @@ def geoplot(
 
         field = category
         colormapper_options = {"palette": colormap}
-        if not isinstance(colormap_range, type(None)):
+        if not colormap_range is None:
             if not isinstance(colormap_range, (tuple, list)):
                 raise ValueError(
                     "<colormap_range> can only be 'None' or a tuple/list of form (min, max)."
@@ -324,7 +327,7 @@ def geoplot(
         if not isinstance(legend, str):
             legend = str(field)
 
-    elif not isinstance(dropdown, type(None)):
+    elif not dropdown is None:
         # Check if all columns in dropdown selection are numerical:
         for col in dropdown:
             if not issubclass(gdf[col].dtype.type, np.number):
@@ -335,7 +338,7 @@ def geoplot(
 
         field = dropdown[0]
         colormapper_options = {"palette": colormap}
-        if not isinstance(colormap_range, type(None)):
+        if not colormap_range is None:
             if not isinstance(colormap_range, (tuple, list)):
                 raise ValueError(
                     "<colormap_range> can only be 'None' or a tuple/list of form (min, max)."
@@ -354,7 +357,7 @@ def geoplot(
         if not isinstance(legend, str):
             legend = "Geolayer"
 
-    elif not isinstance(slider, type(None)):
+    elif not slider is None:
         # Check if all columns in dropdown selection are numerical:
         for col in slider:
             if not issubclass(gdf[col].dtype.type, np.number):
@@ -365,7 +368,7 @@ def geoplot(
 
         field = slider[0]
         colormapper_options = {"palette": colormap}
-        if not isinstance(colormap_range, type(None)):
+        if not colormap_range is None:
             if not isinstance(colormap_range, (tuple, list)):
                 raise ValueError(
                     "<colormap_range> can only be 'None' or a tuple/list of form (min, max)."
@@ -396,11 +399,11 @@ def geoplot(
                     "<hovertool_columns> has to be a list of columns of the GeoDataFrame or the string 'all'."
                 )
         elif len(hovertool_columns) == 0:
-            if not isinstance(category, type(None)):
+            if not category is None:
                 hovertool_columns = [category]
-            elif not isinstance(dropdown, type(None)):
+            elif not dropdown is None:
                 hovertool_columns = dropdown
-            elif not isinstance(slider, type(None)):
+            elif not slider is None:
                 hovertool_columns = slider
             else:
                 hovertool_columns = []
@@ -412,7 +415,7 @@ def geoplot(
                         % col
                     )
     else:
-        if isinstance(category, type(None)):
+        if category is None:
             hovertool_columns = []
         else:
             hovertool_columns = [category]
@@ -474,7 +477,7 @@ def geoplot(
 
         p.add_layout(colorbar, "right")
 
-    if not isinstance(dropdown, type(None)):
+    if not dropdown is None:
         # Define Dropdown widget:
         dropdown_widget = Dropdown(
             label="Select Choropleth Layer", menu=list(zip(dropdown, dropdown))
@@ -497,7 +500,7 @@ def geoplot(
         # Add Dropdown widget above the plot:
         layout = column(dropdown_widget, p)
 
-    if not isinstance(slider, type(None)):
+    if not slider is None:
 
         if slider_range is None:
             slider_start = 0
@@ -555,7 +558,7 @@ def geoplot(
     p.legend.click_policy = "hide"
 
     # Display plot and if wanted return plot:
-    if isinstance(layout, type(None)):
+    if layout is None:
         layout = p
 
     # Display plot if wanted

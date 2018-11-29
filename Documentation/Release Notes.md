@@ -34,3 +34,6 @@ Changes:
 
 ## 0.1
 
+* Added <tile_attribution> parameter for background tiles of geoplots
+* 
+
