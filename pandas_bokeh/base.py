@@ -655,7 +655,8 @@ def plot(
         p.xaxis.major_label_orientation = np.pi / 2
 
     # Set click policy for legend:
-    p.legend.click_policy = "hide"
+    if not (kind=="area" and stacked):
+        p.legend.click_policy = "hide"
 
     # Hide legend if wanted:
     if not legend:
@@ -1072,11 +1073,15 @@ def areaplot(
         if key == "x":
             source[key] = [source[key][0]] + list(source[key]) + [source[key][-1]]
         else:
-            source[key] = [0] + list(source[key]) + [0]
+            source[key] = np.array([0] + list(source[key]) + [0])
+    N_source = len(source[key])
 
     #Stack data if <stacked>=True:
     if stacked:
-        todo ...
+        baseline = np.zeros(N_source)
+        for col in data_cols:
+            source[col] = baseline + source[col]
+            baseline = source[col]
         if "alpha" not in kwargs:
             kwargs["alpha"] = 1
     elif "alpha" not in kwargs:
@@ -1085,7 +1090,7 @@ def areaplot(
         
 
     # Add line (and optional scatter glyphs) to figure:
-    for name, color in zip(data_cols, colormap):
+    for name, color in list(zip(data_cols, colormap))[::-1]:
         glyph = p.patch(
             x="x",
             y=str(name),
