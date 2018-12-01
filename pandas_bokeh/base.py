@@ -200,12 +200,12 @@ def plot(
     df_in,
     x=None,
     y=None,
-    kind="line",  
+    kind="line",
     figsize=None,
     use_index=True,
     title="",
     grid=None,  # TODO:
-    legend=True,
+    legend="top_right",
     logx=False,
     logy=False,
     xlabel=None,
@@ -217,7 +217,7 @@ def plot(
     fontsize=None,  # TODO:
     color=None,
     colormap=None,
-    category=None,  
+    category=None,
     histogram_type="topontop",
     stacked=False,
     weights=None,
@@ -235,7 +235,7 @@ def plot(
     hovertool=True,
     vertical_xlabel=False,
     webgl=True,
-    **kwargs 
+    **kwargs
 ):
     # TODO: Make docstring
     """Method for creating a interactive with 'Bokeh' as plotting backend. Available
@@ -305,7 +305,7 @@ def plot(
     if webgl:
         figure_options["output_backend"] = "webgl"
 
-    #Set standard linewidth:
+    # Set standard linewidth:
     if "line_width" not in kwargs:
         kwargs["line_width"] = 2
 
@@ -454,7 +454,7 @@ def plot(
                 "For scatterplots <x> and <y> values can only be a single column of the DataFrame, not a list of columns. Please specify both <x> and <y> columns for a scatterplot uniquely."
             )
 
-        #Get and set y-labelname:
+        # Get and set y-labelname:
         y_column = data_cols[0]
         if "y_axis_label" not in figure_options:
             p.yaxis.axis_label = str(y_column)
@@ -462,7 +462,7 @@ def plot(
         # Get values for y-axis:
         y = df[y_column].values
 
-        #Get values for categorical colormap:
+        # Get values for categorical colormap:
         category_values = None
         if category in df.columns:
             category_values = df[category].values
@@ -539,12 +539,14 @@ def plot(
 
         # Check for stacked keyword:
         if stacked and histogram_type != "stacked":
-            warnings.warn("<histogram_type> was set to '%s', but was overriden by <stacked>=True parameter."%histogram_type)
+            warnings.warn(
+                "<histogram_type> was set to '%s', but was overriden by <stacked>=True parameter."
+                % histogram_type
+            )
             histogram_type = "stacked"
-            
 
-        #Set xlabel if only one y-column is given and user does not override this via 
-        #xlabel parameter:
+        # Set xlabel if only one y-column is given and user does not override this via
+        # xlabel parameter:
         if len(data_cols) == 1 and xlabel is None:
             p.xaxis.axis_label = data_cols[0]
 
@@ -629,7 +631,6 @@ def plot(
             **kwargs
         )
 
-
     # Set xticks:
     if not xticks is None:
         p.xaxis[0].ticker = list(xticks)
@@ -655,12 +656,30 @@ def plot(
         p.xaxis.major_label_orientation = np.pi / 2
 
     # Set click policy for legend:
-    if not (kind=="area" and stacked):
+    if not (kind == "area" and stacked):
         p.legend.click_policy = "hide"
 
     # Hide legend if wanted:
     if not legend:
         p.legend.visible = False
+    # Modify legend position:
+    else:
+        if legend is True:
+            p.legend.location = "top_right"
+        elif legend in [
+            "top_left",
+            "top_center",
+            "top_right",
+            "center_left",
+            "center",
+            "center_right",
+            "bottom_left",
+            "bottom_center",
+            "bottom_right",
+        ]:
+            p.legend.location = legend
+        else:
+            raise ValueError("Legend can only be True/False or one of 'top_left', 'top_center', 'top_right', 'center_left', 'center', 'center_right', 'bottom_left', 'bottom_center', 'bottom_right'")
 
     # Display plot if wanted
     if show_figure:
@@ -1067,8 +1086,8 @@ def areaplot(
 ):
     """Adds areaplot to figure p for each data_col."""
 
-    #Add element to start and end of each x and y column for vertical lines at
-    #end of areaplots:
+    # Add element to start and end of each x and y column for vertical lines at
+    # end of areaplots:
     for key in source.keys():
         if key == "x":
             source[key] = [source[key][0]] + list(source[key]) + [source[key][-1]]
@@ -1076,7 +1095,7 @@ def areaplot(
             source[key] = np.array([0] + list(source[key]) + [0])
     N_source = len(source[key])
 
-    #Stack data if <stacked>=True:
+    # Stack data if <stacked>=True:
     if stacked:
         baseline = np.zeros(N_source)
         for col in data_cols:
@@ -1086,12 +1105,12 @@ def areaplot(
             kwargs["alpha"] = 1
     elif "alpha" not in kwargs:
         kwargs["alpha"] = 0.5
-    
-        
 
     # Add line (and optional scatter glyphs) to figure:
-    for name, color in list(zip(data_cols, colormap))[::-1]:
-        glyph = p.patch(
+    for j, name, color in list(zip(range(len(data_cols)), 
+                                data_cols, 
+                                colormap))[::-1]:
+        p.patch(
             x="x",
             y=str(name),
             legend=" " + str(name),
@@ -1100,13 +1119,19 @@ def areaplot(
             **kwargs
         )
 
-        if hovertool:
+        glyph = p.line(
+            x="x",
+            y=str(name),
+            legend=" " + str(name),
+            source=source,
+            color=color,
+            alpha=0,
+        )
+
+        if hovertool and int(len(data_cols)/2) == j:
             my_hover = HoverTool(mode="vline", renderers=[glyph])
             if x_axis_type == "datetime":
-                my_hover.tooltips = [
-                    (xlabelname, "@x{%F}"),
-                    (str(name), "@{%s}" % str(name)),
-                ]
+                my_hover.tooltips = [(xlabelname, "@x{%F}")] + [(str(name), "@{%s}" % str(name)) for name in data_cols[::-1]]
                 my_hover.formatters = {"x": "datetime"}
             else:
                 my_hover.tooltips = [
