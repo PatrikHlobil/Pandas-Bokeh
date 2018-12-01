@@ -53,7 +53,7 @@ Plots like scatterplot or histogram also have many more additional customization
 
 setuptools.setup(
     name="pandas-bokeh",
-    version="0.0.2",
+    version="0.1",
     author="Patrik Hlobil",
     author_email="patrik.hlobil@googlemail.com",
     description="Bokeh plotting backend for Pandas.DataFrames",

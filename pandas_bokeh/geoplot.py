@@ -27,7 +27,9 @@ from .base import embedded_html
 blue_colormap = [RGB(255 - i, 255 - i, 255) for i in range(256)]
 
 
-def _add_backgroundtile(p, tile_provider, tile_provider_url, tile_attribution):
+def _add_backgroundtile(
+    p, tile_provider, tile_provider_url, tile_attribution, tile_alpha
+):
     """Add a background tile to the plot. Either uses predefined Tiles from Bokeh 
     (parameter: tile_provider) or user passed a tile_provider_url of the form 
     '<url>/{Z}/{X}/{Y}*.png'."""
@@ -60,7 +62,9 @@ def _add_backgroundtile(p, tile_provider, tile_provider_url, tile_attribution):
             )
         if not isinstance(tile_attribution, str):
             raise ValueError("<tile_attribution> has to be a string.")
-        p.add_tile(WMTSTileSource(url=tile_provider_url, attribution=tile_attribution))
+        t = p.add_tile(
+            WMTSTileSource(url=tile_provider_url, attribution=tile_attribution)
+        )
 
     elif not tile_provider is None:
         if not isinstance(tile_provider, str):
@@ -68,11 +72,13 @@ def _add_backgroundtile(p, tile_provider, tile_provider_url, tile_attribution):
                 "<tile_provider> only accepts the values: %s" % tile_dict.keys()
             )
         elif tile_provider.upper() in tile_dict:
-            p.add_tile(tile_dict[tile_provider])
+            t = p.add_tile(tile_dict[tile_provider])
         else:
             raise ValueError(
                 "<tile_provider> only accepts the values: %s" % tile_dict.keys()
             )
+
+    t.alpha = tile_alpha
 
     return p
 
@@ -102,6 +108,7 @@ def geoplot(
     tile_provider="CARTODBPOSITRON_RETINA",
     tile_provider_url=None,
     tile_attribution="",
+    tile_alpha=1,
     toolbar_location="right",
     show_figure=True,
     return_figure=True,
@@ -284,7 +291,9 @@ def geoplot(
             t.zoom_on_axis = False
 
     # Add Tile Source as Background:
-    p = _add_backgroundtile(p, tile_provider, tile_provider_url, tile_attribution)
+    p = _add_backgroundtile(
+        p, tile_provider, tile_provider_url, tile_attribution, tile_alpha
+    )
 
     # Hide legend if wanted:
     if not legend:
@@ -429,10 +438,14 @@ def geoplot(
     if category_options == 0:
         gdf = gdf[list(set(hovertool_columns) | set(additional_columns)) + ["geometry"]]
     else:
-        gdf = gdf[list(set(hovertool_columns) | set(category_columns) | set(additional_columns)) + ["geometry"]]
+        gdf = gdf[
+            list(
+                set(hovertool_columns) | set(category_columns) | set(additional_columns)
+            )
+            + ["geometry"]
+        ]
         gdf["Colormap"] = gdf[field]
         field = "Colormap"
-
 
     # Create GeoJSON DataSource for Plot:
     geo_source = GeoJSONDataSource(geojson=gdf.to_json())

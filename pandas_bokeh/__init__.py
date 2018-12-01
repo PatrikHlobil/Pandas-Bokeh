@@ -8,7 +8,7 @@ from bokeh.layouts import column, row, layout
 
 import warnings
 
-__version__ = "0.0.2"
+__version__ = "0.1"
 
 # Define Bokeh-plot method for Pandas DataFrame and Series:
 try:

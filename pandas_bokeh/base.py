@@ -219,6 +219,7 @@ def plot(
     colormap=None,
     category=None,  
     histogram_type="topontop",
+    stacked=False,
     weights=None,
     bins=None,
     normed=False,
@@ -237,14 +238,35 @@ def plot(
     **kwargs 
 ):
     # TODO: Make docstring
-    """docstring ... todo????"""
+    """Method for creating a interactive with 'Bokeh' as plotting backend. Available
+    plot kinds are:
+
+    * line
+    * point
+    * scatter
+    * bar
+    * histogram
+
+    Examples
+    --------
+    >>> df.plot_bokeh.line()
+    >>> df.plot_bokeh.scatter(x='x',y='y')
+    
+    These plotting methods can also be accessed by calling the accessor as a
+    method with the ``kind`` argument:
+    ``df.plot_bokeh(kind='line')`` is equivalent to ``df.plot_bokeh.line()``
+
+    For more informations about the individual plot kind implementations, have a
+    look at the underlying methods (like df.plot_bokeh.line) or visit
+    https://github.com/PatrikHlobil/Pandas-Bokeh. 
+    
+    """
 
     # Make a local copy of the DataFrame:
     df = df_in.copy()
     if isinstance(df, pd.Series):
         df = pd.DataFrame(df)
 
-    # TODO: Check input types and raise Exceptions!
     # Get and check options for base figure:
     figure_options = {
         "title": title,
@@ -254,7 +276,6 @@ def plot(
         "plot_height": 400,
         "output_backend": "webgl",
     }
-
     if not figsize is None:
         width, height = figsize
         figure_options["plot_width"] = width
@@ -284,6 +305,7 @@ def plot(
     if webgl:
         figure_options["output_backend"] = "webgl"
 
+    #Set standard linewidth:
     if "line_width" not in kwargs:
         kwargs["line_width"] = 2
 
@@ -371,12 +393,12 @@ def plot(
     if N_cols == 0:
         raise Exception("No numeric data columns found for plotting.")
 
-    # Delete x column if provided:
+    # Delete x column if it appears in y columns:
     if not delete_in_y is None:
         if delete_in_y in data_cols:
             data_cols.remove(delete_in_y)
 
-    # Create Figure to plot on
+    # Create Figure for plotting:
     p = figure(**figure_options)
     if "x_axis_type" not in figure_options:
         figure_options["x_axis_type"] = None
@@ -432,14 +454,15 @@ def plot(
                 "For scatterplots <x> and <y> values can only be a single column of the DataFrame, not a list of columns. Please specify both <x> and <y> columns for a scatterplot uniquely."
             )
 
+        #Get and set y-labelname:
         y_column = data_cols[0]
-
         if "y_axis_label" not in figure_options:
             p.yaxis.axis_label = str(y_column)
 
         # Get values for y-axis:
         y = df[y_column].values
 
+        #Get values for categorical colormap:
         category_values = None
         if category in df.columns:
             category_values = df[category].values
@@ -514,6 +537,14 @@ def plot(
 
     if kind == "hist":
 
+        # Check for stacked keyword:
+        if stacked and histogram_type != "stacked":
+            warnings.warn("<histogram_type> was set to '%s', but was overriden by <stacked>=True parameter."%histogram_type)
+            histogram_type = "stacked"
+            
+
+        #Set xlabel if only one y-column is given and user does not override this via 
+        #xlabel parameter:
         if len(data_cols) == 1 and xlabel is None:
             p.xaxis.axis_label = data_cols[0]
 
@@ -583,6 +614,21 @@ def plot(
             histogram_type,
             **kwargs
         )
+
+    if kind == "area":
+
+        p = areaplot(
+            p,
+            source,
+            data_cols,
+            colormap,
+            hovertool,
+            xlabelname,
+            figure_options["x_axis_type"],
+            stacked,
+            **kwargs
+        )
+
 
     # Set xticks:
     if not xticks is None:
@@ -1003,5 +1049,65 @@ def histogram(
                 )
 
     p.xaxis.ticker = bins
+
+    return p
+
+
+def areaplot(
+    p,
+    source,
+    data_cols,
+    colormap,
+    hovertool,
+    xlabelname,
+    x_axis_type,
+    stacked,
+    **kwargs
+):
+    """Adds areaplot to figure p for each data_col."""
+
+    #Add element to start and end of each x and y column for vertical lines at
+    #end of areaplots:
+    for key in source.keys():
+        if key == "x":
+            source[key] = [source[key][0]] + list(source[key]) + [source[key][-1]]
+        else:
+            source[key] = [0] + list(source[key]) + [0]
+
+    #Stack data if <stacked>=True:
+    if stacked:
+        todo ...
+        if "alpha" not in kwargs:
+            kwargs["alpha"] = 1
+    elif "alpha" not in kwargs:
+        kwargs["alpha"] = 0.5
+    
+        
+
+    # Add line (and optional scatter glyphs) to figure:
+    for name, color in zip(data_cols, colormap):
+        glyph = p.patch(
+            x="x",
+            y=str(name),
+            legend=" " + str(name),
+            source=source,
+            color=color,
+            **kwargs
+        )
+
+        if hovertool:
+            my_hover = HoverTool(mode="vline", renderers=[glyph])
+            if x_axis_type == "datetime":
+                my_hover.tooltips = [
+                    (xlabelname, "@x{%F}"),
+                    (str(name), "@{%s}" % str(name)),
+                ]
+                my_hover.formatters = {"x": "datetime"}
+            else:
+                my_hover.tooltips = [
+                    (xlabelname, "@x"),
+                    (str(name), "@{%s}" % str(name)),
+                ]
+            p.add_tools(my_hover)
 
     return p
