@@ -24,6 +24,7 @@ from bokeh.resources import CDN
 import datetime
 import numbers
 import warnings
+from copy import deepcopy
 
 
 def plot_grid(children, show_plot=True, return_html=False, **kwargs):
@@ -628,6 +629,7 @@ def plot(
             xlabelname,
             figure_options["x_axis_type"],
             stacked,
+            normed,
             **kwargs
         )
 
@@ -1082,29 +1084,61 @@ def areaplot(
     xlabelname,
     x_axis_type,
     stacked,
+    normed,
     **kwargs
 ):
     """Adds areaplot to figure p for each data_col."""
 
-    # Add element to start and end of each x and y column for vertical lines at
-    # end of areaplots:
-    for key in source.keys():
-        if key == "x":
-            source[key] = [source[key][0]] + list(source[key]) + [source[key][-1]]
-        else:
-            source[key] = np.array([0] + list(source[key]) + [0])
-    N_source = len(source[key])
+    
 
-    # Stack data if <stacked>=True:
-    if stacked:
-        baseline = np.zeros(N_source)
-        for col in data_cols:
-            source[col] = baseline + source[col]
-            baseline = source[col]
-        if "alpha" not in kwargs:
-            kwargs["alpha"] = 1
-    elif "alpha" not in kwargs:
+    # Transform columns to be able to plot areas as patched:
+    if not stacked:
+        line_source = deepcopy(source)
+        for key in list(source.keys()):
+            if key == "x":
+                source[key] = [source[key][0]] + list(source[key]) + [source[key][-1]]
+            else:
+                source[key] = np.array([0] + list(source[key]) + [0])
+    else:
+        if normed is not False:
+            data = []
+            for col in data_cols:
+                data.append(source[col])
+            data = np.array(data)
+            norm = np.sum(data, axis=0)
+            for col in data_cols:
+                source[col] = np.array(source[col]) / norm * normed
+
+        line_source = {"x": source["x"]}
+        baseline = np.zeros(len(source["x"]))
+        source["x"] = list(source["x"]) + list(source["x"])[::-1]
+        for j, col in enumerate(data_cols):
+
+            #Stack lines:
+            line_source[str(col) + "_plot"] = baseline + np.array(source[col])
+            line_source[col] = np.array(source[col])
+
+            #Stack patches:
+            source[col] = baseline + np.array(source[col])
+            new_baseline = source[col]
+            source[col] = list(source[col]) + list(baseline)[::-1]
+            baseline = new_baseline
+
+            
+
+    if "alpha" not in kwargs:
         kwargs["alpha"] = 0.5
+
+    # # Stack data if <stacked>=True:
+    # if stacked:
+    #     baseline = np.zeros(N_source)
+    #     for col in data_cols:
+    #         source[col] = baseline + source[col]
+    #         baseline = source[col]
+    #     if "alpha" not in kwargs:
+    #         kwargs["alpha"] = 1
+    # elif "alpha" not in kwargs:
+    #     kwargs["alpha"] = 0.5
 
     # Add line (and optional scatter glyphs) to figure:
     for j, name, color in list(zip(range(len(data_cols)), 
@@ -1119,16 +1153,25 @@ def areaplot(
             **kwargs
         )
 
-        glyph = p.line(
-            x="x",
-            y=str(name),
-            legend=" " + str(name),
-            source=source,
-            color=color,
-            alpha=0,
-        )
+        
+        #Add hovertool:
+        if hovertool and int(len(data_cols)/2) == j + 1:
 
-        if hovertool and int(len(data_cols)/2) == j:
+            #Add single line for displaying hovertool:
+            if stacked: 
+                y = str(name) + "_plot"
+            else:
+                y = str(name)
+            glyph = p.line(
+                x="x",
+                y=y,
+                legend=" " + str(name),
+                source=line_source,
+                color=color,
+                alpha=0,
+            )
+
+            #Define hovertool and add to line:
             my_hover = HoverTool(mode="vline", renderers=[glyph])
             if x_axis_type == "datetime":
                 my_hover.tooltips = [(xlabelname, "@x{%F}")] + [(str(name), "@{%s}" % str(name)) for name in data_cols[::-1]]

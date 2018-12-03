@@ -25,6 +25,8 @@
 - Also keep kwarg columns, if they are in geodataframe (then it is possible to use e.g. column values for the width or alpha value of lines ...) for geoplots ✓
 - Add<tile_attribution> parameter for background tiles of geoplots ✓
 - Add accessors (df.plot_bokeh(kind="line", ...) == df.plot_bokeh.line(...))
+- Add dependencies in setup.py
+- Hovertool for histogram
 
 
 ## Release 0.2:
