@@ -11,7 +11,7 @@
 - Proper hovertool for histograms
 - Proper String conversion for barplot with datetimes (look if ms exist, s/m/h exist, ...) --> delete "category" variable?
 - Stacked barplots ✓
-- Horizontal barplots
+- Horizontal barplots ✓
 - Horizontal/Vertical Boxplots
 - Area Plots ✓
 - Pieplot

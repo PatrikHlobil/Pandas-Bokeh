@@ -342,8 +342,13 @@ def plot(
             x = np.linspace(0, len(df) - 1, len(df))
             name = ""
 
-    if "x_axis_label" not in figure_options and not name is None:
+    if kind == "hbar":
+        if "y_axis_label" not in figure_options:
+            figure_options["y_axis_label"] = name
+    elif "x_axis_label" not in figure_options and not name == "":
         figure_options["x_axis_label"] = name
+
+
 
     # Check type of x-axis:
     if check_type(x) == "datetime":
@@ -366,7 +371,7 @@ def plot(
     else:
         xaxis_type = "categorical"
 
-    if kind == "bar":
+    if kind == "bar" or kind == "hbar":
         xaxis_type = "categorical"
 
     if xaxis_type == "categorical":
@@ -492,7 +497,7 @@ def plot(
             **kwargs
         )
 
-    if kind == "bar":
+    if kind == "bar" or kind == "hbar":
 
         # Define data source for barplot:
         data = {col: df[col].values for col in data_cols}
@@ -500,10 +505,17 @@ def plot(
         source = ColumnDataSource(data)
 
         # Create Figure (just for categorical barplots):
-        figure_options["x_range"] = x
         del figure_options["x_axis_type"]
+        del figure_options["x_range"]
+        if kind == "bar":
+            figure_options["x_range"] = list(x)
+        elif kind == "hbar":
+            figure_options["y_range"] = list(x)
+            if "y_axis_label" not in figure_options:
+                figure_options["y_axis_label"] = xlabelname
         p = figure(**figure_options)
         figure_options["x_axis_type"] = None
+            
 
         if not stacked:
             if N_cols >= 3:
@@ -520,35 +532,63 @@ def plot(
             for i, name, color, shift in zip(
                 range(N_cols), data_cols, colormap, shifts
             ):
-                glyph = p.vbar(
-                    x=dodge("x", shift, range=p.x_range),
-                    top=name,
-                    width=width,
-                    source=source,
-                    color=color,
-                    legend=" " + name,
-                    **kwargs
-                )
+                if kind == "bar":
+                    glyph = p.vbar(
+                        x=dodge("x", shift, range=p.x_range),
+                        top=name,
+                        width=width,
+                        source=source,
+                        color=color,
+                        legend=" " + name,
+                        **kwargs
+                    )
+                    hovermode = "vline"
+
+                elif kind == "hbar":
+                    glyph = p.hbar(
+                        y=dodge("x", shift, range=p.y_range),
+                        right=name,
+                        height=width,
+                        source=source,
+                        color=color,
+                        legend=" " + name,
+                        **kwargs
+                    )
+                    hovermode = "hline"
 
                 if hovertool:
-                    my_hover = HoverTool(mode="vline", renderers=[glyph])
+                    my_hover = HoverTool(mode=hovermode, renderers=[glyph])
                     my_hover.tooltips = [(xlabelname, "@x"), (name, "@{%s}" % name)]
                     p.add_tools(my_hover)
 
         if stacked:
 
-            glyph = p.vbar_stack(
-                data_cols,
-                x="x",
-                width=0.8,
-                source=source,
-                color=colormap,
-                legend=[value(col) for col in data_cols],
-                **kwargs
-            )
+            if kind == "bar":
+                glyph = p.vbar_stack(
+                    data_cols,
+                    x="x",
+                    width=0.8,
+                    source=source,
+                    color=colormap,
+                    legend=[value(col) for col in data_cols],
+                    **kwargs
+                )
+                hovermode = "vline"
+
+            elif kind == "hbar":
+                glyph = p.hbar_stack(
+                    data_cols,
+                    y="x",
+                    height=0.8,
+                    source=source,
+                    color=colormap,
+                    legend=[value(col) for col in data_cols],
+                    **kwargs
+                )
+                hovermode = "hline"
 
             if hovertool:
-                my_hover = HoverTool(mode="vline", renderers=[glyph[-1]])
+                my_hover = HoverTool(mode=hovermode, renderers=[glyph[-1]])
                 my_hover.tooltips = [(xlabelname, "@x")] + [
                     (col, "@%s" % col) for col in data_cols
                 ]
