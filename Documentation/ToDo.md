@@ -3,29 +3,30 @@
 ## Release 0.1:
  
 - Add WebGL plotting backend as default (plots and geoplots) ✓
-- Integrate **check_type** function in all places --> Better check for categorical (e.g. multiindex problem --> raise Exception when x-axis is a multiindex)
 - Replace isinstance(???, None) ✓
 - Legend for barplots ✓
+- Stacked barplots ✓
+- Horizontal barplots ✓
+- Show toolbar as standard option ✓
+- Add<tile_attribution> parameter for background tiles of geoplots ✓
+- Area plots ✓
+- Also keep kwarg columns, if they are in geodataframe (then it is possible to use e.g. column values for the width or alpha value of lines ...) for geoplots ✓
+- Add dependencies in setup.py ✓
+
 - Histogram standard only on y-axis (don't consider x-axis, but only look at the columns provided by y)
 - For Histogram, when creating figure, do not give x_range parameters 
 - Proper hovertool for histograms
 - Proper String conversion for barplot with datetimes (look if ms exist, s/m/h exist, ...) --> delete "category" variable?
-- Stacked barplots ✓
-- Horizontal barplots ✓
+- Integrate **check_type** function in all places --> Better check for categorical (e.g. multiindex problem --> raise Exception when x-axis is a multiindex)
 - Horizontal/Vertical Boxplots
-- Area Plots ✓
 - Pieplot
-- Show toolbar as standard option ✓
 - Categorical line  & point plot (set x = range(N) and define mapping from integers to categorical string representations)
 - panning/zooming=True/False parameters implementation
 - export_options = "bla.png" oder "bla.svg"
 - Change Legend title when selecting new column in dropdown (in CustomJS) for Geoplots
 - Implement xrange, yrange for Geoplots
 - Docstring Documentation
-- Also keep kwarg columns, if they are in geodataframe (then it is possible to use e.g. column values for the width or alpha value of lines ...) for geoplots ✓
-- Add<tile_attribution> parameter for background tiles of geoplots ✓
 - Add accessors (df.plot_bokeh(kind="line", ...) == df.plot_bokeh.line(...))
-- Add dependencies in setup.py
 - Hovertool for histogram
 
 
@@ -40,3 +41,4 @@
 - x_axis_format, y_axis_format implementation
 - Allow passing a Pandas_Bokeh figure to overlay plot (especially for geoplots)
 - GMaps Tile provider for geoplot
+- Horizontal Histograms

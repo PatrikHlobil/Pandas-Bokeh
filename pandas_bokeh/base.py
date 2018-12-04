@@ -28,6 +28,8 @@ from bokeh.embed import components
 from bokeh.resources import CDN
 from bokeh.core.properties import value
 
+from pandas.plotting._core import BasePlotMethods
+
 
 def plot_grid(children, show_plot=True, return_html=False, **kwargs):
     """Create a grid of plots rendered on separate canvases and shows the layout. 
@@ -345,7 +347,7 @@ def plot(
     if kind == "hbar":
         if "y_axis_label" not in figure_options:
             figure_options["y_axis_label"] = name
-    elif "x_axis_label" not in figure_options and not name == "":
+    elif "x_axis_label" not in figure_options:
         figure_options["x_axis_label"] = name
 
 
@@ -1196,3 +1198,66 @@ def areaplot(
             p.add_tools(my_hover)
 
     return p
+
+
+
+##############################################################################
+###########Class to add Bokeh plotting methods to Pandas DataFrame
+##############################################################################
+
+class FramePlotMethods(BasePlotMethods):
+    """DataFrame plotting accessor and method
+
+    Examples
+    --------
+    >>> df.plot_bokeh.line()
+    >>> df.plot_bokeh.scatter('x', 'y')
+    >>> df.plot_bokeh.hexbin()
+
+    These plotting methods can also be accessed by calling the accessor as a
+    method with the ``kind`` argument:
+    ``df.plot_bokeh(kind='line')`` is equivalent to ``df.plot_bokeh.line()``
+    """
+
+    def __call__(
+        self, 
+        x=None,
+        y=None,
+        kind="line",
+        figsize=None,
+        use_index=True,
+        title="",
+        grid=None,  # TODO:
+        legend="top_right",
+        logx=False,
+        logy=False,
+        xlabel=None,
+        ylabel=None,
+        xticks=None,
+        yticks=None,
+        xlim=None,
+        ylim=None,
+        fontsize=None,  # TODO:
+        color=None,
+        colormap=None,
+        category=None,
+        histogram_type="topontop",
+        stacked=False,
+        weights=None,
+        bins=None,
+        normed=False,
+        cumulative=False,
+        show_average=False,
+        plot_data_points=False,
+        plot_data_points_size=5,
+        show_figure=True,
+        return_html=False,
+        panning=True,
+        zooming=True,
+        toolbar_location="right",
+        hovertool=True,
+        vertical_xlabel=False,
+        webgl=True,
+        **kwargs):
+        return "Not Implemented"
+    __call__.__doc__ = plot.__doc__

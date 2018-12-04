@@ -43,5 +43,7 @@ Changes:
     * areaplot (with **stacked** and **normed** kwargs)
     * horizontal barplots 
     * **stacked** barplots
+* Corrected dependencies in **setup.py** 
+*
 
 
