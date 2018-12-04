@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import datetime
+import numbers
+import warnings
+from copy import deepcopy
+
 from bokeh.plotting import figure, show
 import bokeh.plotting
 import pandas as pd
@@ -21,10 +26,7 @@ from bokeh.models.ranges import FactorRange
 from bokeh.transform import dodge
 from bokeh.embed import components
 from bokeh.resources import CDN
-import datetime
-import numbers
-import warnings
-from copy import deepcopy
+from bokeh.core.properties import value
 
 
 def plot_grid(children, show_plot=True, return_html=False, **kwargs):
@@ -394,6 +396,10 @@ def plot(
     if N_cols == 0:
         raise Exception("No numeric data columns found for plotting.")
 
+    # Convert y-column names into string representation:
+    df.rename(columns={col: str(col) for col in data_cols}, inplace=True)
+    data_cols = [str(col) for col in data_cols]
+
     # Delete x column if it appears in y columns:
     if not delete_in_y is None:
         if delete_in_y in data_cols:
@@ -411,7 +417,7 @@ def plot(
 
     # Define ColumnDataSource for Plot if kind != "hist":
     if kind != "hist":
-        source = {str(col): df[col].values for col in data_cols}
+        source = {col: df[col].values for col in data_cols}
         source["x"] = x
 
     # Define colormap
@@ -458,7 +464,7 @@ def plot(
         # Get and set y-labelname:
         y_column = data_cols[0]
         if "y_axis_label" not in figure_options:
-            p.yaxis.axis_label = str(y_column)
+            p.yaxis.axis_label = y_column
 
         # Get values for y-axis:
         y = df[y_column].values
@@ -482,14 +488,14 @@ def plot(
             hovertool,
             x_axis_type=figure_options["x_axis_type"],
             xlabelname=xlabelname,
-            ylabelname=str(y_column),
+            ylabelname=y_column,
             **kwargs
         )
 
     if kind == "bar":
 
         # Define data source for barplot:
-        data = {str(col): df[col].values for col in data_cols}
+        data = {col: df[col].values for col in data_cols}
         data["x"] = x
         source = ColumnDataSource(data)
 
@@ -499,41 +505,53 @@ def plot(
         p = figure(**figure_options)
         figure_options["x_axis_type"] = None
 
-        if N_cols >= 3:
-            base_width = 0.5
-        else:
-            base_width = 0.35
-        width = base_width / (N_cols - 0.5)
-        if N_cols == 1:
-            shifts = [0]
-        else:
-            delta_shift = base_width / (N_cols - 1)
-            shifts = [-base_width / 2 + i * delta_shift for i in range(N_cols)]
+        if not stacked:
+            if N_cols >= 3:
+                base_width = 0.5
+            else:
+                base_width = 0.35
+            width = base_width / (N_cols - 0.5)
+            if N_cols == 1:
+                shifts = [0]
+            else:
+                delta_shift = base_width / (N_cols - 1)
+                shifts = [-base_width / 2 + i * delta_shift for i in range(N_cols)]
 
-        for i, name, color, shift in zip(range(N_cols), data_cols, colormap, shifts):
-            glyph = p.vbar(
-                x=dodge("x", shift, range=p.x_range),
-                top=str(name),
-                width=width,
+            for i, name, color, shift in zip(
+                range(N_cols), data_cols, colormap, shifts
+            ):
+                glyph = p.vbar(
+                    x=dodge("x", shift, range=p.x_range),
+                    top=name,
+                    width=width,
+                    source=source,
+                    color=color,
+                    legend=" " + name,
+                    **kwargs
+                )
+
+                if hovertool:
+                    my_hover = HoverTool(mode="vline", renderers=[glyph])
+                    my_hover.tooltips = [(xlabelname, "@x"), (name, "@{%s}" % name)]
+                    p.add_tools(my_hover)
+
+        if stacked:
+
+            glyph = p.vbar_stack(
+                data_cols,
+                x="x",
+                width=0.8,
                 source=source,
-                color=color,
-                legend=" " + str(name),
+                color=colormap,
+                legend=[value(col) for col in data_cols],
                 **kwargs
             )
 
             if hovertool:
-                my_hover = HoverTool(mode="vline", renderers=[glyph])
-                if figure_options["x_axis_type"] == "datetime":
-                    my_hover.tooltips = [
-                        (xlabelname, "@x{%F}"),
-                        (str(name), "@{%s}" % str(name)),
-                    ]
-                    my_hover.formatters = {"x": "datetime"}
-                else:
-                    my_hover.tooltips = [
-                        (xlabelname, "@x"),
-                        (str(name), "@{%s}" % str(name)),
-                    ]
+                my_hover = HoverTool(mode="vline", renderers=[glyph[-1]])
+                my_hover.tooltips = [(xlabelname, "@x")] + [
+                    (col, "@%s" % col) for col in data_cols
+                ]
                 p.add_tools(my_hover)
 
     if kind == "hist":
@@ -658,7 +676,7 @@ def plot(
         p.xaxis.major_label_orientation = np.pi / 2
 
     # Set click policy for legend:
-    if not (kind == "area" and stacked):
+    if not stacked:
         p.legend.click_policy = "hide"
 
     # Hide legend if wanted:
@@ -681,7 +699,9 @@ def plot(
         ]:
             p.legend.location = legend
         else:
-            raise ValueError("Legend can only be True/False or one of 'top_left', 'top_center', 'top_right', 'center_left', 'center', 'center_right', 'bottom_left', 'bottom_center', 'bottom_right'")
+            raise ValueError(
+                "Legend can only be True/False or one of 'top_left', 'top_center', 'top_right', 'center_left', 'center', 'center_right', 'bottom_left', 'bottom_center', 'bottom_right'"
+            )
 
     # Display plot if wanted
     if show_figure:
@@ -718,19 +738,14 @@ def lineplot(
     # Add line (and optional scatter glyphs) to figure:
     for name, color in zip(data_cols, colormap):
         glyph = p.line(
-            x="x",
-            y=str(name),
-            legend=" " + str(name),
-            source=source,
-            color=color,
-            **kwargs
+            x="x", y=name, legend=" " + name, source=source, color=color, **kwargs
         )
 
         if plot_data_points:
             p.scatter(
                 x="x",
-                y=str(name),
-                legend=" " + str(name),
+                y=name,
+                legend=" " + name,
                 source=source,
                 color=color,
                 marker=marker,
@@ -740,16 +755,10 @@ def lineplot(
         if hovertool:
             my_hover = HoverTool(mode="vline", renderers=[glyph])
             if x_axis_type == "datetime":
-                my_hover.tooltips = [
-                    (xlabelname, "@x{%F}"),
-                    (str(name), "@{%s}" % str(name)),
-                ]
+                my_hover.tooltips = [(xlabelname, "@x{%F}"), (name, "@{%s}" % name)]
                 my_hover.formatters = {"x": "datetime"}
             else:
-                my_hover.tooltips = [
-                    (xlabelname, "@x"),
-                    (str(name), "@{%s}" % str(name)),
-                ]
+                my_hover.tooltips = [(xlabelname, "@x"), (name, "@{%s}" % name)]
             p.add_tools(my_hover)
 
     return p
@@ -789,8 +798,8 @@ def pointplot(
 
         glyph = p.scatter(
             x="x",
-            y=str(name),
-            legend=" " + str(name),
+            y=name,
+            legend=" " + name,
             source=source,
             color=color,
             marker=marker,
@@ -799,16 +808,10 @@ def pointplot(
         if hovertool:
             my_hover = HoverTool(mode="vline", renderers=[glyph])
             if x_axis_type == "datetime":
-                my_hover.tooltips = [
-                    (xlabelname, "@x{%F}"),
-                    (str(name), "@{%s}" % str(name)),
-                ]
+                my_hover.tooltips = [(xlabelname, "@x{%F}"), (name, "@{%s}" % name)]
                 my_hover.formatters = {"x": "datetime"}
             else:
-                my_hover.tooltips = [
-                    (xlabelname, "@x"),
-                    (str(name), "@{%s}" % str(name)),
-                ]
+                my_hover.tooltips = [(xlabelname, "@x"), (name, "@{%s}" % name)]
             p.add_tools(my_hover)
 
     return p
@@ -1045,7 +1048,7 @@ def histogram(
             top="top",
             source=source,
             color=color,
-            legend=str(name),
+            legend=name,
             **kwargs
         )
 
@@ -1089,8 +1092,6 @@ def areaplot(
 ):
     """Adds areaplot to figure p for each data_col."""
 
-    
-
     # Transform columns to be able to plot areas as patched:
     if not stacked:
         line_source = deepcopy(source)
@@ -1114,73 +1115,44 @@ def areaplot(
         source["x"] = list(source["x"]) + list(source["x"])[::-1]
         for j, col in enumerate(data_cols):
 
-            #Stack lines:
-            line_source[str(col) + "_plot"] = baseline + np.array(source[col])
+            # Stack lines:
+            line_source[col + "_plot"] = baseline + np.array(source[col])
             line_source[col] = np.array(source[col])
 
-            #Stack patches:
+            # Stack patches:
             source[col] = baseline + np.array(source[col])
             new_baseline = source[col]
             source[col] = list(source[col]) + list(baseline)[::-1]
             baseline = new_baseline
 
-            
-
     if "alpha" not in kwargs:
         kwargs["alpha"] = 0.5
 
-    # # Stack data if <stacked>=True:
-    # if stacked:
-    #     baseline = np.zeros(N_source)
-    #     for col in data_cols:
-    #         source[col] = baseline + source[col]
-    #         baseline = source[col]
-    #     if "alpha" not in kwargs:
-    #         kwargs["alpha"] = 1
-    # elif "alpha" not in kwargs:
-    #     kwargs["alpha"] = 0.5
+    # Add area patches to figure:
+    for j, name, color in list(zip(range(len(data_cols)), data_cols, colormap))[::-1]:
+        p.patch(x="x", y=name, legend=" " + name, source=source, color=color, **kwargs)
 
-    # Add line (and optional scatter glyphs) to figure:
-    for j, name, color in list(zip(range(len(data_cols)), 
-                                data_cols, 
-                                colormap))[::-1]:
-        p.patch(
-            x="x",
-            y=str(name),
-            legend=" " + str(name),
-            source=source,
-            color=color,
-            **kwargs
-        )
+        # Add hovertool:
+        if hovertool and int(len(data_cols) / 2) == j + 1:
 
-        
-        #Add hovertool:
-        if hovertool and int(len(data_cols)/2) == j + 1:
-
-            #Add single line for displaying hovertool:
-            if stacked: 
-                y = str(name) + "_plot"
+            # Add single line for displaying hovertool:
+            if stacked:
+                y = name + "_plot"
             else:
-                y = str(name)
+                y = name
             glyph = p.line(
-                x="x",
-                y=y,
-                legend=" " + str(name),
-                source=line_source,
-                color=color,
-                alpha=0,
+                x="x", y=y, legend=" " + name, source=line_source, color=color, alpha=0
             )
 
-            #Define hovertool and add to line:
+            # Define hovertool and add to line:
             my_hover = HoverTool(mode="vline", renderers=[glyph])
             if x_axis_type == "datetime":
-                my_hover.tooltips = [(xlabelname, "@x{%F}")] + [(str(name), "@{%s}" % str(name)) for name in data_cols[::-1]]
+                my_hover.tooltips = [(xlabelname, "@x{%F}")] + [
+                    (name, "@{%s}" % name) for name in data_cols[::-1]
+                ]
                 my_hover.formatters = {"x": "datetime"}
             else:
-                my_hover.tooltips = [
-                    (xlabelname, "@x"),
-                    (str(name), "@{%s}" % str(name)),
-                ]
+                my_hover.tooltips = [(xlabelname, "@x"), (name, "@{%s}" % name)]
             p.add_tools(my_hover)
 
     return p

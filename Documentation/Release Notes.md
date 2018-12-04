@@ -38,5 +38,8 @@ Changes:
 * WebGL now as plotting backend as default (plots and geoplots)
 * Code Refactoring
 * Toolbar now visible per default
-* Kwargs names are checked in columns of (Geo)DataFrame and kept if there is a match
+* Kwargs names are checked in columns of (Geo)DataFrame and kept if there is a match, such that additional keyword arguments can be used to specify for example line_width or alpha value of geoplots
+* Additional plot types:
+    * areaplot (with **stacked** and **normed** kwargs)
+    * **stacked** barplot
 

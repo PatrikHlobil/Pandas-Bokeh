@@ -354,14 +354,8 @@ import pandas as pd
 import pandas_bokeh
 pandas_bokeh.output_notebook()
 
-#Download GeoJSON example data:
-
-geojson = requests.get(r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata/states/states.geojson").text
-with open("states.geojson", "w") as f:
-    f.write(geojson)
-    
-#Read in GeoJSON:
-df_states = gpd.read_file("states.geojson")
+#Read in GeoJSON from URL:
+df_states = gpd.read_file(r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata/states/states.geojson")
 df_states.head()
 ```
 
