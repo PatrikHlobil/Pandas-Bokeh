@@ -16,6 +16,7 @@ try:
     import pandas as pd
     from pandas.core.accessor import CachedAccessor
     plot_bokeh = CachedAccessor("plot_bokeh", FramePlotMethods)
+    #pd.DataFrame.plot_bokeh = plot_bokeh
     pd.DataFrame.plot_bokeh = plot
     pd.Series.plot_bokeh = plot
 except Exception as e:

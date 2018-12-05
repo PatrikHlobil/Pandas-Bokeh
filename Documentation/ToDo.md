@@ -42,3 +42,4 @@
 - Allow passing a Pandas_Bokeh figure to overlay plot (especially for geoplots)
 - GMaps Tile provider for geoplot
 - Horizontal Histograms
+- Add proper docstrings & only pass relevant keyword arguments for pd.DataFrame.plot_bokeh.line, .bar, .scatter, ... accessors 
