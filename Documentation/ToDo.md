@@ -43,3 +43,4 @@
 - GMaps Tile provider for geoplot
 - Horizontal Histograms
 - Add proper docstrings & only pass relevant keyword arguments for pd.DataFrame.plot_bokeh.line, .bar, .scatter, ... accessors 
+- Fixed bug when using logscale on y-axis for histograms

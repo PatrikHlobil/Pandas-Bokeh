@@ -675,6 +675,7 @@ def plot(
             cumulative,
             show_average,
             histogram_type,
+            logy,
             **kwargs
         )
 
@@ -1019,12 +1020,17 @@ def histogram(
     cumulative,
     show_average,
     histogram_type,
+    logy,
     **kwargs
 ):
     "Adds histogram to figure p for each data_col."
 
     bottom = None
     N_cols = len(data_cols)
+    if logy:
+        bottomvalue = 0.000000001
+    else:
+        bottomvalue = 0
 
     for i, name, color, aggregate, average in zip(
         range(len(data_cols)), data_cols, colormap, aggregates, averages
@@ -1045,14 +1051,14 @@ def histogram(
                 bins[index] + float(i + 1) / N_cols * (bins[index + 1] - bins[index])
                 for index in range(len(bins) - 1)
             ]
-            bottom = [0] * len(left)
+            bottom = [bottomvalue] * len(left)
             top = aggregate
 
         # Get bar edges for top-on-top display:
         elif histogram_type == "topontop":
             left = bins[:-1]
             right = bins[1:]
-            bottom = [0] * len(left)
+            bottom = [bottomvalue] * len(left)
             top = aggregate
             if "alpha" not in kwargs:
                 kwargs["alpha"] = 0.5
@@ -1062,7 +1068,7 @@ def histogram(
             left = bins[:-1]
             right = bins[1:]
             if bottom is None:
-                bottom = [0] * len(left)
+                bottom = [bottomvalue] * len(left)
                 top = [0] * len(left)
             else:
                 bottom = top
