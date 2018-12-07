@@ -200,6 +200,29 @@ def get_colormap(colormap, N_cols):
 
     return colormap
 
+def _times_to_string(times):
+
+    types = []
+    for t in times:
+        t = pd.to_datetime(t) 
+        if t.microsecond > 0:
+            types.append("microsecond")
+        elif t.second > 0:
+            types.append("second")
+        elif t.hour > 0:
+            types.append("hour")
+        else:
+            types.append("date")
+    
+    if "microsecond" in types:
+        return [pd.to_datetime(t).strftime("%Y/%m/%d %H:%M:%S.%f") for t in times]
+    elif "second" in types:
+        return [pd.to_datetime(t).strftime("%Y/%m/%d %H:%M:%S") for t in times]
+    elif "hour" in types:
+        return [pd.to_datetime(t).strftime("%Y/%m/%d %H:%M") for t in times]
+    elif "date" in types:
+        return [pd.to_datetime(t).strftime("%Y/%m/%d") for t in times]
+
 
 def plot(
     df_in,
@@ -317,7 +340,13 @@ def plot(
     # Get x-axis Name and Values:
     delete_in_y = None
     if not x is None:
-        if x in df.columns:
+        if issubclass(x.__class__, pd.Index) or issubclass(x.__class__, pd.Series):
+            if x.name is not None:
+                name = str(x.name)
+            else:
+                name = ""
+            x = x.values
+        elif x in df.columns:
             delete_in_y = x
             name = str(x)
             x = df[x].values
@@ -377,7 +406,10 @@ def plot(
         xaxis_type = "categorical"
 
     if xaxis_type == "categorical":
-        x = [str(el) for el in x]
+        if check_type(x) == "datetime":
+            x = _times_to_string(x)
+        else:
+            x = [str(el) for el in x]
         if kind != "hist":
             figure_options["x_range"] = x
         if "x_axis_type" in figure_options:

@@ -13,14 +13,14 @@
 - Also keep kwarg columns, if they are in geodataframe (then it is possible to use e.g. column values for the width or alpha value of lines ...) for geoplots ✓
 - Add dependencies in setup.py ✓
 
-- Histogram standard only on y-axis (don't consider x-axis, but only look at the columns provided by y)
-- For Histogram, when creating figure, do not give x_range parameters 
-- Proper hovertool for histograms
+- Histogram standard only on y-axis (don't consider x-axis, but only look at the columns provided by y) ✓
+- For Histogram, when creating figure, do not give x_range parameters ✓
+- Proper hovertool for histograms (mabye add invincible lineglyph with hoverinformation)
 - Proper String conversion for barplot with datetimes (look if ms exist, s/m/h exist, ...) --> delete "category" variable?
 - Integrate **check_type** function in all places --> Better check for categorical (e.g. multiindex problem --> raise Exception when x-axis is a multiindex)
 - Horizontal/Vertical Boxplots
 - Pieplot
-- Categorical line  & point plot (set x = range(N) and define mapping from integers to categorical string representations)
+- Categorical line  & point & area plots (set x = range(N) and define mapping from integers to categorical string representations)
 - panning/zooming=True/False parameters implementation
 - export_options = "bla.png" oder "bla.svg"
 - Change Legend title when selecting new column in dropdown (in CustomJS) for Geoplots
@@ -44,3 +44,5 @@
 - Horizontal Histograms
 - Add proper docstrings & only pass relevant keyword arguments for pd.DataFrame.plot_bokeh.line, .bar, .scatter, ... accessors 
 - Fixed bug when using logscale on y-axis for histograms
+- For scatterplot, also show a legend when no category is chosen
+- vertical_xlabel should also allow for float values (--> angle )
