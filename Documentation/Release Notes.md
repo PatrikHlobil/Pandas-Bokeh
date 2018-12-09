@@ -34,16 +34,24 @@ Changes:
 
 ## 0.1
 
+### GeoPandas Bokeh
 * Added <tile_attribution> & <tile_alpha> parameter for background tiles of geoplots
-* WebGL now as plotting backend as default (plots and geoplots)
+* Support for xlim & ylim in WGS84 (Latitude/Longitude) for geoplots
+* WebGL now as plotting backend as default (GeoPandas)
+* Kwargs names are checked in columns of GeoDataFrame and kept if there is a match, such that additional keyword arguments can be used to specify for example line_width or alpha value of geoplots
+
+### Pandas Bokeh
+* WebGL now as plotting backend as default (Panda) 
 * Code Refactoring
 * Toolbar now visible per default
-* Kwargs names are checked in columns of (Geo)DataFrame and kept if there is a match, such that additional keyword arguments can be used to specify for example line_width or alpha value of geoplots
+* Kwargs names are checked in columns of DataFrame/Series and kept if there is a match, such that additional keyword arguments can be used to specify for example line_width or alpha value of plots
 * Additional plot types:
     * areaplot (with **stacked** and **normed** kwargs)
     * horizontal barplots 
     * **stacked** barplots
 * Corrected dependencies in **setup.py** 
-*
+* Improved Functionalities (row, column) for **Pandas Bokeh** Layouts
+* Smarter x-axis labeling for barplots when using datetimes
+* Several minor improvements & bugfixes
 
 

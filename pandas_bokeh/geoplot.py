@@ -90,6 +90,8 @@ def geoplot(
     title="",
     xlabel="Longitude",
     ylabel="Latitude",
+    xlim=None,
+    ylim=None,
     color="blue",
     colormap=None,
     colormap_uselog=False,
@@ -282,6 +284,48 @@ def geoplot(
                 "<color> has to be a string specifying the fill_color of the map glyph."
             )
 
+    # Check xlim & ylim:
+    if xlim is not None:
+        if isinstance(xlim, (tuple, list)):
+            if len(xlim) == 2:
+                from pyproj import Proj, transform
+                inProj = Proj(init='epsg:4326')
+                outProj = Proj(init='epsg:3857')
+                xmin, xmax = xlim
+                for _ in [xmin, xmax]:
+                    if not -180 < _ <= 180:
+                        raise ValueError("Limits for x-axis (=Longitude) have to be between -180 and 180.")
+                if not xmin < xmax:
+                    raise ValueError("xmin has to be smaller than xmax.")
+                xmin = transform(inProj, outProj, xmin, 0)[0]
+                xmax = transform(inProj, outProj, xmax, 0)[0]
+                figure_options["x_range"] = (xmin, xmax)
+            else:
+                raise ValueError("Limits for x-axis (=Longitude) have to be of form [xmin, xmax] with values between -180 and 180.")
+        else:
+            raise ValueError("Limits for x-axis (=Longitude) have to be of form [xmin, xmax] with values between -180 and 180.")
+    if ylim is not None:
+        if isinstance(ylim, (tuple, list)):
+            if len(ylim) == 2:
+                from pyproj import Proj, transform
+                inProj = Proj(init='epsg:4326')
+                outProj = Proj(init='epsg:3857')
+                ymin, ymax = ylim
+                for _ in [ymin, ymax]:
+                    if not -90 < _ <= 90:
+                        raise ValueError("Limits for y-axis (=Latitude) have to be between -90 and 90.")
+                if not ymin < ymax:
+                    raise ValueError("ymin has to be smaller than ymax.")
+                ymin = transform(inProj, outProj, 0, ymin)[1]
+                ymax = transform(inProj, outProj, 0, ymax)[1]
+                figure_options["y_range"] = (ymin, ymax)
+            else:
+                raise ValueError("Limits for y-axis (=Latitude) have to be of form [ymin, ymax] with values between -90 and 90.")
+        else:
+            raise ValueError("Limits for y-axis (=Latitude) have to be of form [ymin, ymax] with values between -90 and 90.")
+                
+        
+
     # Create Figure to draw:
     p = figure(x_axis_type="mercator", y_axis_type="mercator", **figure_options)
 
@@ -471,11 +515,13 @@ def geoplot(
         # Plot polygons:
         p.patches(xs="xs", ys="ys", source=geo_source, legend=legend, **kwargs)
 
+    # Add hovertool:
     if hovertool and (category_options == 1 or len(hovertool_columns) > 0):
         my_hover = HoverTool()
         my_hover.tooltips = [(str(col), "@{%s}" % col) for col in hovertool_columns]
         p.add_tools(my_hover)
 
+    # Add colorbar:
     if show_colorbar and category_options == 1:
         colorbar_options = {
             "color_mapper": colormapper,
@@ -490,6 +536,7 @@ def geoplot(
 
         p.add_layout(colorbar, "right")
 
+    # Add Dropdown Widget:
     if not dropdown is None:
         # Define Dropdown widget:
         dropdown_widget = Dropdown(
@@ -513,6 +560,7 @@ def geoplot(
         # Add Dropdown widget above the plot:
         layout = column(dropdown_widget, p)
 
+    # Add Slider Widget:
     if not slider is None:
 
         if slider_range is None:

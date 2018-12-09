@@ -613,16 +613,14 @@ pandas_bokeh.plot_grid([[p_line, p_bar],
 
 ![Dashboard Layout](Documentation/Images/Startimage.gif)
 
-Using a combination of *row* and *column* elements (see [Bokeh Layouts](https://bokeh.pydata.org/en/latest/docs/user_guide/layout.html)) allow for a very easy general arrangement of elements. An alternative layout to the one above is:
+Using a combination of *row* and *column* elements (see also [Bokeh Layouts](https://bokeh.pydata.org/en/latest/docs/user_guide/layout.html)) allow for a very easy general arrangement of elements. An alternative layout to the one above is:
 
 ```python
-from bokeh.layouts import row, column
-
 p_line.plot_width = 900
 p_hist.plot_width = 900
 
-layout = column(p_line,
-                row(p_scatter, p_bar),
+layout = pandas_bokeh.column(p_line,
+                pandas_bokeh.row(p_scatter, p_bar),
                 p_hist)
 
 pandas_bokeh.show(layout)
