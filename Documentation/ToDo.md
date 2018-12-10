@@ -16,8 +16,9 @@
 - For Histogram, when creating figure, do not give x_range parameters ✓
 - Proper String conversion for barplot with datetimes (look if ms exist, s/m/h exist, ...) --> delete "category" variable? ✓
 - Implement xrange, yrange for Geoplots ✓
+- For bins, also accept integer values ✓
 
-- Proper hovertool for histograms (mabye add invincible lineglyph with hoverinformation)
+- For bins, also accept strings with name of bin-autodetection
 - Integrate **check_type** function in all places --> Better check for categorical (e.g. multiindex problem --> raise Exception when x-axis is a multiindex)
 - Horizontal/Vertical Boxplots
 - Pieplot
@@ -26,10 +27,11 @@
 - Change Legend title when selecting new column in dropdown (in CustomJS) for Geoplots
 - Docstring Documentation
 - Add accessors (df.plot_bokeh(kind="line", ...) == df.plot_bokeh.line(...))
-
+- Grid options (vertical/horizontal/both) for plots
+- Check input values of <kind> and throw exception if it doesn't exist
 
 ## Release 0.2:
-
+- Proper hovertool for histograms (mabye add invincible lineglyph with hoverinformation)
 - refactoring of autodetection of x and y columns for DataFrame.plot_bokeh
 - export_options = "bla.png" oder "bla.svg"
 - Smarter setting of xticks (do not use all x-values if length of dataframe is too large)

@@ -23,10 +23,13 @@ from bokeh.models.tickers import FixedTicker, AdaptiveTicker
 from bokeh.palettes import all_palettes, Inferno256
 from bokeh.layouts import gridplot
 from bokeh.models.ranges import FactorRange
-from bokeh.transform import dodge
+from bokeh.transform import dodge, cumsum
 from bokeh.embed import components
 from bokeh.resources import CDN
 from bokeh.core.properties import value
+from bokeh.models.glyphs import Text
+from bokeh.models.callbacks import CustomJS
+from bokeh.events import Tap
 
 from pandas.plotting._core import BasePlotMethods
 
@@ -200,11 +203,12 @@ def get_colormap(colormap, N_cols):
 
     return colormap
 
+
 def _times_to_string(times):
 
     types = []
     for t in times:
-        t = pd.to_datetime(t) 
+        t = pd.to_datetime(t)
         if t.microsecond > 0:
             types.append("microsecond")
         elif t.second > 0:
@@ -213,7 +217,7 @@ def _times_to_string(times):
             types.append("hour")
         else:
             types.append("date")
-    
+
     if "microsecond" in types:
         return [pd.to_datetime(t).strftime("%Y/%m/%d %H:%M:%S.%f") for t in times]
     elif "second" in types:
@@ -246,7 +250,7 @@ def plot(
     color=None,
     colormap=None,
     category=None,
-    histogram_type="topontop",
+    histogram_type=None,
     stacked=False,
     weights=None,
     bins=None,
@@ -255,6 +259,7 @@ def plot(
     show_average=False,
     plot_data_points=False,
     plot_data_points_size=5,
+    annotation=True,
     show_figure=True,
     return_html=False,
     panning=True,
@@ -373,13 +378,11 @@ def plot(
             x = np.linspace(0, len(df) - 1, len(df))
             name = ""
 
-    if kind == "hbar":
+    if kind == "barh":
         if "y_axis_label" not in figure_options:
             figure_options["y_axis_label"] = name
     elif "x_axis_label" not in figure_options:
         figure_options["x_axis_label"] = name
-
-
 
     # Check type of x-axis:
     if check_type(x) == "datetime":
@@ -402,7 +405,7 @@ def plot(
     else:
         xaxis_type = "categorical"
 
-    if kind == "bar" or kind == "hbar":
+    if kind in ["bar", "barh", "pie"]:
         xaxis_type = "categorical"
 
     if xaxis_type == "categorical":
@@ -451,7 +454,9 @@ def plot(
 
     # Define xlabel name as "x" if no label is provided by user or data:
     xlabelname = (
-        figure_options["x_axis_label"] if figure_options["x_axis_label"] != "" else "x"
+        figure_options["x_axis_label"]
+        if figure_options.get("x_axis_label", "") != ""
+        else "x"
     )
 
     # Define ColumnDataSource for Plot if kind != "hist":
@@ -460,7 +465,7 @@ def plot(
         source["x"] = x
 
     # Define colormap
-    if kind != "scatter":
+    if kind not in ["scatter", "pie"]:
         colormap = get_colormap(colormap, N_cols)
 
     if not color is None:
@@ -531,7 +536,7 @@ def plot(
             **kwargs
         )
 
-    if kind == "bar" or kind == "hbar":
+    if kind == "bar" or kind == "barh":
 
         # Define data source for barplot:
         data = {col: df[col].values for col in data_cols}
@@ -543,13 +548,12 @@ def plot(
         del figure_options["x_range"]
         if kind == "bar":
             figure_options["x_range"] = list(x)
-        elif kind == "hbar":
+        elif kind == "barh":
             figure_options["y_range"] = list(x)
             if "y_axis_label" not in figure_options:
                 figure_options["y_axis_label"] = xlabelname
         p = figure(**figure_options)
         figure_options["x_axis_type"] = None
-            
 
         if not stacked:
             if N_cols >= 3:
@@ -578,7 +582,7 @@ def plot(
                     )
                     hovermode = "vline"
 
-                elif kind == "hbar":
+                elif kind == "barh":
                     glyph = p.hbar(
                         y=dodge("x", shift, range=p.y_range),
                         right=name,
@@ -609,7 +613,7 @@ def plot(
                 )
                 hovermode = "vline"
 
-            elif kind == "hbar":
+            elif kind == "barh":
                 glyph = p.hbar_stack(
                     data_cols,
                     y="x",
@@ -630,12 +634,20 @@ def plot(
 
     if kind == "hist":
 
+        # Disable line_color (for borders of histogram bins) per default:
+        if not "line_color" in kwargs:
+            kwargs["line_color"] = None
+        elif kwargs["line_color"] == True:
+            del kwargs["line_color"]
+
         # Check for stacked keyword:
-        if stacked and histogram_type != "stacked":
+        if stacked and histogram_type not in [None, "stacked"]:
             warnings.warn(
                 "<histogram_type> was set to '%s', but was overriden by <stacked>=True parameter."
                 % histogram_type
             )
+            histogram_type = "stacked"
+        elif stacked and histogram_type is None:
             histogram_type = "stacked"
 
         # Set xlabel if only one y-column is given and user does not override this via
@@ -645,10 +657,25 @@ def plot(
 
         # If Histogram should be plotted, calculate bins, aggregates and
         # averages:
+
+        # Autocalculate bins if bins are not specified:
         if bins is None:
             values = df[data_cols].values
             values = values[~np.isnan(values)]
             data, bins = np.histogram(values)
+
+        # Calculate bins if number of bins is given:
+        elif isinstance(bins, int):
+            if bins < 1:
+                raise ValueError(
+                    "<bins> can only be an integer>0, a list or a range of numbers."
+                )
+            values = df[data_cols].values
+            values = values[~np.isnan(values)]
+            v_min, v_max = values.min(), values.max()
+            bins = np.linspace(v_min, v_max, bins + 1)
+
+        bins = list(bins)
 
         if not weights is None:
             if weights not in df.columns:
@@ -726,6 +753,12 @@ def plot(
             **kwargs
         )
 
+    if kind == "pie":
+
+        p = pieplot(
+            source, data_cols, colormap, hovertool, figure_options, annotation, **kwargs
+        )
+
     # Set xticks:
     if not xticks is None:
         p.xaxis[0].ticker = list(xticks)
@@ -751,7 +784,7 @@ def plot(
         p.xaxis.major_label_orientation = np.pi / 2
 
     # Set click policy for legend:
-    if not stacked:
+    if not stacked and kind != "pie":
         p.legend.click_policy = "hide"
 
     # Hide legend if wanted:
@@ -1068,6 +1101,9 @@ def histogram(
         range(len(data_cols)), data_cols, colormap, aggregates, averages
     ):
 
+        if histogram_type is None:
+            histogram_type = "topontop"
+
         if histogram_type not in ["sidebyside", "topontop", "stacked"]:
             raise ValueError(
                 '<histogram_type> can only be one of ["sidebyside", "topontop", "stacked"].'
@@ -1238,10 +1274,98 @@ def areaplot(
     return p
 
 
+def pieplot(
+    source, data_cols, colormap, hovertool, figure_options, annotation, **kwargs
+):
+
+    """Creates a Pieplot from the provided data."""
+
+    # Determine Colormap for Pieplot:
+    colormap = get_colormap(colormap, len(source["x"]))
+    source["color"] = colormap
+
+    max_col_stringlength = max([len(col) for col in data_cols])
+
+    # Create Figure for Pieplot:
+    plot_width = figure_options["plot_width"]
+    plot_height = figure_options["plot_height"]
+    title = figure_options["title"]
+    toolbar_location = None
+    x_range = (-1.4 - 0.05 * max_col_stringlength, 2)
+    y_range = (-1.2, 1.2)
+    p = figure(
+        plot_width=plot_width,
+        plot_height=plot_height,
+        title=title,
+        toolbar_location=toolbar_location,
+        x_range=x_range,
+        y_range=y_range,
+    )
+    p.axis.axis_label = None
+    p.axis.visible = False
+    p.grid.grid_line_color = None
+
+    # Calculate angles for Pieplot:
+    for col in data_cols:
+        source[col + "_angle"] = source[col] / source[col].sum() * 2 * np.pi
+
+    # Make Pieplots:
+    for i, col in list(enumerate(data_cols))[::-1]:
+        inner_radius = float(i) / len(data_cols)
+        outer_radius = float(i + 0.9) / len(data_cols)
+        source["inner_radius"] = [inner_radius] * len(source["x"])
+        source["outer_radius"] = [outer_radius] * len(source["x"])
+        if i == 0:
+            legend = "x"
+        else:
+            legend = False
+
+        glyph = p.annular_wedge(
+            x=0,
+            y=0,
+            inner_radius="inner_radius",
+            outer_radius="outer_radius",
+            start_angle=cumsum(col + "_angle", include_zero=True),
+            end_angle=cumsum(col + "_angle"),
+            line_color="white",
+            fill_color="color",
+            legend=legend,
+            source=source,
+        )
+
+        # Add annotation:
+        if annotation:
+            text_source = {
+                "x": [-1.3 - 0.05 * max_col_stringlength],
+                "y": [0.5 - 0.3 * i],
+                "text": [col],
+            }
+            ann = p.text(
+                x="x", y="y", text="text", text_font_style="bold", source=text_source
+            )
+
+            p.line(
+                x=[-1.3 - 0.04*(max_col_stringlength - len(col)), 0],
+                y=[0.5 - 0.3 * i, -(inner_radius + outer_radius) / 2],
+                line_color="black"
+            )
+
+        # Define hovertool and add to Pieplot:
+        if hovertool:
+            my_hover = HoverTool(renderers=[glyph])
+            my_hover.tooltips = [
+                (figure_options["x_axis_label"], "@x"),
+                (col, "@{%s}" % col),
+            ]
+            p.add_tools(my_hover)
+
+    return p
+
 
 ##############################################################################
 ###########Class to add Bokeh plotting methods to Pandas DataFrame
 ##############################################################################
+
 
 class FramePlotMethods(BasePlotMethods):
     """DataFrame plotting accessor and method
@@ -1257,11 +1381,9 @@ class FramePlotMethods(BasePlotMethods):
     ``df.plot_bokeh(kind='line')`` is equivalent to ``df.plot_bokeh.line()``
     """
 
-    def __call__(
-        self, 
-        *args,
-        **kwargs):
+    def __call__(self, *args, **kwargs):
         return plot(self._data, *args, **kwargs)
+
     __call__.__doc__ = plot.__doc__
 
     def line(self, *args, **kwargs):
@@ -1313,4 +1435,5 @@ class FramePlotMethods(BasePlotMethods):
 
             >>> lines = df.plot.line(x='pig', y='horse')
         """
-        return self(kind='line', *args, **kwargs)
+        return self(kind="line", *args, **kwargs)
+
