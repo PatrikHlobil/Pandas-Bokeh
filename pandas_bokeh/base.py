@@ -259,7 +259,6 @@ def plot(
     show_average=False,
     plot_data_points=False,
     plot_data_points_size=5,
-    annotation=True,
     show_figure=True,
     return_html=False,
     panning=True,
@@ -756,7 +755,7 @@ def plot(
     if kind == "pie":
 
         p = pieplot(
-            source, data_cols, colormap, hovertool, figure_options, annotation, **kwargs
+            source, data_cols, colormap, hovertool, figure_options, **kwargs
         )
 
     # Set xticks:
@@ -1275,7 +1274,7 @@ def areaplot(
 
 
 def pieplot(
-    source, data_cols, colormap, hovertool, figure_options, annotation, **kwargs
+    source, data_cols, colormap, hovertool, figure_options, **kwargs
 ):
 
     """Creates a Pieplot from the provided data."""
@@ -1320,6 +1319,9 @@ def pieplot(
         else:
             legend = False
 
+        if "line_color" not in kwargs:
+            kwargs["line_color"] = "white"
+
         glyph = p.annular_wedge(
             x=0,
             y=0,
@@ -1327,14 +1329,14 @@ def pieplot(
             outer_radius="outer_radius",
             start_angle=cumsum(col + "_angle", include_zero=True),
             end_angle=cumsum(col + "_angle"),
-            line_color="white",
             fill_color="color",
             legend=legend,
             source=source,
+            **kwargs
         )
 
         # Add annotation:
-        if annotation:
+        if len(data_cols) > 1:
             text_source = {
                 "x": [-1.3 - 0.05 * max_col_stringlength],
                 "y": [0.5 - 0.3 * i],

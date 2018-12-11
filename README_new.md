@@ -230,8 +230,6 @@ pandas_bokeh.plot_grid([[div_df, p_scatter]],
 
 ## Barplot
 
-
-
 The **barplot** API has no special keyword arguments, but accepts optional **kwargs** of [bokeh.plotting.figure.vbar](https://bokeh.pydata.org/en/latest/docs/reference/plotting.html#bokeh.plotting.figure.Figure.vbar) like *alpha*. It uses per default the index for the bar categories (however, also columns can be used as x-axis category using the **x** argument).
 
 ```python
@@ -252,6 +250,47 @@ df.plot_bokeh(
 ```
 
 ![Barplot](Documentation/Images/Barplot.gif)
+
+Using the **stacked** keyword argument you also maked stacked barplots:
+```python
+p_stacked_bar = df.plot_bokeh(
+    kind="bar",
+    ylabel="Price per Unit [€]",
+    title="Fruit prices per Year",
+    stacked=True,
+    alpha=0.6);
+```
+
+![Barplot2](Documentation/Images/Barplot2.png)
+
+Also horizontal versions of the above barplot are supported with the keyword **kind="barh"**. Below you see an example where we specify a column of the DataFrame as the bar category via the **x** argument:
+```python
+p_hbar = df.plot_bokeh(
+    kind="barh",
+    x="fruits",
+    xlabel="Price per Unit [€]",
+    title="Fruit prices per Year",
+    alpha=0.6,
+    legend = "bottom_right",
+    show_figure=False)
+
+p_stacked_hbar = df.plot_bokeh(
+    kind="barh",
+    x="fruits",
+    stacked=True,
+    xlabel="Price per Unit [€]",
+    title="Fruit prices per Year",
+    alpha=0.6,
+    legend = "bottom_right",
+    show_figure=False)
+
+pandas_bokeh.plot_grid([[p_bar, p_stacked_bar],
+                        [p_hbar, p_stacked_hbar]], 
+                       plot_width=450)
+```
+
+![Barplot3](Documentation/Images/Barplot3.png)
+
 
 ## Histogram
 
@@ -319,7 +358,7 @@ df.head()
 <table  class="dataframe">  <thead>    <tr style="text-align: right;">      <th>Year</th>      <th>Oil</th>      <th>Gas</th>      <th>Coal</th>      <th>Nuclear Energy</th>      <th>Hydroelectricity</th>      <th>Other Renewable</th>    </tr>  </thead>  <tbody>    <tr>      <td>1970-01-01</td>      <td>2291.5</td>      <td>826.7</td>      <td>1467.3</td>      <td>17.7</td>      <td>265.8</td>      <td>5.8</td>    </tr>    <tr>      <td>1971-01-01</td>      <td>2427.7</td>      <td>884.8</td>      <td>1459.2</td>      <td>24.9</td>      <td>276.4</td>      <td>6.3</td>    </tr>    <tr>      <td>1972-01-01</td>      <td>2613.9</td>      <td>933.7</td>      <td>1475.7</td>      <td>34.1</td>      <td>288.9</td>      <td>6.8</td>    </tr>    <tr>      <td>1973-01-01</td>      <td>2818.1</td>      <td>978.0</td>      <td>1519.6</td>      <td>45.9</td>      <td>292.5</td>      <td>7.3</td>    </tr>    <tr>      <td>1974-01-01</td>      <td>2777.3</td>      <td>1001.9</td>      <td>1520.9</td>      <td>59.6</td>      <td>321.1</td>      <td>7.7</td>    </tr>  </tbody></table>
 <br>
 
-Making the Areaplot can be achieved via:
+Creating the Areaplot can be achieved via:
 ```python
 df.plot_bokeh(
     kind="area",
@@ -334,7 +373,55 @@ df.plot_bokeh(
 
 ![areaplot](Documentation/Images/areaplot.png)
 
-#### Note that the trend for fossile enegry is still clearly positive and renewable energy sources are still negligible in comparison 😢. 
+Note that the energy consumption of fossile energy is still increasing and renewable energy sources are still small in comparison 😢!!! However, when we norm the plot using the **normed** keyword, there is a clear trend towards renewable energies in the last decade:
+```python
+df_energy.plot_bokeh(
+    kind="area",
+    x="Year",
+    stacked=True,
+    normed=100,
+    legend="bottom_left",
+    colormap=["brown", "orange", "black", "grey", "blue", "green"],
+    title="Worldwide energy consumption split by energy source",
+    ylabel="Million tonnes oil equivalent")
+```
+
+![areaplot2](Documentation/Images/areaplot2.gif)
+
+## Pieplots
+
+For Pieplots, let us consider a dataset showing the results of all Bundestags elections in Germany since 2002:
+```python
+df_pie = pd.read_csv(r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata/Bundestagswahl/Bundestagswahl.csv")
+df_pie
+```
+<table class="dataframe">  <thead>    <tr style="text-align: right;">      <th>Partei</th>      <th>2002</th>      <th>2005</th>      <th>2009</th>      <th>2013</th>      <th>2017</th>    </tr>  </thead>  <tbody>    <tr>      <td>CDU/CSU</td>      <td>38.5</td>      <td>35.2</td>      <td>33.8</td>      <td>41.5</td>      <td>32.9</td>    </tr>    <tr>      <td>SPD</td>      <td>38.5</td>      <td>34.2</td>      <td>23.0</td>      <td>25.7</td>      <td>20.5</td>    </tr>    <tr>      <td>FDP</td>      <td>7.4</td>      <td>9.8</td>      <td>14.6</td>      <td>4.8</td>      <td>10.7</td>    </tr>    <tr>      <td>Grünen</td>      <td>8.6</td>      <td>8.1</td>      <td>10.7</td>      <td>8.4</td>      <td>8.9</td>    </tr>    <tr>      <td>Linke/PDS</td>      <td>4.0</td>      <td>8.7</td>      <td>11.9</td>      <td>8.6</td>      <td>9.2</td>    </tr>    <tr>      <td>AfD</td>      <td>0.0</td>      <td>0.0</td>      <td>0.0</td>      <td>0.0</td>      <td>12.6</td>    </tr>    <tr>      <td>Sonstige</td>      <td>3.0</td>      <td>4.0</td>      <td>6.0</td>      <td>11.0</td>      <td>5.0</td>    </tr>  </tbody></table>
+
+We can create a Pieplot of the last election in 2017 by specifying the "Partei" (german for party) column as the **x** column and the "2017" column as the y column for values:
+```python
+df_pie.plot_bokeh(
+    kind="pie",
+    x="Partei",
+    y="2017",
+    colormap=["blue", "red", "yellow", "green", "purple", "orange", "grey"],
+    title="Results of German Bundestag Election 2017",
+    )
+```
+
+![pieplot](Documentation/Images/pieplot.gif)
+
+When you pass several columns to the **y** parameter (not providing the y-parameter assumes you plot all columns), multiple nested pieplots will be shown in one plot:
+```python
+df_pie.plot_bokeh(
+    kind="pie",
+    x="Partei",
+    colormap=["blue", "red", "yellow", "green", "purple", "orange", "grey"],
+    title="Results of German Bundestag Elections [2002-2017]",
+    line_color="grey"
+    )
+```
+
+![pieplot2](Documentation/Images/pieplot2.png)
 
 ## Geoplots
 
@@ -373,6 +460,7 @@ We also passed the optional parameter **simplify_shapes** (~meter) to improve pl
 
 Many keyword arguments like *xlabel, ylabel, title, colormap, hovertool, ...* for costumizing the plot are also available for the geoplotting API and can be uses as in the examples shown above. There are however also many other options especially for plotting geodata:
 * **hovertool_columns**: Specify column names, for which values should be shown in hovertool
+* **hovertool_string**: If specified, this string will be used for the hovertool (@{column} will be replaced by the value of the column for the element the mouse hovers over, see also [Bokeh documentation](https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#custom-tooltip))
 * **colormap_uselog**: If set *True*, the colormapper is using a logscale. *Default: False*
 * **colormap_range**: Specify the value range of the colormapper via (min, max) tuple
 * **tile_provider**: Define build-in tile provider for background maps. Possible values: *'CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA', 'STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS'. Default: CARTODBPOSITRON_RETINA* 
@@ -398,17 +486,30 @@ df_states.plot_bokeh(
     tile_provider="STAMEN_TERRAIN_RETINA")
 ```
 
+When hovering over the states, the state-name and the region are shown as specified in the **hovertool_columns** argument.
+
 ![US_States_2](Documentation/Images/US_States_2.png)
 
 ### Dropdown
-By passing a *list of column names* of the GeoDataFrame as the **dropdown** keyword argument, a dropdown menu is shown above the map. This dropdown menu can be used to select the choropleth layer by the user. 
+By passing a *list of column names* of the GeoDataFrame as the **dropdown** keyword argument, a dropdown menu is shown above the map. This dropdown menu can be used to select the choropleth layer by the user. :
 ```python
+df_states["STATE_NAME_SMALL"] = df_states["STATE_NAME"].str.lower()
+
 df_states.plot_bokeh(
     figsize=(900, 600),
     simplify_shapes=5000,
     dropdown=["POPESTIMATE2010", "POPESTIMATE2017"],
     colormap="Viridis",
-    hovertool_columns=["STATE_NAME", "POPESTIMATE2010", "POPESTIMATE2017"],
+    hovertool_string="""
+                        <img
+                        src="https://www.states101.com/img/flags/gif/small/@STATE_NAME_SMALL.gif" 
+                        height="42" alt="@imgs" width="42"
+                        style="float: left; margin: 0px 15px 15px 0px;"
+                        border="2"></img>
+                
+                        <h2>  @STATE_NAME </h2>
+                        <h3> 2010: @POPESTIMATE2010 </h3>
+                        <h3> 2017: @POPESTIMATE2017 </h3>""",
     tile_provider_url=r"http://c.tile.stamen.com/watercolor/{Z}/{X}/{Y}.jpg",
     tile_attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
     )
@@ -416,7 +517,11 @@ df_states.plot_bokeh(
 
 ![US_States_3](Documentation/Images/US_States_3.gif)
 
-When hovering over the states, the state-name and the population of 2010 and 2017 are shown as specified in the **hovertool_columns** argument.
+Using **hovertool_string**, one can pass a string that can contain arbitrary HTML elements (including divs, images, ...) that is shown when hovering over the geographies (@{column} will be replaced by the value of the column for the element the mouse hovers over, see also [Bokeh documentation](https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#custom-tooltip)).
+
+Here, we also used an OSM tile server with watercolor style via **tile_provider_url** and added the attribution via **tile_attribution**.
+
+
 
 ### Sliders
 

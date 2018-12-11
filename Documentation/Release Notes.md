@@ -46,12 +46,15 @@ Changes:
 * Toolbar now visible per default
 * Kwargs names are checked in columns of DataFrame/Series and kept if there is a match, such that additional keyword arguments can be used to specify for example line_width or alpha value of plots
 * Additional plot types:
-    * areaplot (with **stacked** and **normed** kwargs)
+    * areaplots (with **stacked** and **normed** kwargs)
     * horizontal barplots 
     * **stacked** barplots
+    * piecharts
 * Corrected dependencies in **setup.py** 
 * Improved Functionalities (row, column) for **Pandas Bokeh** Layouts
 * Smarter x-axis labeling for barplots when using datetimes
 * Several minor improvements & bugfixes
+* Histogram <bins> parameter also accepts integers (to specify number of bins)
+
 
 

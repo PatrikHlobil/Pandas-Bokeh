@@ -17,11 +17,11 @@
 - Proper String conversion for barplot with datetimes (look if ms exist, s/m/h exist, ...) --> delete "category" variable? ✓
 - Implement xrange, yrange for Geoplots ✓
 - For bins, also accept integer values ✓
+- Pieplot ✓
 
 - For bins, also accept strings with name of bin-autodetection
 - Integrate **check_type** function in all places --> Better check for categorical (e.g. multiindex problem --> raise Exception when x-axis is a multiindex)
 - Horizontal/Vertical Boxplots
-- Pieplot
 - Categorical line  & point & area plots (set x = range(N) and define mapping from integers to categorical string representations)
 - panning/zooming=True/False parameters implementation
 - Change Legend title when selecting new column in dropdown (in CustomJS) for Geoplots
@@ -47,3 +47,4 @@
 - Fix bug when using logscale on y-axis for histograms
 - For scatterplot, also show a legend when no category is chosen
 - vertical_xlabel should also allow for float values (--> angle )
+- For pieplots with several y, align the annotations nicely around the corner

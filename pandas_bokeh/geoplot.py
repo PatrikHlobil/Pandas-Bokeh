@@ -106,6 +106,7 @@ def geoplot(
     yrange=None,
     hovertool=True,
     hovertool_columns=[],
+    hovertool_string=None,
     simplify_shapes=None,
     tile_provider="CARTODBPOSITRON_RETINA",
     tile_provider_url=None,
@@ -440,12 +441,24 @@ def geoplot(
         if not isinstance(legend, str):
             legend = "Geolayer"
 
+    #Check that only hovertool_columns or hovertool_string is used:
+    if isinstance(hovertool_columns, (list, tuple, str)):
+        if len(hovertool_columns) > 0 and hovertool_string is not None:
+            raise ValueError("Either <hovertool_columns> or <hovertool_string> can be used, but not both at the same time.")
+    else:
+        raise ValueError(
+                    "<hovertool_columns> has to be a list of columns of the GeoDataFrame or the string 'all'."
+                )
+
+    if hovertool_string is not None:
+        hovertool_columns = "all"
+
     # Check for Hovertool columns:
     if hovertool:
         if not isinstance(hovertool_columns, (list, tuple)):
             if hovertool_columns == "all":
                 hovertool_columns = list(
-                    filter(lambda col: col != "geometry", df_shapes.columns)
+                    filter(lambda col: col != "geometry", gdf.columns)
                 )
             else:
                 raise ValueError(
@@ -472,6 +485,7 @@ def geoplot(
             hovertool_columns = []
         else:
             hovertool_columns = [category]
+
 
     # Reduce DataFrame to needed columns:
     additional_columns = []
@@ -518,7 +532,10 @@ def geoplot(
     # Add hovertool:
     if hovertool and (category_options == 1 or len(hovertool_columns) > 0):
         my_hover = HoverTool()
-        my_hover.tooltips = [(str(col), "@{%s}" % col) for col in hovertool_columns]
+        if hovertool_string is None:
+            my_hover.tooltips = [(str(col), "@{%s}" % col) for col in hovertool_columns]
+        else:
+            my_hover.tooltips = hovertool_string
         p.add_tools(my_hover)
 
     # Add colorbar:
