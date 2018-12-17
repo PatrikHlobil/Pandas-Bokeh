@@ -36,13 +36,16 @@ Changes:
 
 ### GeoPandas Bokeh
 * Added <tile_attribution> & <tile_alpha> parameter for background tiles of geoplots
+* Added <hovertool_string> for providing an HTML string to the hovertool
 * Support for xlim & ylim in WGS84 (Latitude/Longitude) for geoplots
 * WebGL now as plotting backend as default (GeoPandas)
 * Kwargs names are checked in columns of GeoDataFrame and kept if there is a match, such that additional keyword arguments can be used to specify for example line_width or alpha value of geoplots
+* Greatly Improved performance for Polygon Geoplots 
 
 ### Pandas Bokeh
 * WebGL now as plotting backend as default (Panda) 
 * Code Refactoring
+* Added panning/zooming keyword options
 * Toolbar now visible per default
 * Kwargs names are checked in columns of DataFrame/Series and kept if there is a match, such that additional keyword arguments can be used to specify for example line_width or alpha value of plots
 * Additional plot types:
@@ -55,6 +58,7 @@ Changes:
 * Smarter x-axis labeling for barplots when using datetimes
 * Several minor improvements & bugfixes
 * Histogram <bins> parameter also accepts integers (to specify number of bins)
+* Added support for categorical x-axis for all plot types (also line, scatter, area, ...)
 
 
 

@@ -98,6 +98,9 @@ There are various optional parameters to tune the plots, for example:
 * **color**: Defines a single color for a plot.
 * **colormap**: Defines the colors to plot. Can be either a list of colors or the name of a [Bokeh color palette](https://bokeh.pydata.org/en/latest/docs/reference/palettes.html)
 * **hovertool**: If True a Hovertool is active, else if False no Hovertool is drawn.
+* **toolbar_location**: Specify the position of the toolbar location (None, "above", "below", "left" or "right"). Default: *"right"*
+* **zooming**: Enables/Disables zooming. Default: *True*
+* **panning**: Enables/Disables panning. Default: *True*
 
 
 * **kwargs****: Optional keyword arguments of [bokeh.plotting.figure.line](https://bokeh.pydata.org/en/latest/docs/reference/plotting.html#bokeh.plotting.figure.Figure.line)
@@ -114,7 +117,11 @@ df.plot_bokeh(
     ylabel="Stock price [$]",
     yticks=[0,100,200,300,400],
     ylim=(0,400),
-    colormap=["red", "blue"])
+    toolbar_location=None,
+    colormap=["red", "blue"],
+    panning=False,
+    zooming=False
+    );
 ```
 
 ![ApplevsGoogle_2](Documentation/Images/ApplevsGoogle_2.png)
@@ -145,8 +152,7 @@ df.plot_bokeh(
     colormap=["red", "blue"],
     plot_data_points=True,
     plot_data_points_size=10,
-    marker="asterisk",
-    toolbar_location="right"
+    marker="asterisk"
 )
 ```
 
@@ -302,6 +308,7 @@ For drawing **histograms**, **Pandas Bokeh** has a lot of customization features
 
 * **kwargs****: Optional keyword arguments of [bokeh.plotting.figure.quad](https://bokeh.pydata.org/en/latest/docs/reference/plotting.html#bokeh.plotting.figure.Figure.quad)
 
+Below examples of the different histogram types:
 ```python
 import numpy as np
 
@@ -343,6 +350,43 @@ df_hist.plot_bokeh(
 ```
 
 ![Histogram](Documentation/Images/Histograms_all.gif)
+
+Further, advanced keyword arguments for histograms are:
+* **weights**: A column of the DataFrame that is used as weight for the histogramm aggregation (see also [numpy.histogram](https://docs.scipy.org/doc/numpy-1.15.1/reference/generated/numpy.histogram.html))
+* **normed**: If True, histogram values are normed to 1 (sum of histogram values=1). It is also possible to pass an integer, e.g. *normed=100* would result in a histogram with percentage y-axis (sum of histogram values=100). *Default: False*
+* **cumulative**: If True, a cumulative histogram is shown. *Default: False*
+* **show_average**: If True, the average of the histogram is also shown. *Default: False*
+
+Their usage is shown in these examples:
+```python
+p_hist = df_hist.plot_bokeh(
+    kind="hist",
+    y=["a", "b"],
+    bins=np.arange(-4, 6.5, 0.5),
+    normed=100,
+    vertical_xlabel=True,
+    ylabel="Share[%]",
+    title="Normal distributions (normed)",
+    show_average=True,
+    xlim=(-4, 6),
+    ylim=(0,30),
+    show_figure=False)
+
+p_hist_cum = df_hist.plot_bokeh(
+    kind="hist",
+    y=["a", "b"],
+    bins=np.arange(-4, 6.5, 0.5),
+    normed=100,
+    cumulative=True,
+    vertical_xlabel=True,
+    ylabel="Share[%]",
+    title="Normal distributions (normed & cumulative)",
+    show_figure=False)
+
+pandas_bokeh.plot_grid([[p_hist, p_hist_cum]], plot_width=450, plot_height=300)
+```
+
+![Histogram2](Documentation/Images/Histogram2.png)
 
 <br>
 
@@ -458,7 +502,7 @@ df_states.plot_bokeh(simplify_shapes=10000)
 
 We also passed the optional parameter **simplify_shapes** (~meter) to improve plotting performance (for a reference see [shapely.object.simplify](https://shapely.readthedocs.io/en/stable/manual.html#object.simplify)). The above geolayer thus has an accuracy of about 10km.
 
-Many keyword arguments like *xlabel, ylabel, title, colormap, hovertool, ...* for costumizing the plot are also available for the geoplotting API and can be uses as in the examples shown above. There are however also many other options especially for plotting geodata:
+Many keyword arguments like *xlabel, ylabel, title, colormap, hovertool, zooming, panning, ...* for costumizing the plot are also available for the geoplotting API and can be uses as in the examples shown above. There are however also many other options especially for plotting geodata:
 * **hovertool_columns**: Specify column names, for which values should be shown in hovertool
 * **hovertool_string**: If specified, this string will be used for the hovertool (@{column} will be replaced by the value of the column for the element the mouse hovers over, see also [Bokeh documentation](https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#custom-tooltip))
 * **colormap_uselog**: If set *True*, the colormapper is using a logscale. *Default: False*

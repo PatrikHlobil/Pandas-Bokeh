@@ -2,27 +2,11 @@ import numbers
 from collections import OrderedDict, Iterable, Hashable
 
 import numpy as np
-from bokeh.plotting import figure, show, output_file, output_notebook
-from bokeh.models import (
-    HoverTool,
-    LogColorMapper,
-    LinearColorMapper,
-    GeoJSONDataSource,
-    WheelZoomTool,
-    ColorBar,
-    BasicTicker,
-    LogTicker,
-    Dropdown,
-    Slider,
-    ColumnDataSource,
-)
-from bokeh.models.callbacks import CustomJS
-from bokeh.models.widgets import Dropdown
-from bokeh.palettes import all_palettes
-from bokeh.colors import RGB
-from bokeh.layouts import row, column
 
 from .base import embedded_html
+
+
+from bokeh.colors import RGB
 
 blue_colormap = [RGB(255 - i, 255 - i, 255) for i in range(256)]
 
@@ -32,7 +16,7 @@ def _add_backgroundtile(
 ):
     """Add a background tile to the plot. Either uses predefined Tiles from Bokeh 
     (parameter: tile_provider) or user passed a tile_provider_url of the form 
-    '<url>/{Z}/{X}/{Y}*.png'."""
+    '<url>/{Z}/{X}/{Y}*.png' or '<url>/{Z}/{Y}/{X}*.png'."""
 
     from bokeh.tile_providers import (
         CARTODBPOSITRON,
@@ -56,9 +40,12 @@ def _add_backgroundtile(
     }
 
     if not tile_provider_url is None:
-        if "/{Z}/{X}/{Y}" not in tile_provider_url:
+        if (
+            "/{Z}/{X}/{Y}" not in tile_provider_url
+            and "/{Z}/{Y}/{X}" not in tile_provider_url
+        ):
             raise ValueError(
-                "<tile_provider_url> has to be of the form '<url>/{Z}/{X}/{Y}*.png'."
+                "<tile_provider_url> has to be of the form '<url>/{Z}/{X}/{Y}*.png' or <url>/{Z}/{Y}/{X}*.png'."
             )
         if not isinstance(tile_attribution, str):
             raise ValueError("<tile_attribution> has to be a string.")
@@ -81,6 +68,33 @@ def _add_backgroundtile(
     t.alpha = tile_alpha
 
     return p
+
+
+def convert_geoDataFrame_to_patches(gdf, geometry_column_name="geometry"):
+    """Creates from a geoDataFrame with Polygons and Multipolygons a Pandas DataFrame with x any y columns specifying the geometry of the Polygons"""
+
+    import geopandas as gpd
+
+    gdf_new = gpd.GeoDataFrame(columns=gdf.columns)
+    for i, row in gdf.iterrows():
+        geometry = row[geometry_column_name]
+        if geometry.type == "Polygon":
+            x, y = geometry.exterior.xy
+            # Convert to int for web mercador projection to save space:
+            row["__x__"] = [int(_) for _ in x]
+            row["__y__"] = [int(_) for _ in y]
+            gdf_new = gdf_new.append(row, ignore_index=True)
+        if geometry.type == "MultiPolygon":
+            for polygon in geometry:
+                x, y = polygon.exterior.xy
+                # Convert to int for web mercador projection to save space:
+                row["__x__"] = [int(_) for _ in x]
+                row["__y__"] = [int(_) for _ in y]
+                gdf_new = gdf_new.append(row, ignore_index=True)
+
+    gdf_new = gdf_new.drop(columns=["geometry"])
+
+    return gdf_new
 
 
 def geoplot(
@@ -112,6 +126,8 @@ def geoplot(
     tile_provider_url=None,
     tile_attribution="",
     tile_alpha=1,
+    panning=True,
+    zooming=True,
     toolbar_location="right",
     show_figure=True,
     return_figure=True,
@@ -122,6 +138,27 @@ def geoplot(
 ):
     """Doc-String: TODO"""
 
+    # Imports:
+    from bokeh.plotting import figure, show
+    from bokeh.models import (
+        HoverTool,
+        LogColorMapper,
+        LinearColorMapper,
+        GeoJSONDataSource,
+        WheelZoomTool,
+        ColorBar,
+        BasicTicker,
+        LogTicker,
+        Dropdown,
+        Slider,
+        ColumnDataSource,
+    )
+    from bokeh.models.callbacks import CustomJS
+    from bokeh.models.widgets import Dropdown
+    from bokeh.palettes import all_palettes
+    from bokeh.layouts import row, column
+
+    # Make a copy of the input geodataframe:
     gdf = gdf_in.copy()
 
     # Check layertypes:
@@ -290,42 +327,54 @@ def geoplot(
         if isinstance(xlim, (tuple, list)):
             if len(xlim) == 2:
                 from pyproj import Proj, transform
-                inProj = Proj(init='epsg:4326')
-                outProj = Proj(init='epsg:3857')
+
+                inProj = Proj(init="epsg:4326")
+                outProj = Proj(init="epsg:3857")
                 xmin, xmax = xlim
                 for _ in [xmin, xmax]:
                     if not -180 < _ <= 180:
-                        raise ValueError("Limits for x-axis (=Longitude) have to be between -180 and 180.")
+                        raise ValueError(
+                            "Limits for x-axis (=Longitude) have to be between -180 and 180."
+                        )
                 if not xmin < xmax:
                     raise ValueError("xmin has to be smaller than xmax.")
                 xmin = transform(inProj, outProj, xmin, 0)[0]
                 xmax = transform(inProj, outProj, xmax, 0)[0]
                 figure_options["x_range"] = (xmin, xmax)
             else:
-                raise ValueError("Limits for x-axis (=Longitude) have to be of form [xmin, xmax] with values between -180 and 180.")
+                raise ValueError(
+                    "Limits for x-axis (=Longitude) have to be of form [xmin, xmax] with values between -180 and 180."
+                )
         else:
-            raise ValueError("Limits for x-axis (=Longitude) have to be of form [xmin, xmax] with values between -180 and 180.")
+            raise ValueError(
+                "Limits for x-axis (=Longitude) have to be of form [xmin, xmax] with values between -180 and 180."
+            )
     if ylim is not None:
         if isinstance(ylim, (tuple, list)):
             if len(ylim) == 2:
                 from pyproj import Proj, transform
-                inProj = Proj(init='epsg:4326')
-                outProj = Proj(init='epsg:3857')
+
+                inProj = Proj(init="epsg:4326")
+                outProj = Proj(init="epsg:3857")
                 ymin, ymax = ylim
                 for _ in [ymin, ymax]:
                     if not -90 < _ <= 90:
-                        raise ValueError("Limits for y-axis (=Latitude) have to be between -90 and 90.")
+                        raise ValueError(
+                            "Limits for y-axis (=Latitude) have to be between -90 and 90."
+                        )
                 if not ymin < ymax:
                     raise ValueError("ymin has to be smaller than ymax.")
                 ymin = transform(inProj, outProj, 0, ymin)[1]
                 ymax = transform(inProj, outProj, 0, ymax)[1]
                 figure_options["y_range"] = (ymin, ymax)
             else:
-                raise ValueError("Limits for y-axis (=Latitude) have to be of form [ymin, ymax] with values between -90 and 90.")
+                raise ValueError(
+                    "Limits for y-axis (=Latitude) have to be of form [ymin, ymax] with values between -90 and 90."
+                )
         else:
-            raise ValueError("Limits for y-axis (=Latitude) have to be of form [ymin, ymax] with values between -90 and 90.")
-                
-        
+            raise ValueError(
+                "Limits for y-axis (=Latitude) have to be of form [ymin, ymax] with values between -90 and 90."
+            )
 
     # Create Figure to draw:
     p = figure(x_axis_type="mercator", y_axis_type="mercator", **figure_options)
@@ -341,9 +390,8 @@ def geoplot(
     )
 
     # Hide legend if wanted:
-    if not legend:
-        p.legend.visible = False
-    elif isinstance(legend, str):
+    legend_input = legend
+    if isinstance(legend, str):
         pass
     else:
         legend = "GeoLayer"
@@ -408,8 +456,7 @@ def geoplot(
         else:
             colormapper = LinearColorMapper(**colormapper_options)
         kwargs["fill_color"] = {"field": "Colormap", "transform": colormapper}
-        if not isinstance(legend, str):
-            legend = "Geolayer"
+        legend = " " + field
 
     elif not slider is None:
         # Check if all columns in dropdown selection are numerical:
@@ -441,14 +488,16 @@ def geoplot(
         if not isinstance(legend, str):
             legend = "Geolayer"
 
-    #Check that only hovertool_columns or hovertool_string is used:
+    # Check that only hovertool_columns or hovertool_string is used:
     if isinstance(hovertool_columns, (list, tuple, str)):
         if len(hovertool_columns) > 0 and hovertool_string is not None:
-            raise ValueError("Either <hovertool_columns> or <hovertool_string> can be used, but not both at the same time.")
+            raise ValueError(
+                "Either <hovertool_columns> or <hovertool_string> can be used, but not both at the same time."
+            )
     else:
         raise ValueError(
-                    "<hovertool_columns> has to be a list of columns of the GeoDataFrame or the string 'all'."
-                )
+            "<hovertool_columns> has to be a list of columns of the GeoDataFrame or the string 'all'."
+        )
 
     if hovertool_string is not None:
         hovertool_columns = "all"
@@ -486,7 +535,6 @@ def geoplot(
         else:
             hovertool_columns = [category]
 
-
     # Reduce DataFrame to needed columns:
     additional_columns = []
     for kwarg, value in kwargs.items():
@@ -513,25 +561,34 @@ def geoplot(
     if "Point" in layertypes:
         if "line_color" not in kwargs:
             kwargs["line_color"] = kwargs["fill_color"]
-        p.scatter(x="x", y="y", source=geo_source, legend=legend, **kwargs)
+        glyph = p.scatter(x="x", y="y", source=geo_source, legend=legend, **kwargs)
 
     if "Line" in layertypes:
         if "line_color" not in kwargs:
             kwargs["line_color"] = kwargs["fill_color"]
             del kwargs["fill_color"]
-        p.multi_line(xs="xs", ys="ys", source=geo_source, legend=legend, **kwargs)
+        glyph = p.multi_line(
+            xs="xs", ys="ys", source=geo_source, legend=legend, **kwargs
+        )
 
     if "Polygon" in layertypes:
 
         if "line_color" not in kwargs:
             kwargs["line_color"] = "black"
 
+        # Creates from a geoDataFrame with Polygons and Multipolygons a Pandas DataFrame
+        # with x any y columns specifying the geometry of the Polygons:
+        geo_source = ColumnDataSource(convert_geoDataFrame_to_patches(gdf))
+           
+
         # Plot polygons:
-        p.patches(xs="xs", ys="ys", source=geo_source, legend=legend, **kwargs)
+        glyph = p.patches(
+            xs="__x__", ys="__y__", source=geo_source, legend=legend, **kwargs
+        )
 
     # Add hovertool:
     if hovertool and (category_options == 1 or len(hovertool_columns) > 0):
-        my_hover = HoverTool()
+        my_hover = HoverTool(renderers=[glyph])
         if hovertool_string is None:
             my_hover.tooltips = [(str(col), "@{%s}" % col) for col in hovertool_columns]
         else:
@@ -562,13 +619,19 @@ def geoplot(
 
         # Define Callback for Dropdown widget:
         callback = CustomJS(
-            args=dict(dropdown_widget=dropdown_widget, geo_source=geo_source, p=p),
+            args=dict(
+                dropdown_widget=dropdown_widget,
+                geo_source=geo_source,
+                legend=p.legend[0].items[0],
+            ),
             code="""
 
                 //Change selection of field for Colormapper for choropleth plot:
                 geo_source.data["Colormap"] = geo_source.data[dropdown_widget.value];
                 geo_source.change.emit();
-                //p.legend[0].items[0]["label"] = dropdown_widget.value;
+
+                //Change label of Legend:
+                legend.label["value"] = " " + dropdown_widget.value;
 
                             """,
         )
@@ -632,8 +695,20 @@ def geoplot(
         # Add Slider widget above the plot:
         layout = column(slider_widget, p)
 
+    # Hide legend if user wants:
+    if legend_input is False:
+        p.legend.visible = False
+
     # Set click policy for legend:
     p.legend.click_policy = "hide"
+
+    #Set panning option:
+    if panning is False:
+        p.toolbar.active_drag = None
+
+    #Set zooming option:
+    if zooming is False:
+        p.toolbar.active_scroll = None
 
     # Display plot and if wanted return plot:
     if layout is None:
