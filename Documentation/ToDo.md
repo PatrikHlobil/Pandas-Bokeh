@@ -24,6 +24,8 @@
 - Check input values of <kind> and throw exception if it doesn't exist ✓
 - Histogram documentation in README... add cumulative, normed & weights ✓
 - panning/zooming=True/False parameters implementation ✓
+- Point data example in documentation for geoplots ✓
+
 
 ---
 - Horizontal/Vertical Boxplots
@@ -32,7 +34,7 @@
 
 
 
-- Point data example in documentation for geoplots
+
 
 ## Release 0.2:
 - Grid options (vertical/horizontal/both) for plots

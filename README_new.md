@@ -610,7 +610,7 @@ df_states.plot_bokeh(
 
 Below, you can see an example that use **Pandas Bokeh** to plot point data on a map. The plot shows all cities with a population larger than 1.000.000. For point plots, you can select the **marker** as keyword argument (since it is passed to [bokeh.plotting.figure.scatter](http://bokeh.pydata.org/en/latest/docs/reference/plotting.html#bokeh.plotting.figure.Figure.scatter)). [Here](https://bokeh.pydata.org/en/latest/docs/gallery/markers.html) an overview of all available marker types:
 ```python
-gdf = gpd.read_file(r"Testdata/populated places/ne_10m_populated_places_simple_bigcities.geojson")
+gdf = gpd.read_file(r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata/populated%20places/ne_10m_populated_places_simple_bigcities.geojson")
 gdf["size"] = gdf.pop_max / 400000
 
 gdf.plot_bokeh(
@@ -624,7 +624,7 @@ gdf.plot_bokeh(
     ylim=[30,60],
     marker="inverted_triangle");
 ```
-
+![Pointmap](Documentation/Images/Pointmap.gif)
 
 In a similar way, also GeoDataFrames with (multi)line shapes can be drawn using **Pandas Bokeh**.
 
