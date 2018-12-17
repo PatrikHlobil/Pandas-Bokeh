@@ -502,7 +502,7 @@ df_states.plot_bokeh(simplify_shapes=10000)
 
 We also passed the optional parameter **simplify_shapes** (~meter) to improve plotting performance (for a reference see [shapely.object.simplify](https://shapely.readthedocs.io/en/stable/manual.html#object.simplify)). The above geolayer thus has an accuracy of about 10km.
 
-Many keyword arguments like *xlabel, ylabel, title, colormap, hovertool, zooming, panning, ...* for costumizing the plot are also available for the geoplotting API and can be uses as in the examples shown above. There are however also many other options especially for plotting geodata:
+Many keyword arguments like *xlabel, ylabel, xlim, ylim, title, colormap, hovertool, zooming, panning, ...* for costumizing the plot are also available for the geoplotting API and can be uses as in the examples shown above. There are however also many other options especially for plotting geodata:
 * **hovertool_columns**: Specify column names, for which values should be shown in hovertool
 * **hovertool_string**: If specified, this string will be used for the hovertool (@{column} will be replaced by the value of the column for the element the mouse hovers over, see also [Bokeh documentation](https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#custom-tooltip))
 * **colormap_uselog**: If set *True*, the colormapper is using a logscale. *Default: False*
@@ -602,9 +602,35 @@ df_states.plot_bokeh(
 ![US_States_4](Documentation/Images/US_States_4.gif)
 
 <br>
+<br>
+
+---
+
+### Point & Line plots:
+
+Below, you can see an example that use **Pandas Bokeh** to plot point data on a map. The plot shows all cities with a population larger than 1.000.000. For point plots, you can select the **marker** as keyword argument (since it is passed to [bokeh.plotting.figure.scatter](http://bokeh.pydata.org/en/latest/docs/reference/plotting.html#bokeh.plotting.figure.Figure.scatter)). [Here](https://bokeh.pydata.org/en/latest/docs/gallery/markers.html) an overview of all available marker types:
+```python
+gdf = gpd.read_file(r"Testdata/populated places/ne_10m_populated_places_simple_bigcities.geojson")
+gdf["size"] = gdf.pop_max / 400000
+
+gdf.plot_bokeh(
+    category="pop_max",
+    colormap="Viridis",
+    colormap_uselog=True,
+    size="size",
+    hovertool_string="""<h1>@name</h1>
+                        <h3>Population: @pop_max </h3>""",
+    xlim=[-15, 35],
+    ylim=[30,60],
+    marker="inverted_triangle");
+```
+
+
+In a similar way, also GeoDataFrames with (multi)line shapes can be drawn using **Pandas Bokeh**.
+
+<br>
 
 <p id="Layouts"></p>
-
 
 ## Outputs and Layouts
 
