@@ -353,6 +353,11 @@ def plot(
         allowed_kinds = "', '".join(allowed_kinds)
         raise ValueError("Allowed plot kinds are '%s'." % allowed_kinds)
 
+    # Make sure that for histograms also old API with "by" works:
+    if kind == "hist":
+        if by is not None:
+            y = by
+
     # Set standard linewidth:
     if "line_width" not in kwargs:
         kwargs["line_width"] = 2
@@ -393,11 +398,15 @@ def plot(
             x = np.linspace(0, len(df) - 1, len(df))
             name = ""
 
+    # Define name of axis of x-values (for horizontal plots like barh, this corresponds
+    # to y-axis):
     if kind == "barh":
         if "y_axis_label" not in figure_options:
             figure_options["y_axis_label"] = name
-    elif "x_axis_label" not in figure_options:
-        figure_options["x_axis_label"] = name
+
+    else:
+        if "x_axis_label" not in figure_options:
+            figure_options["x_axis_label"] = name
 
     # Check type of x-axis:
     if check_type(x) == "datetime":
@@ -452,8 +461,7 @@ def plot(
             )
         if np.issubdtype(df[col].dtype, np.number):
             data_cols.append(col)
-    N_cols = len(data_cols)
-    if N_cols == 0:
+    if len(data_cols) == 0:
         raise Exception("No numeric data columns found for plotting.")
 
     # Convert y-column names into string representation:
@@ -464,6 +472,35 @@ def plot(
     if not delete_in_y is None:
         if delete_in_y in data_cols:
             data_cols.remove(delete_in_y)
+    N_cols = len(data_cols)
+    if len(data_cols) == 0:
+        raise Exception(
+            "The only numeric column is the column %s that is already used on the x-axis."
+            % delete_in_y
+        )
+
+    # Autodetect y-label if no y-label is provided by user and only one y-column exists:
+    if N_cols == 1:
+        if kind == "barh":
+            if "x_axis_label" not in figure_options:
+                figure_options["x_axis_label"] = data_cols[0]
+        else:
+            if "y_axis_label" not in figure_options:
+                figure_options["y_axis_label"] = data_cols[0]
+
+    # Get Name of x-axis data:
+    if kind == "barh":
+        xlabelname = (
+            figure_options["y_axis_label"]
+            if figure_options.get("y_axis_label", "") != ""
+            else "x"
+        )
+    else:
+        xlabelname = (
+            figure_options["x_axis_label"]
+            if figure_options.get("x_axis_label", "") != ""
+            else "x"
+        )
 
     # Create Figure for plotting:
     p = figure(**figure_options)
@@ -479,13 +516,6 @@ def plot(
                                 """
             % x_labels_dict
         )
-
-    # Define xlabel name as "x" if no label is provided by user or data:
-    xlabelname = (
-        figure_options["x_axis_label"]
-        if figure_options.get("x_axis_label", "") != ""
-        else "x"
-    )
 
     # Define ColumnDataSource for Plot if kind != "hist":
     if kind != "hist":
@@ -803,7 +833,9 @@ def plot(
     if kind == "pie":
 
         source["__x__values"] = [x_labels_dict[_] for _ in x]
-        p = pieplot(source, data_cols, colormap, hovertool, figure_options, **kwargs)
+        p = pieplot(
+            source, data_cols, colormap, hovertool, figure_options, xlabelname, **kwargs
+        )
 
     # Set xticks:
     if not xticks is None:
@@ -833,11 +865,11 @@ def plot(
     if vertical_xlabel:
         p.xaxis.major_label_orientation = np.pi / 2
 
-    #Set panning option:
+    # Set panning option:
     if panning is False:
         p.toolbar.active_drag = None
 
-    #Set zooming option:
+    # Set zooming option:
     if zooming is False:
         p.toolbar.active_scroll = None
 
@@ -1026,7 +1058,7 @@ def scatterplot(
     source = ColumnDataSource({"__x__values": x, "__x__values_original": x_old, "y": y})
 
     # Define Colormapper for categorical scatterplot:
-    if not category is None:
+    if category is not None:
 
         category = str(category)
         source.data[category] = category_values
@@ -1155,7 +1187,9 @@ def scatterplot(
     # Draw non categorical plot:
     else:
         # Draw glyph:
-        glyph = p.scatter(x="__x__values", y="y", source=source, **kwargs)
+        glyph = p.scatter(
+            x="__x__values", y="y", source=source, legend="Hide/Show", **kwargs
+        )
 
         # Add Hovertool:
         if hovertool:
@@ -1319,7 +1353,11 @@ def areaplot(
                 source[key] = [source[key][0]] + list(source[key]) + [source[key][-1]]
             else:
                 source[key] = np.array([0] + list(source[key]) + [0])
+        if "alpha" not in kwargs:
+            kwargs["alpha"] = 0.4
     else:
+        if "alpha" not in kwargs:
+            kwargs["alpha"] = 0.8
         if normed is not False:
             data = []
             for col in data_cols:
@@ -1329,8 +1367,10 @@ def areaplot(
             for col in data_cols:
                 source[col] = np.array(source[col]) / norm * normed
 
-        line_source = {"__x__values": source["__x__values"],
-                       "__x__values_original": source["__x__values_original"]}
+        line_source = {
+            "__x__values": source["__x__values"],
+            "__x__values_original": source["__x__values_original"],
+        }
         baseline = np.zeros(len(source["__x__values"]))
         del source["__x__values_original"]
         source["__x__values"] = (
@@ -1348,8 +1388,7 @@ def areaplot(
             source[col] = list(source[col]) + list(baseline)[::-1]
             baseline = new_baseline
 
-    if "alpha" not in kwargs:
-        kwargs["alpha"] = 0.5
+    
 
     # Add area patches to figure:
     for j, name, color in list(zip(range(len(data_cols)), data_cols, colormap))[::-1]:
@@ -1387,16 +1426,17 @@ def areaplot(
                 ]
                 my_hover.formatters = {"__x__values_original": "datetime"}
             else:
-                my_hover.tooltips = [
-                    (xlabelname, "@__x__values_original"),
-                    (name, "@{%s}" % name),
+                my_hover.tooltips = [(xlabelname, "@__x__values_original")] +  [
+                    (name, "@{%s}" % name) for name in data_cols[::-1]
                 ]
             p.add_tools(my_hover)
 
     return p
 
 
-def pieplot(source, data_cols, colormap, hovertool, figure_options, **kwargs):
+def pieplot(
+    source, data_cols, colormap, hovertool, figure_options, xlabelname, **kwargs
+):
 
     """Creates a Pieplot from the provided data."""
 
@@ -1481,7 +1521,7 @@ def pieplot(source, data_cols, colormap, hovertool, figure_options, **kwargs):
         if hovertool:
             my_hover = HoverTool(renderers=[glyph])
             my_hover.tooltips = [
-                (figure_options["x_axis_label"], "@__x__values_original"),
+                (xlabelname, "@__x__values_original"),
                 (col, "@{%s}" % col),
             ]
             p.add_tools(my_hover)
@@ -1602,7 +1642,7 @@ class FramePlotMethods(BasePlotMethods):
             ...    'pig': [20, 18, 489, 675, 1776],
             ...    'horse': [4, 25, 281, 600, 1900]
             ...    }, index=[1990, 1997, 2003, 2009, 2014])
-            >>> lines = df.plot_bokeh.scatter()
+            >>> lines = df.plot_bokeh.point()
 
 
         .. plot::
@@ -1611,7 +1651,7 @@ class FramePlotMethods(BasePlotMethods):
             The following example shows the relationship between both
             populations.
 
-            >>> lines = df.plot_bokeh.scatter(x='pig', y='horse')
+            >>> lines = df.plot_bokeh.point(x='pig', y='horse')
         """
         return self(kind="point", x=x, y=y, **kwargs)
 
@@ -1697,7 +1737,6 @@ class FramePlotMethods(BasePlotMethods):
         """
         return self(kind="bar", x=x, y=y, **kwds)
 
-
     def barh(self, x=None, y=None, **kwds):
         """
         Make a horizontal bar plot.
@@ -1776,4 +1815,242 @@ class FramePlotMethods(BasePlotMethods):
             ...                    'lifespan': lifespan}, index=index)
             >>> ax = df.plot_bokeh.barh(x='lifespan')
         """
-        return self(kind='barh', x=x, y=y, **kwds)
+        return self(kind="barh", x=x, y=y, **kwds)
+
+    def box(self, by=None, **kwds):
+        r"""
+        Make a box plot of the DataFrame columns.
+
+        A box plot is a method for graphically depicting groups of numerical
+        data through their quartiles.
+        The box extends from the Q1 to Q3 quartile values of the data,
+        with a line at the median (Q2). The whiskers extend from the edges
+        of box to show the range of the data. The position of the whiskers
+        is set by default to 1.5*IQR (IQR = Q3 - Q1) from the edges of the
+        box. Outlier points are those past the end of the whiskers.
+
+        For further details see Wikipedia's
+        entry for `boxplot <https://en.wikipedia.org/wiki/Box_plot>`__.
+
+        A consideration when using this chart is that the box and the whiskers
+        can overlap, which is very common when plotting small sets of data.
+
+        Parameters
+        ----------
+        by : string or sequence
+            Column in the DataFrame to group by.
+        **kwds : optional
+            Additional keywords are documented in
+            :meth:`pandas.DataFrame.plot_bokeh`.
+
+        Returns
+        -------
+        Bokeh.plotting.figure
+
+        See Also
+        --------
+        pandas.Series.plot_bokeh.box: Draw a box plot from a Series object.
+
+        Examples
+        --------
+        Draw a box plot from a DataFrame with four columns of randomly
+        generated data.
+
+        .. plot::
+            :context: close-figs
+
+            >>> data = np.random.randn(25, 4)
+            >>> df = pd.DataFrame(data, columns=list('ABCD'))
+            >>> ax = df.plot.box()
+        """
+        return self(kind="box", by=by, **kwds)
+
+    def hist(self, **kwds):
+        """
+        Draw one histogram of the DataFrame's columns.
+
+        A histogram is a representation of the distribution of data.
+        This function groups the values of all given Series in the DataFrame
+        into bins and draws all bins in one figure.
+        This is useful when the DataFrame's Series are in a similar scale.
+
+        Parameters
+        ----------
+        ...
+        bins : int, default 10
+            Number of histogram bins to be used.
+        **kwds
+            Additional keyword arguments are documented in
+            :meth:`pandas.DataFrame.plot_bokeh`.
+
+        Returns
+        -------
+        Bokeh.plotting.figure
+
+        See Also
+        --------
+        DataFrame.hist : Draw histograms per DataFrame's Series.
+        Series.hist : Draw a histogram with Series' data.
+
+        Examples
+        --------
+        When we draw a dice 6000 times, we expect to get each value around 1000
+        times. But when we draw two dices and sum the result, the distribution
+        is going to be quite different. A histogram illustrates those
+        distributions.
+
+        .. plot::
+            :context: close-figs
+
+            >>> df = pd.DataFrame(
+            ...     np.random.randint(1, 7, 6000),
+            ...     columns = ['one'])
+            >>> df['two'] = df['one'] + np.random.randint(1, 7, 6000)
+            >>> ax = df.plot_bokeh.hist(bins=12, alpha=0.5)
+        """
+        return self(kind="hist", by=by, bins=bins, **kwds)
+
+    def area(self, x=None, y=None, **kwds):
+        """
+        Area plot
+
+        Parameters
+        ----------
+        x, y : label or position, optional
+            Coordinates for each point.
+        `**kwds` : optional
+            Additional keyword arguments are documented in
+            :meth:`pandas.DataFrame.plot_bokeh`.
+
+        Returns
+        -------
+        Bokeh.plotting.figure
+        """
+        return self(kind="area", x=x, y=y, **kwds)
+
+    def pie(self, y=None, **kwds):
+        """
+        Generate a pie plot.
+
+        A pie plot is a proportional representation of the numerical data in a
+        column. This function wraps :meth:`matplotlib.pyplot.pie` for the
+        specified column. If no column reference is passed and
+        ``subplots=True`` a pie plot is drawn for each numerical column
+        independently.
+
+        Parameters
+        ----------
+        y : int or label, optional
+            Label or position of the column(s) to plot.
+        **kwds
+            Keyword arguments to pass on to :meth:`pandas.DataFrame.plot_bokeh`.
+
+        Returns
+        -------
+        Bokeh.plotting.figure
+
+        See Also
+        --------
+        Series.plot.pie : Generate a pie plot for a Series.
+        DataFrame.plot : Make plots of a DataFrame.
+
+        Examples
+        --------
+        In the example below we have a DataFrame with the information about
+        planet's mass and radius. We pass the the 'mass' column to the
+        pie function to get a pie plot.
+
+        .. plot::
+            :context: close-figs
+
+            >>> df = pd.DataFrame({'mass': [0.330, 4.87 , 5.97],
+            ...                    'radius': [2439.7, 6051.8, 6378.1]},
+            ...                   index=['Mercury', 'Venus', 'Earth'])
+            >>> plot = df.plot_bokeh.pie(y='mass')
+
+        When you pass multiple y-columns, the plot contains several nested
+        pieplots:
+
+        .. plot::
+            :context: close-figs
+
+            >>> plot = df.plot.pie()
+
+        """
+        return self(kind="pie", y=y, **kwds)
+
+    def scatter(self, x, y, category=None, **kwds):
+        """
+        Create a scatter plot with varying marker color.
+
+        The coordinates of each point are defined by two dataframe columns and
+        filled circles are used to represent each point. This kind of plot is
+        useful to see complex correlations between two variables. Points could
+        be for instance natural 2D coordinates like longitude and latitude in
+        a map or, in general, any pair of metrics that can be plotted against
+        each other.
+
+        Parameters
+        ----------
+        x : int or str
+            The column name or column position to be used as horizontal
+            coordinates for each point.
+
+        y : int or str
+            The column name or column position to be used as vertical
+            coordinates for each point.
+
+        category : str, int or array_like, optional
+            The color of each point. Possible values are:
+
+            - A single color string referred to by name, RGB or RGBA code,
+              for instance 'red' or '#a98d19'.
+
+            - A sequence of color strings referred to by name, RGB or RGBA
+              code, which will be used for each point's color recursively. For
+              intance ['green','yellow'] all points will be filled in green or
+              yellow, alternatively.
+
+            - A column name whose values will be used to color the
+              marker points according to a colormap.
+
+        **kwds
+            Keyword arguments to pass on to :meth:`pandas.DataFrame.plot_bokeh`.
+
+        Returns
+        -------
+        Bokeh.plotting.figure or Bokeh.layouts.row
+
+        See Also
+        --------
+        bokeh.plotting.figure.scatter : scatter plot using multiple input data
+            formats.
+
+        Examples
+        --------
+        Let's see how to draw a scatter plot using coordinates from the values
+        in a DataFrame's columns.
+
+        .. plot::
+            :context: close-figs
+
+            >>> df = pd.DataFrame([[5.1, 3.5, 0], [4.9, 3.0, 0], [7.0, 3.2, 1],
+            ...                    [6.4, 3.2, 1], [5.9, 3.0, 2]],
+            ...                   columns=['length', 'width', 'species'])
+            >>> ax1 = df.plot_bokeh.scatter(x='length',
+            ...                       y='width',
+            ...                       category='DarkBlue')
+
+        And now with the color and size determined by a column as well.
+
+        .. plot::
+            :context: close-figs
+
+            >>> ax2 = df.plot_bokeh.scatter(x='length',
+            ...                       y='width',
+            ...                       category='species',
+            ...                       size="species",
+            ...                       colormap='viridis')
+        """
+        return self(kind="scatter", x=x, y=y, category=category, **kwds)
+

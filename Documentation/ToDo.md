@@ -37,6 +37,7 @@
 
 
 ## Release 0.2:
+- Smarter colorbar tickers (Pandas Bokeh)
 - Grid options (vertical/horizontal/both) for plots
 - Resources = "raw" & "CDN" für embedded_html
 - Integrate **check_type** function in all places --> Better check for categorical (e.g. multiindex problem --> raise Exception when x-axis is a multiindex)
@@ -44,6 +45,7 @@
 - Proper hovertool for histograms (mabye add invincible lineglyph with hoverinformation)
 - refactoring of autodetection of x and y columns for DataFrame.plot_bokeh
 - export_options = "bla.png" oder "bla.svg"
+- Enable that x and y parameter also accept integers indicating the position of the column by position
 - Smarter setting of xticks (do not use all x-values if length of dataframe is too large)
 - For Scatterplot, also enable histograms at the side (see https://github.com/bokeh/bokeh/blob/master/examples/app/selection_histogram.py, https://demo.bokehplots.com/apps/selection_histogram)
 - Hexbin plots
@@ -65,3 +67,4 @@
 - Homepage
 - DataShader?
 - subplots method (see https://pandas.pydata.org/pandas-docs/stable/visualization.html#subplots)
+- Add pd.DataFrame.plot_bokeh.map(x, y) with (x,y)=(lat,lon) in WGS84

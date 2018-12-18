@@ -361,7 +361,7 @@ Their usage is shown in these examples:
 ```python
 p_hist = df_hist.plot_bokeh(
     kind="hist",
-    y=["a", "b"],
+    by=["a", "b"],
     bins=np.arange(-4, 6.5, 0.5),
     normed=100,
     vertical_xlabel=True,
@@ -374,7 +374,7 @@ p_hist = df_hist.plot_bokeh(
 
 p_hist_cum = df_hist.plot_bokeh(
     kind="hist",
-    y=["a", "b"],
+    by=["a", "b"],
     bins=np.arange(-4, 6.5, 0.5),
     normed=100,
     cumulative=True,
