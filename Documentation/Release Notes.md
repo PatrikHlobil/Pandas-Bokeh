@@ -34,31 +34,38 @@ Changes:
 
 ## 0.1
 
-### GeoPandas Bokeh
-* Added <tile_attribution> & <tile_alpha> parameter for background tiles of geoplots
-* Added <hovertool_string> for providing an HTML string to the hovertool
-* Support for xlim & ylim in WGS84 (Latitude/Longitude) for geoplots
-* WebGL now as plotting backend as default (GeoPandas)
-* Kwargs names are checked in columns of GeoDataFrame and kept if there is a match, such that additional keyword arguments can be used to specify for example line_width or alpha value of geoplots
-* Greatly Improved performance for Polygon Geoplots 
-
 ### Pandas Bokeh
-* WebGL now as plotting backend as default (Panda) 
-* Code Refactoring
+* WebGL now as plotting backend as default 
+* Code Refactoring & many bugfixes
 * Added panning/zooming keyword options
 * Toolbar now visible per default
 * Kwargs names are checked in columns of DataFrame/Series and kept if there is a match, such that additional keyword arguments can be used to specify for example line_width or alpha value of plots
+* Improved Functionalities (row, column) for **Pandas Bokeh** Layouts
+* Added <hovertool_string> for providing an [HTML string to the hovertool](https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#custom-tooltip)
+* Many additional customization arguments
+
+#### DataFrames
 * Additional plot types:
     * areaplots (with **stacked** and **normed** kwargs)
-    * horizontal barplots 
-    * **stacked** barplots
+    * horizontal & stacked barplots 
     * piecharts
-* Corrected dependencies in **setup.py** 
-* Improved Functionalities (row, column) for **Pandas Bokeh** Layouts
-* Smarter x-axis labeling for barplots when using datetimes
-* Several minor improvements & bugfixes
+    * mapplot
+* Added accessors similar to the pandas.DataFrame.plot API:
+  * ```df.plot_bokeh(kind="line", ...)``` → ```df.plot_bokeh.line(...)```
+  * ```df.plot_bokeh(kind="bar", ...)``` → ```df.plot_bokeh.bar(...)```
+  * ```df.plot_bokeh(kind="hist", ...)``` → ```df.plot_bokeh.hist(...)```
+  * ...
+* Smarter x-axis formatting for barplots when using datetimes
 * Histogram <bins> parameter also accepts integers (to specify number of bins)
-* Added support for categorical x-axis for all plot types (also line, scatter, area, ...)
+* Added support for categorical x-axis for all plot types (line, scatter, area, ...)
+* Smarter autodetection of x- and y-labels
+
+#### GeoDataFrames
+* Added <tile_attribution> & <tile_alpha> parameter for background tiles of geoplots
+* Support for xlim & ylim in WGS84 (Latitude/Longitude) for geoplots
+* Greatly Improved performance for Polygon Geoplots 
+
+
 
 
 

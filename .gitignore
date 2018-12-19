@@ -1,5 +1,6 @@
 *.html
 *.pyc
+*.txt
 dist/
 old_dist/
 build/
@@ -7,4 +8,3 @@ build/
 *.code-workspace
 .vscode/
 .ipynb_checkpoints/
-Tests/

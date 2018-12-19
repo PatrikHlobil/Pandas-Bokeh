@@ -54,19 +54,46 @@ pandas_bokeh.output_file("Interactive Plot.html")
 
 <br>
 
+---
+
+### Plot types
+
+Supported plottypes are at the moment:
+
+* [lineplot](#lineplot)
+* [pointplot](#pointplot)
+* [scatterplot](#scatterplot)
+* [barplot](#barplot)
+* [histogram](#histogram)
+* [areaplot](#areaplot)
+* [pieplot](#pieplot)
+* [mapplot](#mapplot)
+
+
+* [Geoplots with **GeoPandas**](#geoplots)
+
+---
+
+<br>
+<br>
+
+
 <p id="Examples"></p>
+
+
+
 
 ## Lineplot
 
 ### Basic Lineplot
 
-This simple **lineplot** already contains various interactive elements:
+This simple **lineplot** in **Pandas Bokeh** already contains various interactive elements:
 
 * a pannable and zoomable (zoom in plotarea and zoom on axis) plot
 * by clicking on the legend elements, one can hide and show the individual lines
 * a Hovertool for the plotted lines
 
-**Note**: If the **x** parameter is not specified, the index is used for the x-values of the plot.
+Consider the following simple example:
 
 ```python
 import numpy as np
@@ -77,10 +104,17 @@ df = pd.DataFrame({"Google": np.random.randn(1000)+0.2,
                    index=pd.date_range('1/1/2000', periods=1000))
 df = df.cumsum()
 df = df + 50
-df.plot_bokeh(kind="line")
+df.plot_bokeh(kind="line")       #equivalent to df.plot_bokeh.line()
 ```
 
 ![ApplevsGoogle_1](Documentation/Images/ApplevsGoogle_1.gif)
+
+Note, that similar to the regular **pandas.DataFrame.plot** method, there are also additional accessors to directly access the different plotting types like:
+
+* ```df.plot_bokeh(kind="line", ...)``` → ```df.plot_bokeh.line(...)```
+* ```df.plot_bokeh(kind="bar", ...)``` → ```df.plot_bokeh.bar(...)```
+* ```df.plot_bokeh(kind="hist", ...)``` → ```df.plot_bokeh.hist(...)```
+* ...
 
 
 
@@ -89,6 +123,8 @@ df.plot_bokeh(kind="line")
 There are various optional parameters to tune the plots, for example:
 
 * **kind**: Which kind of plot should be produced. Currently supported are: *"line", "point", "scatter", "bar"* and *"histogram"*. In the near future many more will be implemented as horizontal barplot, boxplots, pie-charts, etc.
+* **x**: Name of the column to use for the horizontal x-axis. If the **x** parameter is not specified, the index is used for the x-values of the plot. Alternative, also an array of values can be passed that has the same number of elements as the DataFrame.
+* **y**: Name of column *or* list of names of columns to use for the vertical y-axis. 
 * **figsize**: Choose width & height of the plot
 * **title**: Sets title of the plot
 * **xlim**/**ylim**: Set visibler range of plot for x- and y-axis (also works for *datetime x-axis*)
@@ -96,8 +132,9 @@ There are various optional parameters to tune the plots, for example:
 * **logx**/**logy**: Set log-scale on x-/y-axis
 * **xticks**/**yticks**: Explicitly set the ticks on the axes
 * **color**: Defines a single color for a plot.
-* **colormap**: Defines the colors to plot. Can be either a list of colors or the name of a [Bokeh color palette](https://bokeh.pydata.org/en/latest/docs/reference/palettes.html)
+* **colormap**: Can be used to specify multiple colors to plot. Can be either a list of colors or the name of a [Bokeh color palette](https://bokeh.pydata.org/en/latest/docs/reference/palettes.html)
 * **hovertool**: If True a Hovertool is active, else if False no Hovertool is drawn.
+* **hovertool_string**: If specified, this string will be used for the hovertool (@{column} will be replaced by the value of the column for the element the mouse hovers over, see also [Bokeh documentation](https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#custom-tooltip) and [here](#Dropdown))
 * **toolbar_location**: Specify the position of the toolbar location (None, "above", "below", "left" or "right"). Default: *"right"*
 * **zooming**: Enables/Disables zooming. Default: *True*
 * **panning**: Enables/Disables panning. Default: *True*
@@ -109,22 +146,28 @@ There are various optional parameters to tune the plots, for example:
 Try them out to get a feeling for the effects. Let us consider now:
 
 ```python
-df.plot_bokeh(
-    kind="line",
+df.plot_bokeh.line(
     figsize=(800, 450),
+    y="Apple",
     title="Apple vs Google",
     xlabel="Date",
     ylabel="Stock price [$]",
-    yticks=[0,100,200,300,400],
-    ylim=(0,400),
+    yticks=[0, 100, 200, 300, 400],
+    ylim=(0, 400),
     toolbar_location=None,
     colormap=["red", "blue"],
+    hovertool_string="""<img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/170px-Apple_logo_black.svg.png" 
+                        height="42" alt="@imgs" width="42"
+                        style="float: left; margin: 0px 15px 15px 0px;"
+                        border="2"></img> Apple 
+                        
+                        <h4> Stock Price: </h4> @{Apple}""",
     panning=False,
-    zooming=False
-    );
+    zooming=False)
 ```
 
-![ApplevsGoogle_2](Documentation/Images/ApplevsGoogle_2.png)
+![ApplevsGoogle_2](Documentation/Images/ApplevsGoogle_2.gif)
 
 #### Lineplot with data points
 
@@ -140,20 +183,18 @@ For **lineplots**, as for many other plot-kinds, there are some special keyword 
 Let us use this information to have another version of the same plot:
 
 ```python
-df.plot_bokeh(
-    kind="line",
+df.plot_bokeh.line(
     figsize=(800, 450),
     title="Apple vs Google",
     xlabel="Date",
     ylabel="Stock price [$]",
-    yticks=[0,100,200,300,400],
-    ylim=(100,200),
-    xlim=("2001-01-01","2001-02-01"),
+    yticks=[0, 100, 200, 300, 400],
+    ylim=(100, 200),
+    xlim=("2001-01-01", "2001-02-01"),
     colormap=["red", "blue"],
     plot_data_points=True,
     plot_data_points_size=10,
-    marker="asterisk"
-)
+    marker="asterisk")
 ```
 
 ![ApplevsGoogle_3](Documentation/Images/ApplevsGoogle_3.png)
@@ -171,8 +212,7 @@ x = np.arange(-3, 3, 0.1)
 y2 = x**2
 y3 = x**3
 df = pd.DataFrame({"x": x, "Parabula": y2, "Cube": y3})
-df.plot_bokeh(
-    kind="point",
+df.plot_bokeh.point(
     x="x",
     xticks=range(-3, 4),
     size=5,
@@ -211,12 +251,10 @@ df = df.sample(frac=1)
 
 #Create Div with DataFrame:
 from bokeh.models import Div
-div_df = Div(text=df.head(10).to_html(index=False), 
-             width=550)
+div_df = Div(text=df.head(10).to_html(index=False), width=550)
 
 #Create Scatterplot:
-p_scatter = df.plot_bokeh(
-    kind="scatter",
+p_scatter = df.plot_bokeh.scatter(
     x="petal length (cm)",
     y="sepal width (cm)",
     category="species",
@@ -224,13 +262,25 @@ p_scatter = df.plot_bokeh(
     show_figure=False)
 
 #Combine Div and Scatterplot via grid layout:
-pandas_bokeh.plot_grid([[div_df, p_scatter]], 
-                       plot_width=400, 
-                       plot_height=350)
+pandas_bokeh.plot_grid([[div_df, p_scatter]], plot_width=400, plot_height=350)
 ```
 <p id="scatterplot_picture"> </p>
 
 ![Scatterplot](Documentation/Images/Scatterplot.gif)
+
+A possible optional keyword parameters that can be passed to [bokeh.plotting.figure.scatter](https://bokeh.pydata.org/en/latest/docs/reference/plotting.html#bokeh.plotting.figure.Figure.scatter) is **size**. Below, we use the *sepal length* of the Iris data as reference for the size:
+```python
+p_scatter = df.plot_bokeh.scatter(
+    x="petal length (cm)",
+    y="sepal width (cm)",
+    category="species",
+    title="Iris DataSet Visualization",
+    size="sepal length (cm)")
+```
+
+![Scatterplot2](Documentation/Images/Scatterplot2.png)
+
+In this example you can see, that the additional dimension *sepal length* cannot be used to clearly differentiate between the *virginica* and *versicolor* species.
 
 <br>
 
@@ -248,10 +298,9 @@ data = {
 }
 df = pd.DataFrame(data).set_index("fruits")
 
-df.plot_bokeh(
-    kind="bar",
-    ylabel="Price per Unit [€]",
-    title="Fruit prices per Year",
+p_bar = df.plot_bokeh.bar(
+    ylabel="Price per Unit [€]", 
+    title="Fruit prices per Year", 
     alpha=0.6)
 ```
 
@@ -259,18 +308,21 @@ df.plot_bokeh(
 
 Using the **stacked** keyword argument you also maked stacked barplots:
 ```python
-p_stacked_bar = df.plot_bokeh(
-    kind="bar",
+p_stacked_bar = df.plot_bokeh.bar(
     ylabel="Price per Unit [€]",
     title="Fruit prices per Year",
     stacked=True,
-    alpha=0.6);
+    alpha=0.6)
 ```
 
 ![Barplot2](Documentation/Images/Barplot2.png)
 
-Also horizontal versions of the above barplot are supported with the keyword **kind="barh"**. Below you see an example where we specify a column of the DataFrame as the bar category via the **x** argument:
+Also horizontal versions of the above barplot are supported with the keyword **kind="barh"** or the accessor **plot_bokeh.barh**. You can still specify a column of the DataFrame as the bar category via the **x** argument if you do not wish to use the index.
 ```python
+#Reset index, such that "fruits" is now a column of the DataFrame:
+df.reset_index(inplace=True)
+
+#Create horizontal bar (via kind keyword):
 p_hbar = df.plot_bokeh(
     kind="barh",
     x="fruits",
@@ -280,8 +332,8 @@ p_hbar = df.plot_bokeh(
     legend = "bottom_right",
     show_figure=False)
 
-p_stacked_hbar = df.plot_bokeh(
-    kind="barh",
+#Create stacked horizontal bar (via barh accessor):
+p_stacked_hbar = df.plot_bokeh.barh(
     x="fruits",
     stacked=True,
     xlabel="Price per Unit [€]",
@@ -290,6 +342,7 @@ p_stacked_hbar = df.plot_bokeh(
     legend = "bottom_right",
     show_figure=False)
 
+#Plot all barplot examples in a grid:
 pandas_bokeh.plot_grid([[p_bar, p_stacked_bar],
                         [p_hbar, p_stacked_hbar]], 
                        plot_width=450)
@@ -300,7 +353,7 @@ pandas_bokeh.plot_grid([[p_bar, p_stacked_bar],
 
 ## Histogram
 
-For drawing **histograms**, **Pandas Bokeh** has a lot of customization features. Optional keyword arguments are for *kind="hist"*:
+For drawing **histograms** (kind="hist"), **Pandas Bokeh** has a lot of customization features. Optional keyword arguments for *histogram plots* are:
 * **bins**: Determines bins to use for the histogram. If bins is an int, it defines the number of equal-width bins in the given range (10, by default). If bins is a sequence, it defines the bin edges, including the rightmost edge, allowing for non-uniform bin widths. If bins is a string, it defines the method used to calculate the optimal bin width, as defined by [histogram_bin_edges](https://docs.scipy.org/doc/numpy-1.15.1/reference/generated/numpy.histogram_bin_edges.html#numpy.histogram_bin_edges).
 * **histogram_type**: Either *"sidebyside"*, *"topontop"* or *"stacked"*. Default: *"topontop"*
 * **stacked**: Boolean that overrides the *histogram_type* as *"stacked"* if given. Default: *False*
@@ -316,19 +369,19 @@ df_hist = pd.DataFrame({
     'a': np.random.randn(1000) + 1,
     'b': np.random.randn(1000),
     'c': np.random.randn(1000) - 1
-},
-                       columns=['a', 'b', 'c'])
+    },
+    columns=['a', 'b', 'c'])
 
 #Top-on-Top Histogram (Default):
-df_hist.plot_bokeh(
-    kind="hist",
+df_hist.plot_bokeh.hist(
     bins=np.linspace(-5, 5, 41),
     vertical_xlabel=True,
     hovertool=False,
     title="Normal distributions (Top-on-Top)",
     line_color="black")
 
-#Side-by-Side Histogram (multiple bars share bin side-by-side):
+#Side-by-Side Histogram (multiple bars share bin side-by-side) also accessible via
+#kind="hist":
 df_hist.plot_bokeh(
     kind="hist",
     bins=np.linspace(-5, 5, 41),
@@ -339,8 +392,7 @@ df_hist.plot_bokeh(
     line_color="black")
 
 #Stacked histogram:
-df_hist.plot_bokeh(
-    kind="hist",
+df_hist.plot_bokeh.hist(
     bins=np.linspace(-5, 5, 41),
     histogram_type="stacked",
     vertical_xlabel=True,
@@ -359,9 +411,8 @@ Further, advanced keyword arguments for histograms are:
 
 Their usage is shown in these examples:
 ```python
-p_hist = df_hist.plot_bokeh(
-    kind="hist",
-    by=["a", "b"],
+p_hist = df_hist.plot_bokeh.hist(
+    y=["a", "b"],
     bins=np.arange(-4, 6.5, 0.5),
     normed=100,
     vertical_xlabel=True,
@@ -369,12 +420,11 @@ p_hist = df_hist.plot_bokeh(
     title="Normal distributions (normed)",
     show_average=True,
     xlim=(-4, 6),
-    ylim=(0,30),
+    ylim=(0, 30),
     show_figure=False)
 
-p_hist_cum = df_hist.plot_bokeh(
-    kind="hist",
-    by=["a", "b"],
+p_hist_cum = df_hist.plot_bokeh.hist(
+    y=["a", "b"],
     bins=np.arange(-4, 6.5, 0.5),
     normed=100,
     cumulative=True,
@@ -382,6 +432,8 @@ p_hist_cum = df_hist.plot_bokeh(
     ylabel="Share[%]",
     title="Normal distributions (normed & cumulative)",
     show_figure=False)
+
+pandas_bokeh.plot_grid([[p_hist, p_hist_cum]], plot_width=450, plot_height=300)
 
 pandas_bokeh.plot_grid([[p_hist, p_hist_cum]], plot_width=450, plot_height=300)
 ```
@@ -392,7 +444,15 @@ pandas_bokeh.plot_grid([[p_hist, p_hist_cum]], plot_width=450, plot_height=300)
 
 ## Areaplot
 
-Areaplot can be either drawn on top of each other (default) or stacked (via **stacked**=True). Let us consider the [energy consumption split by source](https://www.bp.com/en/global/corporate/energy-economics/statistical-review-of-world-energy.html) that can be downloaded as DataFrame via:
+Areaplot *(kind="area")* can be either drawn on top of each other or stacked. The important parameters are:
+* **stacked**: If True, the areaplots are stacked. If False, plots are drawn on top of each other. *Default: False*
+
+
+* **kwargs****: Optional keyword arguments of [bokeh.plotting.figure.patch](https://bokeh.pydata.org/en/latest/docs/reference/plotting.html#bokeh.plotting.figure.Figure.patch)
+
+<br>
+
+Let us consider the [energy consumption split by source](https://www.bp.com/en/global/corporate/energy-economics/statistical-review-of-world-energy.html) that can be downloaded as DataFrame via:
 ```python
 df = pd.read_csv(r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata/energy/energy.csv", 
 parse_dates=["Year"])
@@ -432,7 +492,7 @@ df_energy.plot_bokeh(
 
 ![areaplot2](Documentation/Images/areaplot2.gif)
 
-## Pieplots
+## Pieplot
 
 For Pieplots, let us consider a dataset showing the results of all Bundestags elections in Germany since 2002:
 ```python
@@ -466,6 +526,98 @@ df_pie.plot_bokeh(
 ```
 
 ![pieplot2](Documentation/Images/pieplot2.png)
+
+
+## Mapplot
+
+The **mapplot** method of **Pandas Bokeh** allows for plotting geographic points stored in a Pandas DataFrame on an interactive map. For more advanced **Geoplots** have a look at the [Geoplots examples](#geoplots) for the GeoPandas API of **Pandas Bokeh**. 
+
+For **mapplots**, only (latitude, longitude) pairs in [geographic projection](https://en.wikipedia.org/wiki/Geographic_coordinate_system#Latitude_and_longitude) can be plotted on a map. The basic API has the following parameters:
+
+* **x**: name of the *longitude* column of the DataFrame
+* **y**: name of the *latitude* column of the DataFrame
+* **hovertool_string**: If specified, this string will be used for the hovertool (@{column} will be replaced by the value of the column for the element the mouse hovers over, see also [Bokeh documentation](https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#custom-tooltip)). This can be used to display additional information on the map
+* **tile_provider**: Define build-in tile provider for background maps. Possible values: *None, 'CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA', 'STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS'. Default: CARTODBPOSITRON_RETINA* 
+* **tile_provider_url**: An arbitraty tile_provider_url of the form '<url>/{Z}/{X}/{Y}*.png' can be passed to be used as background map. 
+* **tile_attribution**: String (also HTML accepted) for showing attribution for tile source in the lower right corner
+* **tile_alpha**: Sets the alpha value of the background tile between [0, 1].  *Default: 1*
+    
+For more details, see also the [examples](#Dropdown) of the similar **GeoPandas API**.
+
+Below an example of plotting all cities for more than 1 million inhabitants:
+```python
+df_mapplot = pd.read_csv(r"Testdata/populated places/populated_places.csv")
+df_mapplot.head()
+```
+
+<table class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>name</th>
+      <th>pop_max</th>
+      <th>latitude</th>
+      <th>longitude</th>
+      <th>size</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Mesa</td>
+      <td>1085394</td>
+      <td>33.423915</td>
+      <td>-111.736084</td>
+      <td>1.085394</td>
+    </tr>
+    <tr>
+      <td>Sharjah</td>
+      <td>1103027</td>
+      <td>25.371383</td>
+      <td>55.406478</td>
+      <td>1.103027</td>
+    </tr>
+    <tr>
+      <td>Changwon</td>
+      <td>1081499</td>
+      <td>35.219102</td>
+      <td>128.583562</td>
+      <td>1.081499</td>
+    </tr>
+    <tr>
+      <td>Sheffield</td>
+      <td>1292900</td>
+      <td>53.366677</td>
+      <td>-1.499997</td>
+      <td>1.292900</td>
+    </tr>
+    <tr>
+      <td>Abbottabad</td>
+      <td>1183647</td>
+      <td>34.149503</td>
+      <td>73.199501</td>
+      <td>1.183647</td>
+    </tr>
+  </tbody>
+</table>
+
+
+```python
+df_mapplot["size"] = df_mapplot["pop_max"] / 1000000
+df_mapplot.plot_bokeh(
+    kind="map",
+    x="longitude",
+    y="latitude",
+    hovertool_string="""<h2> @{name} </h2> 
+    
+                        <h3> Population: @{pop_max} </h3>""",
+    tile_provider="STAMEN_TERRAIN_RETINA",
+    size="size", 
+    figsize=(900, 600),
+    title="World cities with more than 1.000.000 inhabitants")
+```
+
+<p id="geoplots"> </p>
+
+![Mapplot](Documentation/Images/Mapplot.gif)
 
 ## Geoplots
 
@@ -507,9 +659,10 @@ Many keyword arguments like *xlabel, ylabel, xlim, ylim, title, colormap, hovert
 * **hovertool_string**: If specified, this string will be used for the hovertool (@{column} will be replaced by the value of the column for the element the mouse hovers over, see also [Bokeh documentation](https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#custom-tooltip))
 * **colormap_uselog**: If set *True*, the colormapper is using a logscale. *Default: False*
 * **colormap_range**: Specify the value range of the colormapper via (min, max) tuple
-* **tile_provider**: Define build-in tile provider for background maps. Possible values: *'CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA', 'STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS'. Default: CARTODBPOSITRON_RETINA* 
-* **tile_provider_url**: An arbitraty tile_provider_url of the form '<url>/{Z}/{X}/{Y}*.png' can be passed to be used a background map. 
+* **tile_provider**: Define build-in tile provider for background maps. Possible values: *None, 'CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA', 'STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS'. Default: CARTODBPOSITRON_RETINA* 
+* **tile_provider_url**: An arbitraty tile_provider_url of the form '<url>/{Z}/{X}/{Y}*.png' can be passed to be used as background map. 
 * **tile_attribution**: String (also HTML accepted) for showing attribution for tile source in the lower right corner
+* **tile_alpha**: Sets the alpha value of the background tile between [0, 1].  *Default: 1*
 
 One of the most common usage of map plots are [choropleth maps](https://en.wikipedia.org/wiki/Choropleth_map), where the color of a the objects is determined by the property of the object itself. There are 3 ways of drawing choropleth maps using **Pandas Bokeh**, which are described below.
 
@@ -533,6 +686,8 @@ df_states.plot_bokeh(
 When hovering over the states, the state-name and the region are shown as specified in the **hovertool_columns** argument.
 
 ![US_States_2](Documentation/Images/US_States_2.png)
+
+<p id="Dropdown"></p>
 
 ### Dropdown
 By passing a *list of column names* of the GeoDataFrame as the **dropdown** keyword argument, a dropdown menu is shown above the map. This dropdown menu can be used to select the choropleth layer by the user. :

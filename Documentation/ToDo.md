@@ -25,18 +25,19 @@
 - Histogram documentation in README... add cumulative, normed & weights ✓
 - panning/zooming=True/False parameters implementation ✓
 - Point data example in documentation for geoplots ✓
-
+- Add pd.DataFrame.plot_bokeh.map(x, y) with (x,y)=(lat,lon) in WGS84 ✓
+- Add accessors (df.plot_bokeh(kind="line", ...) == df.plot_bokeh.line(...)) ✓
 
 ---
-- Horizontal/Vertical Boxplots
-- Docstring Documentation
-- Add accessors (df.plot_bokeh(kind="line", ...) == df.plot_bokeh.line(...))
+
 
 
 
 
 
 ## Release 0.2:
+- Improve Docstring Documentation
+- Horizontal/Vertical Boxplots
 - Smarter colorbar tickers (Pandas Bokeh)
 - Grid options (vertical/horizontal/both) for plots
 - Resources = "raw" & "CDN" für embedded_html
@@ -62,9 +63,11 @@
 - For scatterplot, also show a legend when no category is chosen
 - vertical_xlabel should also allow for float values (--> angle )
 - For pieplots with several y, align the annotations nicely around the circle (for many y-columns the annotation names will )
-- Add <hovertool_string> for normal plots
+- Improve <hovertool_string> for normal plots 
+- Add <hovertool_columns> for normal plots
 - Better docstring documentation
 - Homepage
 - DataShader?
 - subplots method (see https://pandas.pydata.org/pandas-docs/stable/visualization.html#subplots)
-- Add pd.DataFrame.plot_bokeh.map(x, y) with (x,y)=(lat,lon) in WGS84
+- Add category option & xlim/ylim for mapplot (maybe also slider and dropdown --> refactor geoplots such that it can be used from base)
+- Define longitude bounds for geoplots & mapplot

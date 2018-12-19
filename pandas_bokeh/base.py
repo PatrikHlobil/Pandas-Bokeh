@@ -5,6 +5,7 @@ import datetime
 import numbers
 import warnings
 from copy import deepcopy
+import re
 
 from bokeh.plotting import figure, show
 import bokeh.plotting
@@ -19,6 +20,7 @@ from bokeh.models import (
     CategoricalColorMapper,
     ColorBar,
     FuncTickFormatter,
+    WheelZoomTool
 )
 from bokeh.models.tickers import FixedTicker
 from bokeh.palettes import all_palettes, Inferno256
@@ -27,7 +29,7 @@ from bokeh.models.ranges import FactorRange
 from bokeh.transform import dodge, cumsum
 from bokeh.embed import components
 from bokeh.resources import CDN
-from bokeh.core.properties import value
+from bokeh.core.properties import value as _value
 from bokeh.models.glyphs import Text
 from bokeh.models.callbacks import CustomJS
 from bokeh.events import Tap
@@ -273,11 +275,15 @@ def plot(
     zooming=True,
     toolbar_location="right",
     hovertool=True,
+    hovertool_string=None,
     vertical_xlabel=False,
     webgl=True,
+    tile_provider="CARTODBPOSITRON_RETINA",
+    tile_provider_url=None,
+    tile_attribution="",
+    tile_alpha=1,
     **kwargs
 ):
-    # TODO: Make docstring
     """Method for creating a interactive with 'Bokeh' as plotting backend. Available
     plot kinds are:
 
@@ -285,9 +291,10 @@ def plot(
     * point
     * scatter
     * bar / barh
-    * histogram
+    * hist
     * area
     * pie
+    * map
 
     Examples
     --------
@@ -298,7 +305,7 @@ def plot(
     method with the ``kind`` argument:
     ``df.plot_bokeh(kind='line')`` is equivalent to ``df.plot_bokeh.line()``
 
-    For more informations about the individual plot kind implementations, have a
+    For more information about the individual plot kind implementations, have a
     look at the underlying methods (like df.plot_bokeh.line) or visit
     https://github.com/PatrikHlobil/Pandas-Bokeh. 
     
@@ -348,15 +355,35 @@ def plot(
         figure_options["output_backend"] = "webgl"
 
     # Check plot kind input:
-    allowed_kinds = ["line", "point", "scatter", "bar", "barh", "hist", "area", "pie"]
+    allowed_kinds = [
+        "line",
+        "point",
+        "scatter",
+        "bar",
+        "barh",
+        "hist",
+        "area",
+        "pie",
+        "map",
+    ]
     if kind not in allowed_kinds:
         allowed_kinds = "', '".join(allowed_kinds)
         raise ValueError("Allowed plot kinds are '%s'." % allowed_kinds)
 
-    # Make sure that for histograms also old API with "by" works:
-    if kind == "hist":
-        if by is not None:
-            y = by
+    # Check hovertool_string and define additional columns to keep in source:
+    additional_columns = []
+    if hovertool_string is not None:
+        if not isinstance(hovertool_string, str):
+            raise ValueError("<hovertool_string> can only be None or a string.")
+        # Search for hovertool_string columns in DataFrame:
+        for s in re.findall("@[^\s\{]+", hovertool_string):
+            s = s[1:]
+            if s in df.columns:
+                additional_columns.append(s)
+        for s in re.findall("@\{.+\}", hovertool_string):
+            s = s[2:-1]
+            if s in df.columns:
+                additional_columns.append(s)
 
     # Set standard linewidth:
     if "line_width" not in kwargs:
@@ -522,6 +549,11 @@ def plot(
         source = {col: df[col].values for col in data_cols}
         source["__x__values"] = x
         source["__x__values_original"] = x_old
+        for kwarg, value in kwargs.items():
+            if value in df.columns:
+                source[value] = df[value].values
+        for add_col in additional_columns:
+            source[add_col] = df[add_col].values
 
     # Define colormap
     if kind not in ["scatter", "pie"]:
@@ -542,6 +574,7 @@ def plot(
             figure_options["x_axis_type"],
             plot_data_points,
             plot_data_points_size,
+            hovertool_string,
             **kwargs
         )
 
@@ -552,6 +585,7 @@ def plot(
             data_cols,
             colormap,
             hovertool,
+            hovertool_string,
             xlabelname,
             figure_options["x_axis_type"],
             **kwargs
@@ -583,6 +617,7 @@ def plot(
 
         scatterplot(
             p,
+            df,
             x,
             x_old,
             y,
@@ -590,6 +625,8 @@ def plot(
             category_values,
             colormap,
             hovertool,
+            hovertool_string,
+            additional_columns,
             x_axis_type=figure_options["x_axis_type"],
             xlabelname=xlabelname,
             ylabelname=y_column,
@@ -603,6 +640,11 @@ def plot(
         data["__x__values"] = x
         data["__x__values_original"] = x_old
         source = ColumnDataSource(data)
+        for kwarg, value in kwargs.items():
+            if value in df.columns:
+                source.data[value] = df[value].values
+        for add_col in additional_columns:
+            source.data[add_col] = df[add_col].values
 
         # Create Figure (just for categorical barplots):
         del figure_options["x_axis_type"]
@@ -670,13 +712,17 @@ def plot(
 
                 if hovertool:
                     my_hover = HoverTool(mode=hovermode, renderers=[glyph])
-                    my_hover.tooltips = [
-                        (xlabelname, "@__x__values_original"),
-                        (name, "@{%s}" % name),
-                    ]
+                    if hovertool_string is None:
+                        my_hover.tooltips = [
+                            (xlabelname, "@__x__values_original"),
+                            (name, "@{%s}" % name),
+                        ]
+                    else:
+                        my_hover.tooltips = hovertool_string
                     p.add_tools(my_hover)
 
         if stacked:
+            legend_ref = [_value(col) for col in data_cols]
 
             if kind == "bar":
                 glyph = p.vbar_stack(
@@ -685,7 +731,7 @@ def plot(
                     width=0.8,
                     source=source,
                     color=colormap,
-                    legend=[value(col) for col in data_cols],
+                    legend=legend_ref,
                     **kwargs
                 )
                 hovermode = "vline"
@@ -697,16 +743,19 @@ def plot(
                     height=0.8,
                     source=source,
                     color=colormap,
-                    legend=[value(col) for col in data_cols],
+                    legend=legend_ref,
                     **kwargs
                 )
                 hovermode = "hline"
 
             if hovertool:
                 my_hover = HoverTool(mode=hovermode, renderers=[glyph[-1]])
-                my_hover.tooltips = [(xlabelname, "@__x__values_original")] + [
-                    (col, "@%s" % col) for col in data_cols
-                ]
+                if hovertool_string is None:
+                    my_hover.tooltips = [(xlabelname, "@__x__values_original")] + [
+                        (col, "@%s" % col) for col in data_cols
+                    ]
+                else:
+                    my_hover.tooltips = hovertool_string
                 p.add_tools(my_hover)
 
     if kind == "hist":
@@ -801,12 +850,15 @@ def plot(
 
         p = histogram(
             p,
+            df,
             data_cols,
             colormap,
             aggregates,
             bins,
             averages,
             hovertool,
+            hovertool_string,
+            additional_columns,
             normed,
             cumulative,
             show_average,
@@ -823,6 +875,7 @@ def plot(
             data_cols,
             colormap,
             hovertool,
+            hovertool_string,
             xlabelname,
             figure_options["x_axis_type"],
             stacked,
@@ -832,9 +885,16 @@ def plot(
 
     if kind == "pie":
 
-        source["__x__values"] = [x_labels_dict[_] for _ in x]
+        source["__x__values"] = x_old
         p = pieplot(
-            source, data_cols, colormap, hovertool, figure_options, xlabelname, **kwargs
+            source,
+            data_cols,
+            colormap,
+            hovertool,
+            hovertool_string,
+            figure_options,
+            xlabelname,
+            **kwargs
         )
 
     # Set xticks:
@@ -865,6 +925,35 @@ def plot(
     if vertical_xlabel:
         p.xaxis.major_label_orientation = np.pi / 2
 
+    # Make mapplot:
+    if kind == "map":
+        if xlabel is None:
+            figure_options["x_axis_label"] = "Longitude"
+        if ylabel is None:
+            figure_options["y_axis_label"] = "Latitude"
+        figure_options["x_axis_type"] = "mercator"
+        figure_options["y_axis_type"] = "mercator"
+
+        if len(data_cols) > 1:
+            raise ValueError(
+                "For map plots, only one <y>-column representing the latitude of the coordinate can be passed."
+            )
+
+        source["latitude"] = source[data_cols[0]]
+        source["longitude"] = source["__x__values"]
+
+        p = mapplot(
+            source,
+            hovertool,
+            hovertool_string,
+            figure_options,
+            tile_provider,
+            tile_provider_url,
+            tile_attribution,
+            tile_alpha,
+            **kwargs
+        )
+
     # Set panning option:
     if panning is False:
         p.toolbar.active_drag = None
@@ -880,6 +969,7 @@ def plot(
     # Hide legend if wanted:
     if not legend:
         p.legend.visible = False
+
     # Modify legend position:
     else:
         if legend is True:
@@ -923,6 +1013,7 @@ def lineplot(
     x_axis_type,
     plot_data_points,
     plot_data_points_size,
+    hovertool_string,
     **kwargs
 ):
     """Adds lineplot to figure p for each data_col."""
@@ -957,24 +1048,35 @@ def lineplot(
 
         if hovertool:
             my_hover = HoverTool(mode="vline", renderers=[glyph])
-            if x_axis_type == "datetime":
-                my_hover.tooltips = [
-                    (xlabelname, "@__x__values_original{%F}"),
-                    (name, "@{%s}" % name),
-                ]
-                my_hover.formatters = {"__x__values_original": "datetime"}
+            if hovertool_string is None:
+                if x_axis_type == "datetime":
+                    my_hover.tooltips = [
+                        (xlabelname, "@__x__values_original{%F}"),
+                        (name, "@{%s}" % name),
+                    ]
+                    my_hover.formatters = {"__x__values_original": "datetime"}
+                else:
+                    my_hover.tooltips = [
+                        (xlabelname, "@__x__values_original"),
+                        (name, "@{%s}" % name),
+                    ]
             else:
-                my_hover.tooltips = [
-                    (xlabelname, "@__x__values_original"),
-                    (name, "@{%s}" % name),
-                ]
+                my_hover.tooltips = hovertool_string
             p.add_tools(my_hover)
 
     return p
 
 
 def pointplot(
-    p, source, data_cols, colormap, hovertool, xlabelname, x_axis_type, **kwargs
+    p,
+    source,
+    data_cols,
+    colormap,
+    hovertool,
+    hovertool_string,
+    xlabelname,
+    x_axis_type,
+    **kwargs
 ):
     """Adds pointplot to figure p for each data_col."""
 
@@ -1016,17 +1118,20 @@ def pointplot(
         )
         if hovertool:
             my_hover = HoverTool(mode="vline", renderers=[glyph])
-            if x_axis_type == "datetime":
-                my_hover.tooltips = [
-                    (xlabelname, "@__x__values_original{%F}"),
-                    (name, "@{%s}" % name),
-                ]
-                my_hover.formatters = {"__x__values_original": "datetime"}
+            if hovertool_string is None:
+                if x_axis_type == "datetime":
+                    my_hover.tooltips = [
+                        (xlabelname, "@__x__values_original{%F}"),
+                        (name, "@{%s}" % name),
+                    ]
+                    my_hover.formatters = {"__x__values_original": "datetime"}
+                else:
+                    my_hover.tooltips = [
+                        (xlabelname, "@__x__values_original"),
+                        (name, "@{%s}" % name),
+                    ]
             else:
-                my_hover.tooltips = [
-                    (xlabelname, "@__x__values_original"),
-                    (name, "@{%s}" % name),
-                ]
+                my_hover.tooltips = hovertool_string
             p.add_tools(my_hover)
 
     return p
@@ -1034,6 +1139,7 @@ def pointplot(
 
 def scatterplot(
     p,
+    df,
     x,
     x_old,
     y,
@@ -1041,6 +1147,8 @@ def scatterplot(
     category_values,
     colormap,
     hovertool,
+    hovertool_string,
+    additional_columns,
     x_axis_type,
     xlabelname,
     ylabelname,
@@ -1056,6 +1164,11 @@ def scatterplot(
 
     # Define source:
     source = ColumnDataSource({"__x__values": x, "__x__values_original": x_old, "y": y})
+    for kwarg, value in kwargs.items():
+        if value in df.columns:
+            source.data[value] = df[value].values
+    for add_col in additional_columns:
+        source.data[add_col] = df[add_col].values
 
     # Define Colormapper for categorical scatterplot:
     if category is not None:
@@ -1109,19 +1222,21 @@ def scatterplot(
             # Add Hovertool
             if hovertool:
                 my_hover = HoverTool(renderers=[glyph])
-                if x_axis_type == "datetime":
-                    my_hover.tooltips = [
-                        (xlabelname, "@__x__values_original{%F}"),
-                        (ylabelname, "@y"),
-                    ]
-                    my_hover.formatters = {"__x__values_original": "datetime"}
+                if hovertool_string is None:
+                    if x_axis_type == "datetime":
+                        my_hover.tooltips = [
+                            (xlabelname, "@__x__values_original{%F}"),
+                            (ylabelname, "@y"),
+                        ]
+                        my_hover.formatters = {"__x__values_original": "datetime"}
+                    else:
+                        my_hover.tooltips = [
+                            (xlabelname, "@__x__values_original"),
+                            (ylabelname, "@y"),
+                        ]
+                    my_hover.tooltips.append((str(category), "@{%s}" % category))
                 else:
-                    print(xlabelname)
-                    my_hover.tooltips = [
-                        (xlabelname, "@__x__values_original"),
-                        (ylabelname, "@y"),
-                    ]
-                my_hover.tooltips.append((str(category), "@{%s}" % category))
+                    my_hover.tooltips = hovertool_string
                 p.add_tools(my_hover)
 
         # Make categorical scatterplot:
@@ -1134,6 +1249,8 @@ def scatterplot(
             # Draw each category as separate glyph:
             x, y = source.data["__x__values"], source.data["y"]
             for cat, color in zip(categories, colormap):
+
+                # Define reduced source for this categorx:
                 x_cat = x[category_values == cat]
                 x_old_cat = x_old[category_values == cat]
                 y_cat = y[category_values == cat]
@@ -1146,6 +1263,11 @@ def scatterplot(
                         "category": cat_cat,
                     }
                 )
+                for kwarg, value in kwargs.items():
+                    if value in df.columns:
+                        source.data[value] = df[value].values[category_values == cat]
+                for add_col in additional_columns:
+                    source.data[add_col] = df[add_col].values[category_values == cat]
 
                 # Draw glyph:
                 glyph = p.scatter(
@@ -1160,18 +1282,21 @@ def scatterplot(
                 # Add Hovertool
                 if hovertool:
                     my_hover = HoverTool(renderers=[glyph])
-                    if x_axis_type == "datetime":
-                        my_hover.tooltips = [
-                            (xlabelname, "@__x__values_original{%F}"),
-                            (ylabelname, "@y"),
-                        ]
-                        my_hover.formatters = {"__x__values_original": "datetime"}
+                    if hovertool_string is None:
+                        if x_axis_type == "datetime":
+                            my_hover.tooltips = [
+                                (xlabelname, "@__x__values_original{%F}"),
+                                (ylabelname, "@y"),
+                            ]
+                            my_hover.formatters = {"__x__values_original": "datetime"}
+                        else:
+                            my_hover.tooltips = [
+                                (xlabelname, "@__x__values_original"),
+                                (ylabelname, "@y"),
+                            ]
+                        my_hover.tooltips.append((str(category), "@category"))
                     else:
-                        my_hover.tooltips = [
-                            (xlabelname, "@__x__values_original"),
-                            (ylabelname, "@y"),
-                        ]
-                    my_hover.tooltips.append((str(category), "@category"))
+                        my_hover.tooltips = hovertool_string
                     p.add_tools(my_hover)
 
             if len(categories) > 5:
@@ -1184,7 +1309,7 @@ def scatterplot(
                 "<category> is not supported with datetime objects. Consider casting the datetime objects to strings, which can be used as <category> values."
             )
 
-    # Draw non categorical plot:
+    # Draw non-categorical plot:
     else:
         # Draw glyph:
         glyph = p.scatter(
@@ -1194,17 +1319,20 @@ def scatterplot(
         # Add Hovertool:
         if hovertool:
             my_hover = HoverTool(renderers=[glyph])
-            if x_axis_type == "datetime":
-                my_hover.tooltips = [
-                    (xlabelname, "@__x__values_original{%F}"),
-                    (ylabelname, "@y"),
-                ]
-                my_hover.formatters = {"__x__values_original": "datetime"}
+            if hovertool_string is None:
+                if x_axis_type == "datetime":
+                    my_hover.tooltips = [
+                        (xlabelname, "@__x__values_original{%F}"),
+                        (ylabelname, "@y"),
+                    ]
+                    my_hover.formatters = {"__x__values_original": "datetime"}
+                else:
+                    my_hover.tooltips = [
+                        (xlabelname, "@__x__values_original"),
+                        (ylabelname, "@y"),
+                    ]
             else:
-                my_hover.tooltips = [
-                    (xlabelname, "@__x__values_original"),
-                    (ylabelname, "@y"),
-                ]
+                my_hover.tooltips = hovertool_string
             p.add_tools(my_hover)
 
     return p
@@ -1212,12 +1340,15 @@ def scatterplot(
 
 def histogram(
     p,
+    df,
     data_cols,
     colormap,
     aggregates,
     bins,
     averages,
     hovertool,
+    hovertool_string,
+    additional_columns,
     normed,
     cumulative,
     show_average,
@@ -1307,9 +1438,15 @@ def histogram(
 
         if hovertool:
             my_hover = HoverTool(mode="vline", renderers=[g1])
-            my_hover.tooltips = (
-                """<h3> %s: </h3> <h4>bin=@bins</h4> <h4>value=@top </h4>""" % (name)
-            )
+            if hovertool_string is None:
+                my_hover.tooltips = (
+                    """<h3> %s: </h3> <h4>bin=@bins</h4> <h4>value=@top </h4>"""
+                    % (name)
+                )
+            else:
+                warnings.warn(
+                    "For histograms, <hovertool_string> is not a supported keyword argument."
+                )
             p.add_tools(my_hover)
 
         # Plot average line if wanted:
@@ -1337,6 +1474,7 @@ def areaplot(
     data_cols,
     colormap,
     hovertool,
+    hovertool_string,
     xlabelname,
     x_axis_type,
     stacked,
@@ -1388,8 +1526,6 @@ def areaplot(
             source[col] = list(source[col]) + list(baseline)[::-1]
             baseline = new_baseline
 
-    
-
     # Add area patches to figure:
     for j, name, color in list(zip(range(len(data_cols)), data_cols, colormap))[::-1]:
         p.patch(
@@ -1420,22 +1556,32 @@ def areaplot(
 
             # Define hovertool and add to line:
             my_hover = HoverTool(mode="vline", renderers=[glyph])
-            if x_axis_type == "datetime":
-                my_hover.tooltips = [(xlabelname, "@__x__values_original{%F}")] + [
-                    (name, "@{%s}" % name) for name in data_cols[::-1]
-                ]
-                my_hover.formatters = {"__x__values_original": "datetime"}
+            if hovertool_string is None:
+                if x_axis_type == "datetime":
+                    my_hover.tooltips = [(xlabelname, "@__x__values_original{%F}")] + [
+                        (name, "@{%s}" % name) for name in data_cols[::-1]
+                    ]
+                    my_hover.formatters = {"__x__values_original": "datetime"}
+                else:
+                    my_hover.tooltips = [(xlabelname, "@__x__values_original")] + [
+                        (name, "@{%s}" % name) for name in data_cols[::-1]
+                    ]
             else:
-                my_hover.tooltips = [(xlabelname, "@__x__values_original")] +  [
-                    (name, "@{%s}" % name) for name in data_cols[::-1]
-                ]
+                my_hover.tooltips = hovertool_string
             p.add_tools(my_hover)
 
     return p
 
 
 def pieplot(
-    source, data_cols, colormap, hovertool, figure_options, xlabelname, **kwargs
+    source,
+    data_cols,
+    colormap,
+    hovertool,
+    hovertool_string,
+    figure_options,
+    xlabelname,
+    **kwargs
 ):
 
     """Creates a Pieplot from the provided data."""
@@ -1520,10 +1666,76 @@ def pieplot(
         # Define hovertool and add to Pieplot:
         if hovertool:
             my_hover = HoverTool(renderers=[glyph])
-            my_hover.tooltips = [
-                (xlabelname, "@__x__values_original"),
-                (col, "@{%s}" % col),
-            ]
+            if hovertool_string is None:
+                my_hover.tooltips = [
+                    (xlabelname, "@__x__values_original"),
+                    (col, "@{%s}" % col),
+                ]
+            else:
+                my_hover.tooltips = hovertool_string
+            p.add_tools(my_hover)
+
+    return p
+
+
+def mapplot(
+    source,
+    hovertool,
+    hovertool_string,
+    figure_options,
+    tile_provider,
+    tile_provider_url,
+    tile_attribution,
+    tile_alpha,
+    **kwargs
+):
+    """Creates Point on a Map from the provided data. Provided x,y coordinates
+    have to be longitude, latitude in WGS84 projection."""
+
+    latitude = source["latitude"]
+    longitude = source["longitude"]
+
+    # Check values of longitude and latitude:
+    if not (check_type(latitude) == "numeric" and check_type(longitude) == "numeric"):
+        raise ValueError(
+            "<x> and <y> have to be numeric columns of the DataFrame. Further they correspond to longitude, latitude in WGS84 projection."
+        )
+    if not (np.min(latitude) > -90 and np.max(latitude) < 90):
+        raise ValueError(
+            "All values of the <y>-columns have to be restricted to (-90, 90). The <y> value corresponds to the longitude in WGS84 projection."
+        )
+    if not (np.min(longitude) > -180 and np.max(longitude) < 180):
+        raise ValueError(
+            "All values of the <x>-columns have to be restricted to (-180, 180). The <x> value corresponds to the latitude in WGS84 projection."
+        )
+
+    # Convert longitude, latitude coordinates to Web Mercator projection:
+    RADIUS = 6378137.0
+    source["y"] = np.log(np.tan(np.pi / 4 + np.radians(latitude) / 2)) * RADIUS
+    source["x"] = np.radians(longitude) * RADIUS
+
+    # Create map figure to plot:
+    p = figure(**figure_options)
+
+    # Get ridd of zoom on axes:
+    for t in p.tools:
+        if type(t) == WheelZoomTool:
+            t.zoom_on_axis = False
+
+    # Add Background Tile:
+    from .geoplot import _add_backgroundtile
+    p = _add_backgroundtile(
+        p, tile_provider, tile_provider_url, tile_attribution, tile_alpha
+    )
+
+    #Plot geocoordinates on map:
+    glyph = p.scatter(x="x", y="y", source=source, legend="Show/Hide Layer", **kwargs)
+
+    #Add hovertool:
+    if hovertool:
+        if hovertool_string is not None:
+            my_hover = HoverTool(renderers=[glyph])
+            my_hover.tooltips = hovertool_string
             p.add_tools(my_hover)
 
     return p
@@ -1908,7 +2120,7 @@ class FramePlotMethods(BasePlotMethods):
             >>> df['two'] = df['one'] + np.random.randint(1, 7, 6000)
             >>> ax = df.plot_bokeh.hist(bins=12, alpha=0.5)
         """
-        return self(kind="hist", by=by, bins=bins, **kwds)
+        return self(kind="hist", **kwds)
 
     def area(self, x=None, y=None, **kwds):
         """

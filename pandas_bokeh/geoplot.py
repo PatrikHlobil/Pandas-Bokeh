@@ -30,6 +30,7 @@ def _add_backgroundtile(
     from bokeh.models import WMTSTileSource
 
     tile_dict = {
+        None: None, 
         "CARTODBPOSITRON": CARTODBPOSITRON,
         "CARTODBPOSITRON_RETINA": CARTODBPOSITRON_RETINA,
         "STAMEN_TERRAIN": STAMEN_TERRAIN,
@@ -52,6 +53,7 @@ def _add_backgroundtile(
         t = p.add_tile(
             WMTSTileSource(url=tile_provider_url, attribution=tile_attribution)
         )
+        t.alpha = tile_alpha
 
     elif not tile_provider is None:
         if not isinstance(tile_provider, str):
@@ -64,8 +66,7 @@ def _add_backgroundtile(
             raise ValueError(
                 "<tile_provider> only accepts the values: %s" % tile_dict.keys()
             )
-
-    t.alpha = tile_alpha
+        t.alpha = tile_alpha
 
     return p
 
@@ -184,6 +185,8 @@ def geoplot(
         "plot_height": 400,
         "toolbar_location": toolbar_location,
         "active_scroll": "wheel_zoom",
+        "x_axis_type": "mercator", 
+        "y_axis_type": "mercator", 
     }
     if not figsize is None:
         width, height = figsize
@@ -195,7 +198,7 @@ def geoplot(
     if not fig is None:
         raise NotImplementedError("Parameter <figure> not yet implemented.")
 
-    # Convert GeoDataFrame to Web Mercador Projection:
+    # Convert GeoDataFrame to Web Mercator Projection:
     gdf.to_crs({"init": "epsg:3857"}, inplace=True)
 
     # Simplify shapes if wanted:
@@ -377,7 +380,7 @@ def geoplot(
             )
 
     # Create Figure to draw:
-    p = figure(x_axis_type="mercator", y_axis_type="mercator", **figure_options)
+    p = figure(**figure_options)
 
     # Get ridd of zoom on axes:
     for t in p.tools:
