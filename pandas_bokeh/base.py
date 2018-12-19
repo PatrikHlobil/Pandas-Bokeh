@@ -20,7 +20,7 @@ from bokeh.models import (
     CategoricalColorMapper,
     ColorBar,
     FuncTickFormatter,
-    WheelZoomTool
+    WheelZoomTool,
 )
 from bokeh.models.tickers import FixedTicker
 from bokeh.palettes import all_palettes, Inferno256
@@ -947,6 +947,7 @@ def plot(
             hovertool,
             hovertool_string,
             figure_options,
+            colormap,
             tile_provider,
             tile_provider_url,
             tile_attribution,
@@ -1683,6 +1684,7 @@ def mapplot(
     hovertool,
     hovertool_string,
     figure_options,
+    colormap,
     tile_provider,
     tile_provider_url,
     tile_attribution,
@@ -1724,14 +1726,22 @@ def mapplot(
 
     # Add Background Tile:
     from .geoplot import _add_backgroundtile
+
     p = _add_backgroundtile(
         p, tile_provider, tile_provider_url, tile_attribution, tile_alpha
     )
 
-    #Plot geocoordinates on map:
-    glyph = p.scatter(x="x", y="y", source=source, legend="Show/Hide Layer", **kwargs)
+    # Plot geocoordinates on map:
+    glyph = p.scatter(
+        x="x",
+        y="y",
+        source=source,
+        legend="Show/Hide Layer",
+        color=colormap[0],
+        **kwargs
+    )
 
-    #Add hovertool:
+    # Add hovertool:
     if hovertool:
         if hovertool_string is not None:
             my_hover = HoverTool(renderers=[glyph])
@@ -2212,19 +2222,9 @@ class FramePlotMethods(BasePlotMethods):
             The column name or column position to be used as vertical
             coordinates for each point.
 
-        category : str, int or array_like, optional
-            The color of each point. Possible values are:
-
-            - A single color string referred to by name, RGB or RGBA code,
-              for instance 'red' or '#a98d19'.
-
-            - A sequence of color strings referred to by name, RGB or RGBA
-              code, which will be used for each point's color recursively. For
-              intance ['green','yellow'] all points will be filled in green or
-              yellow, alternatively.
-
-            - A column name whose values will be used to color the
-              marker points according to a colormap.
+        category : str or object 
+            A column name whose values will be used to color the
+            marker points according to a colormap. 
 
         **kwds
             Keyword arguments to pass on to :meth:`pandas.DataFrame.plot_bokeh`.
@@ -2250,8 +2250,7 @@ class FramePlotMethods(BasePlotMethods):
             ...                    [6.4, 3.2, 1], [5.9, 3.0, 2]],
             ...                   columns=['length', 'width', 'species'])
             >>> ax1 = df.plot_bokeh.scatter(x='length',
-            ...                       y='width',
-            ...                       category='DarkBlue')
+            ...                         y='width')
 
         And now with the color and size determined by a column as well.
 
@@ -2265,4 +2264,85 @@ class FramePlotMethods(BasePlotMethods):
             ...                       colormap='viridis')
         """
         return self(kind="scatter", x=x, y=y, category=category, **kwds)
+
+    def map(self, x, y, **kwds):
+        """
+        Create a plot of geographic points stored in a Pandas DataFrame on an 
+        interactive map.
+
+        The coordinates (latitude/longitude) of each point are defined by two 
+        dataframe columns.
+
+        Parameters
+        ----------
+        x : int or str
+            The column name or column position to be used as horizontal
+            coordinates (longitude) for each point.
+
+        y : int or str
+            The column name or column position to be used as vertical
+            coordinates (latitude) for each point.
+
+        hovertool_string : str
+            If specified, this string will be used for the hovertool (@{column}
+            will be replaced by the value of the column for the element the 
+            mouse hovers over, see also Bokeh documentation). This can be
+            used to display additional information on the map.
+
+        tile_provider : None or str (default: 'CARTODBPOSITRON_RETINA')
+            Define build-in tile provider for background maps. Possible 
+            values: None, 'CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA', 
+            'STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 
+            'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS'. 
+            
+        tile_provider_url : str
+            An arbitraty tile_provider_url of the form '/{Z}/{X}/{Y}*.png' 
+            can be passed to be used as background map.
+
+        
+        tile_attribution : str 
+            String (also HTML accepted) for showing attribution
+            for tile source in the lower right corner.
+
+        tile_alpha : float (Default: 1)
+            Sets the alpha value of the background tile between [0, 1]. 
+        
+
+        **kwds
+            Keyword arguments to pass on to :meth:`pandas.DataFrame.plot_bokeh`.
+
+        Returns
+        -------
+        Bokeh.plotting.figure
+
+        See Also
+        --------
+        bokeh.plotting.figure.scatter : scatter plot using multiple input data
+            formats.
+
+        Examples
+        --------
+        Let's see how to draw a scatter plot using coordinates from the values
+        in a DataFrame's columns. Below an example of plotting all cities 
+        for more than 1 million inhabitants:
+
+        .. plot::
+            :context: close-figs
+
+            >>> df_mapplot = pd.read_csv(r"https://raw.githubusercontent.com\
+            ... /PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata\
+            ... /populated%20places/populated_places.csv")
+            >>> df_mapplot["size"] = df_mapplot["pop_max"] / 1000000
+            >>> df_mapplot.plot_bokeh.map(
+            ...     x="longitude",
+            ...     y="latitude",
+            ...     hovertool_string="<h2> @{name} </h2> \n\n \
+            ...                       <h3> Population: @{pop_max} </h3>",
+            ...     tile_provider='STAMEN_TERRAIN_RETINA',
+            ...     size="size", 
+            ...     figsize=(900, 600),
+            ...     title="World cities with more than 1.000.000 inhabitants")
+
+        """
+        return self(kind="map", x=x, y=y, **kwds)
 

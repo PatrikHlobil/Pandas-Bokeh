@@ -464,8 +464,7 @@ df.head()
 
 Creating the Areaplot can be achieved via:
 ```python
-df.plot_bokeh(
-    kind="area",
+df_energy.plot_bokeh.area(
     x="Year",
     stacked=True,
     legend="top_left",
@@ -479,8 +478,7 @@ df.plot_bokeh(
 
 Note that the energy consumption of fossile energy is still increasing and renewable energy sources are still small in comparison 😢!!! However, when we norm the plot using the **normed** keyword, there is a clear trend towards renewable energies in the last decade:
 ```python
-df_energy.plot_bokeh(
-    kind="area",
+df_energy.plot_bokeh.area(
     x="Year",
     stacked=True,
     normed=100,
@@ -503,8 +501,7 @@ df_pie
 
 We can create a Pieplot of the last election in 2017 by specifying the "Partei" (german for party) column as the **x** column and the "2017" column as the y column for values:
 ```python
-df_pie.plot_bokeh(
-    kind="pie",
+df_pie.plot_bokeh.pie(
     x="Partei",
     y="2017",
     colormap=["blue", "red", "yellow", "green", "purple", "orange", "grey"],
@@ -516,13 +513,11 @@ df_pie.plot_bokeh(
 
 When you pass several columns to the **y** parameter (not providing the y-parameter assumes you plot all columns), multiple nested pieplots will be shown in one plot:
 ```python
-df_pie.plot_bokeh(
-    kind="pie",
+df_pie.plot_bokeh.pie(
     x="Partei",
     colormap=["blue", "red", "yellow", "green", "purple", "orange", "grey"],
     title="Results of German Bundestag Elections [2002-2017]",
-    line_color="grey"
-    )
+    line_color="grey")
 ```
 
 ![pieplot2](Documentation/Images/pieplot2.png)
@@ -546,7 +541,7 @@ For more details, see also the [examples](#Dropdown) of the similar **GeoPandas 
 
 Below an example of plotting all cities for more than 1 million inhabitants:
 ```python
-df_mapplot = pd.read_csv(r"Testdata/populated places/populated_places.csv")
+df_mapplot = pd.read_csv(r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata/populated%20places/populated_places.csv")
 df_mapplot.head()
 ```
 
@@ -602,8 +597,7 @@ df_mapplot.head()
 
 ```python
 df_mapplot["size"] = df_mapplot["pop_max"] / 1000000
-df_mapplot.plot_bokeh(
-    kind="map",
+df_mapplot.plot_bokeh.map(
     x="longitude",
     y="latitude",
     hovertool_string="""<h2> @{name} </h2> 
