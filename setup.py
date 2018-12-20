@@ -26,7 +26,7 @@ With **Pandas Bokeh**, creating stunning, interactive, HTML-based visualization 
 df.plot_bokeh()
 ```
 
-In release 0.1, the following plot types are supported:
+In release **0.1**, the following plot types are supported:
 
 * line
 * point
@@ -37,7 +37,13 @@ In release 0.1, the following plot types are supported:
 * pie
 * mapplot
 
-**Pandas Bokeh** is a high-level API for *Bokeh* on top of *Pandas*. Nevertheless, there are many options for customizing the plots, for example:
+<br>
+
+Furthermore, also **GeoDataFrames** have a new plotting backend as can be seen in the provided [examples](https://github.com/PatrikHlobil/Pandas-Bokeh#geoplots).
+
+<br>
+
+**Pandas Bokeh** is a high-level API for **Bokeh** on top of **Pandas** and **GeoPandas** that tries to figure out best, what the user wants to plot. Nevertheless, there are many options for customizing the plots, for example:
 
 * **figsize**: Choose width & height of the plot
 * **title**: Sets title of the plot
