@@ -34,7 +34,9 @@ Changes:
 
 ## 0.1
 
-### Pandas Bokeh
+**Changes:**
+
+### General
 * WebGL now as plotting backend as default 
 * Code Refactoring & many bugfixes
 * Added panning/zooming keyword options
