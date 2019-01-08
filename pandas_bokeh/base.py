@@ -1704,11 +1704,11 @@ def mapplot(
         )
     if not (np.min(latitude) > -90 and np.max(latitude) < 90):
         raise ValueError(
-            "All values of the <y>-columns have to be restricted to (-90, 90). The <y> value corresponds to the longitude in WGS84 projection."
+            "All values of the y-column have to be restricted to (-90, 90). The <y> value corresponds to the latitude in WGS84 projection."
         )
     if not (np.min(longitude) > -180 and np.max(longitude) < 180):
         raise ValueError(
-            "All values of the <x>-columns have to be restricted to (-180, 180). The <x> value corresponds to the latitude in WGS84 projection."
+            "All values of the x-column have to be restricted to (-180, 180). The <x> value corresponds to the longitude in WGS84 projection."
         )
 
     # Convert longitude, latitude coordinates to Web Mercator projection:
