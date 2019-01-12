@@ -2,9 +2,9 @@ import numbers
 from collections import OrderedDict, Iterable, Hashable
 
 import numpy as np
+import pandas as pd
 
 from .base import embedded_html
-
 
 from bokeh.colors import RGB
 
@@ -163,18 +163,21 @@ def geoplot(
     gdf = gdf_in.copy()
 
     # Check layertypes:
-    layertypes = []
-    if "Point" in str(gdf.geom_type.unique()):
-        layertypes.append("Point")
-    if "Line" in str(gdf.geom_type.unique()):
-        layertypes.append("Line")
-    if "Polygon" in str(gdf.geom_type.unique()):
-        layertypes.append("Polygon")
-    if len(layertypes) > 1:
-        raise Exception(
-            "Can only plot GeoDataFrames/Series with single type of geometry (either Point, Line or Polygon). Provided is a GeoDataFrame/Series with types: %s"
-            % layertypes
-        )
+    if not isinstance(gdf, pd.DataFrame):
+        layertypes = []
+        if "Point" in str(gdf.geom_type.unique()):
+            layertypes.append("Point")
+        if "Line" in str(gdf.geom_type.unique()):
+            layertypes.append("Line")
+        if "Polygon" in str(gdf.geom_type.unique()):
+            layertypes.append("Polygon")
+        if len(layertypes) > 1:
+            raise Exception(
+                "Can only plot GeoDataFrames/Series with single type of geometry (either Point, Line or Polygon). Provided is a GeoDataFrame/Series with types: %s"
+                % layertypes
+            )
+    else:
+        layertypes = ["Point"]
 
     # Get and check provided parameters for geoplot:
     figure_options = {
@@ -198,15 +201,17 @@ def geoplot(
     if not fig is None:
         raise NotImplementedError("Parameter <figure> not yet implemented.")
 
-    # Convert GeoDataFrame to Web Mercator Projection:
-    gdf.to_crs({"init": "epsg:3857"}, inplace=True)
+    
+    if not isinstance(gdf, pd.DataFrame):
+        # Convert GeoDataFrame to Web Mercator Projection:
+        gdf.to_crs({"init": "epsg:3857"}, inplace=True)
 
-    # Simplify shapes if wanted:
-    if isinstance(simplify_shapes, numbers.Number):
-        if layertypes[0] in ["Line", "Polygon"]:
-            gdf["geometry"] = gdf["geometry"].simplify(simplify_shapes)
-    elif not simplify_shapes is None:
-        raise ValueError("<simplify_shapes> parameter only accepts numbers or None.")
+        # Simplify shapes if wanted:
+        if isinstance(simplify_shapes, numbers.Number):
+            if layertypes[0] in ["Line", "Polygon"]:
+                gdf["geometry"] = gdf["geometry"].simplify(simplify_shapes)
+        elif not simplify_shapes is None:
+            raise ValueError("<simplify_shapes> parameter only accepts numbers or None.")
 
     # Check for category, dropdown or slider (choropleth map column):
     category_options = 0
@@ -539,6 +544,8 @@ def geoplot(
             hovertool_columns = [category]
 
     # Reduce DataFrame to needed columns:
+    if isinstance(gdf, pd.DataFrame):
+        gdf["Geometry"] = 0
     additional_columns = []
     for kwarg, value in kwargs.items():
         if isinstance(value, Hashable):
@@ -557,7 +564,8 @@ def geoplot(
         field = "Colormap"
 
     # Create GeoJSON DataSource for Plot:
-    geo_source = GeoJSONDataSource(geojson=gdf.to_json())
+    if not isinstance(gdf, pd.DataFrame):
+        geo_source = GeoJSONDataSource(geojson=gdf.to_json())
 
     # Draw Glyph on Figure:
     layout = None
@@ -582,7 +590,6 @@ def geoplot(
         # Creates from a geoDataFrame with Polygons and Multipolygons a Pandas DataFrame
         # with x any y columns specifying the geometry of the Polygons:
         geo_source = ColumnDataSource(convert_geoDataFrame_to_patches(gdf))
-           
 
         # Plot polygons:
         glyph = p.patches(
