@@ -34,9 +34,11 @@
 ## Release 0.1.1:
 
 - Add category option & xlim/ylim for mapplot (maybe also slider and dropdown --> refactor geoplots such that it can be used from base) ✓
-
+- Allow passing a Pandas_Bokeh figure to overlay geoplot (not supported for category/dropdown/slider yet) ✓
 
 ## Release 0.2:
+
+- Allow passing a Pandas_Bokeh figure to overlay plot (geoplots with category/dropdown/slider, pandas.DataFrame)
 - Resources = "raw" & "CDN" für embedded_html
 - Improve Docstring Documentation
 - Horizontal/Vertical Boxplots
@@ -54,7 +56,6 @@
 - **Pandas Bokeh** should be able to produce all plots of Pandas.plot documentation page
 - Filter options via slider
 - x_axis_format, y_axis_format implementation
-- Allow passing a Pandas_Bokeh figure to overlay plot (especially for geoplots)
 - GMaps Tile provider for geoplot
 - Horizontal Histograms
 - Heatmaps/2dHistogramme
@@ -69,5 +70,4 @@
 - Homepage
 - DataShader?
 - subplots method (see https://pandas.pydata.org/pandas-docs/stable/visualization.html#subplots)
-
 - Define longitude bounds for geoplots & mapplot

@@ -100,7 +100,7 @@ def convert_geoDataFrame_to_patches(gdf, geometry_column_name="geometry"):
 
 def geoplot(
     gdf_in,
-    fig=None,
+    figure=None,
     figsize=None,
     title="",
     xlabel="Longitude",
@@ -140,7 +140,8 @@ def geoplot(
     """Doc-String: TODO"""
 
     # Imports:
-    from bokeh.plotting import figure, show
+    import bokeh.plotting
+    from bokeh.plotting import show
     from bokeh.models import (
         HoverTool,
         LogColorMapper,
@@ -163,7 +164,7 @@ def geoplot(
     gdf = gdf_in.copy()
 
     # Check layertypes:
-    if not isinstance(gdf, pd.DataFrame):
+    if type(gdf) != pd.DataFrame:
         layertypes = []
         if "Point" in str(gdf.geom_type.unique()):
             layertypes.append("Point")
@@ -197,12 +198,8 @@ def geoplot(
         figure_options["plot_height"] = height
     if webgl:
         figure_options["output_backend"] = "webgl"
-
-    if not fig is None:
-        raise NotImplementedError("Parameter <figure> not yet implemented.")
-
     
-    if not isinstance(gdf, pd.DataFrame):
+    if type(gdf) != pd.DataFrame:
         # Convert GeoDataFrame to Web Mercator Projection:
         gdf.to_crs({"init": "epsg:3857"}, inplace=True)
 
@@ -385,7 +382,12 @@ def geoplot(
             )
 
     # Create Figure to draw:
-    p = figure(**figure_options)
+    if figure is None:
+        p = bokeh.plotting.figure(**figure_options)
+    elif type(figure) == type(bokeh.plotting.figure()):
+        p = figure
+    else:
+        raise ValueError("Parameter <figure> has to be of type bokeh.plotting.figure.")
 
     # Get ridd of zoom on axes:
     for t in p.tools:
@@ -544,7 +546,7 @@ def geoplot(
             hovertool_columns = [category]
 
     # Reduce DataFrame to needed columns:
-    if isinstance(gdf, pd.DataFrame):
+    if type(gdf) == pd.DataFrame:
         gdf["Geometry"] = 0
         additional_columns = ["x", "y"]
     else:
@@ -565,7 +567,7 @@ def geoplot(
         field = "Colormap"
 
     # Create GeoJSON DataSource for Plot:
-    if not isinstance(gdf, pd.DataFrame):
+    if type(gdf) != pd.DataFrame:
         geo_source = GeoJSONDataSource(geojson=gdf.to_json())
     else:
         geo_source = gdf
