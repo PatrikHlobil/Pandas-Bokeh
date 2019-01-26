@@ -272,6 +272,10 @@ pandas_bokeh.plot_grid([[div_df, p_scatter]], plot_width=400, plot_height=350)
 
 A possible optional keyword parameters that can be passed to [bokeh.plotting.figure.scatter](https://bokeh.pydata.org/en/latest/docs/reference/plotting.html#bokeh.plotting.figure.Figure.scatter) is **size**. Below, we use the *sepal length* of the Iris data as reference for the size:
 ```python
+#Change one value to clearly see the effect of the size keyword
+df.loc[13, "sepal length (cm)"] = 15     
+
+#Make scatterplot:
 p_scatter = df.plot_bokeh.scatter(
     x="petal length (cm)",
     y="sepal width (cm)",
@@ -527,19 +531,14 @@ df_pie.plot_bokeh.pie(
 
 ## Mapplot
 
-The **mapplot** method of **Pandas Bokeh** allows for plotting geographic points stored in a Pandas DataFrame on an interactive map. For more advanced **Geoplots** have a look at the [Geoplots examples](#geoplots) for the GeoPandas API of **Pandas Bokeh**. 
+The **mapplot** method of **Pandas Bokeh** allows for plotting geographic points stored in a Pandas DataFrame on an interactive map. For more advanced **Geoplots** for line and polygon shapes have a look at the [Geoplots examples](#geoplots) for the GeoPandas API of **Pandas Bokeh**. 
 
-For **mapplots**, only (latitude, longitude) pairs in [geographic projection](https://en.wikipedia.org/wiki/Geographic_coordinate_system#Latitude_and_longitude) can be plotted on a map. The basic API has the following parameters:
+For **mapplots**, only (latitude, longitude) pairs in [geographic projection](https://en.wikipedia.org/wiki/Geographic_coordinate_system#Latitude_and_longitude) (WGS84) can be plotted on a map. The basic API has the following 2 base parameters:
 
 * **x**: name of the *longitude* column of the DataFrame
 * **y**: name of the *latitude* column of the DataFrame
-* **hovertool_string**: If specified, this string will be used for the hovertool (@{column} will be replaced by the value of the column for the element the mouse hovers over, see also [Bokeh documentation](https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#custom-tooltip)). This can be used to display additional information on the map
-* **tile_provider**: Define build-in tile provider for background maps. Possible values: *None, 'CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA', 'STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS'. Default: CARTODBPOSITRON_RETINA* 
-* **tile_provider_url**: An arbitraty tile_provider_url of the form '<url>/{Z}/{X}/{Y}*.png' can be passed to be used as background map. 
-* **tile_attribution**: String (also HTML accepted) for showing attribution for tile source in the lower right corner
-* **tile_alpha**: Sets the alpha value of the background tile between [0, 1].  *Default: 1*
-    
-For more details, see also the [examples](#Dropdown) of the similar **GeoPandas API**.
+
+The other optional keyword arguments are discussed in the section about the [GeoPandas API](#geoplots), e.g. **category** for coloring the points.
 
 Below an example of plotting all cities for more than 1 million inhabitants:
 ```python

@@ -31,16 +31,17 @@
 ---
 
 
+## Release 0.1.1:
 
-
+- Add category option & xlim/ylim for mapplot (maybe also slider and dropdown --> refactor geoplots such that it can be used from base) ✓
 
 
 ## Release 0.2:
+- Resources = "raw" & "CDN" für embedded_html
 - Improve Docstring Documentation
 - Horizontal/Vertical Boxplots
 - Smarter colorbar tickers (Pandas Bokeh)
 - Grid options (vertical/horizontal/both) for plots
-- Resources = "raw" & "CDN" für embedded_html
 - Integrate **check_type** function in all places --> Better check for categorical (e.g. multiindex problem --> raise Exception when x-axis is a multiindex)
 - Also allow for positional arguments in y=[1,2] that specifies position of column
 - Proper hovertool for histograms (mabye add invincible lineglyph with hoverinformation)
@@ -65,9 +66,8 @@
 - For pieplots with several y, align the annotations nicely around the circle (for many y-columns the annotation names will )
 - Improve <hovertool_string> for normal plots 
 - Add <hovertool_columns> for normal plots
-- Better docstring documentation
 - Homepage
 - DataShader?
 - subplots method (see https://pandas.pydata.org/pandas-docs/stable/visualization.html#subplots)
-- Add category option & xlim/ylim for mapplot (maybe also slider and dropdown --> refactor geoplots such that it can be used from base)
+
 - Define longitude bounds for geoplots & mapplot

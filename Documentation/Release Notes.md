@@ -68,6 +68,9 @@ Changes:
 * Greatly Improved performance for Polygon Geoplots 
 
 
+## 0.1.1
+
+* Refactoring of mapplot API (calls GeoPandas API of Pandas Bokeh), such that all options of GeoPandas.GeoDataFrame.plot_bokeh are available.
 
 
 

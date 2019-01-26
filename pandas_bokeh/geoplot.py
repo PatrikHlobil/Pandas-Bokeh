@@ -546,19 +546,20 @@ def geoplot(
     # Reduce DataFrame to needed columns:
     if isinstance(gdf, pd.DataFrame):
         gdf["Geometry"] = 0
-    additional_columns = []
+        additional_columns = ["x", "y"]
+    else:
+        additional_columns = ["geometry"]
     for kwarg, value in kwargs.items():
         if isinstance(value, Hashable):
             if value in gdf.columns:
                 additional_columns.append(value)
     if category_options == 0:
-        gdf = gdf[list(set(hovertool_columns) | set(additional_columns)) + ["geometry"]]
+        gdf = gdf[list(set(hovertool_columns) | set(additional_columns))]
     else:
         gdf = gdf[
             list(
                 set(hovertool_columns) | set(category_columns) | set(additional_columns)
             )
-            + ["geometry"]
         ]
         gdf["Colormap"] = gdf[field]
         field = "Colormap"
@@ -566,6 +567,8 @@ def geoplot(
     # Create GeoJSON DataSource for Plot:
     if not isinstance(gdf, pd.DataFrame):
         geo_source = GeoJSONDataSource(geojson=gdf.to_json())
+    else:
+        geo_source = gdf
 
     # Draw Glyph on Figure:
     layout = None
