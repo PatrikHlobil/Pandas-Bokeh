@@ -60,7 +60,7 @@ Each plot type like scatterplot or histogram further has many more additional cu
 
 setuptools.setup(
     name="pandas-bokeh",
-    version="0.1",
+    version="0.1.1",
     author="Patrik Hlobil",
     author_email="patrik.hlobil@googlemail.com",
     description="Bokeh plotting backend for Pandas.DataFrames",
