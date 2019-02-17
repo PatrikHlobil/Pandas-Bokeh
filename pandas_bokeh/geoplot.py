@@ -30,7 +30,7 @@ def _add_backgroundtile(
     from bokeh.models import WMTSTileSource
 
     tile_dict = {
-        None: None, 
+        None: None,
         "CARTODBPOSITRON": CARTODBPOSITRON,
         "CARTODBPOSITRON_RETINA": CARTODBPOSITRON_RETINA,
         "STAMEN_TERRAIN": STAMEN_TERRAIN,
@@ -69,6 +69,19 @@ def _add_backgroundtile(
         t.alpha = tile_alpha
 
     return p
+
+
+def get_figure(col):
+    """Gets the bokeh.plotting.figure from a bokeh.layouts.column."""
+
+    from bokeh.layouts import column
+    from bokeh.plotting import figure
+
+    for children in col.children:
+        if isinstance(children, type(figure())):
+            return children
+        elif isinstance(children, type(column())):
+            return get_figure(children)
 
 
 def convert_geoDataFrame_to_patches(gdf, geometry_column_name="geometry"):
@@ -189,8 +202,8 @@ def geoplot(
         "plot_height": 400,
         "toolbar_location": toolbar_location,
         "active_scroll": "wheel_zoom",
-        "x_axis_type": "mercator", 
-        "y_axis_type": "mercator", 
+        "x_axis_type": "mercator",
+        "y_axis_type": "mercator",
     }
     if not figsize is None:
         width, height = figsize
@@ -198,7 +211,7 @@ def geoplot(
         figure_options["plot_height"] = height
     if webgl:
         figure_options["output_backend"] = "webgl"
-    
+
     if type(gdf) != pd.DataFrame:
         # Convert GeoDataFrame to Web Mercator Projection:
         gdf.to_crs({"init": "epsg:3857"}, inplace=True)
@@ -208,7 +221,9 @@ def geoplot(
             if layertypes[0] in ["Line", "Polygon"]:
                 gdf["geometry"] = gdf["geometry"].simplify(simplify_shapes)
         elif not simplify_shapes is None:
-            raise ValueError("<simplify_shapes> parameter only accepts numbers or None.")
+            raise ValueError(
+                "<simplify_shapes> parameter only accepts numbers or None."
+            )
 
     # Check for category, dropdown or slider (choropleth map column):
     category_options = 0
@@ -382,12 +397,16 @@ def geoplot(
             )
 
     # Create Figure to draw:
+    old_layout = None
     if figure is None:
         p = bokeh.plotting.figure(**figure_options)
-    elif type(figure) == type(bokeh.plotting.figure()):
+    elif isinstance(figure, type(bokeh.plotting.figure())):
         p = figure
+    elif isinstance(figure, type(column())):
+        old_layout = figure
+        p = get_figure(old_layout)
     else:
-        raise ValueError("Parameter <figure> has to be of type bokeh.plotting.figure.")
+        raise ValueError("Parameter <figure> has to be of type bokeh.plotting.figure or bokeh.layouts.column.")
 
     # Get ridd of zoom on axes:
     for t in p.tools:
@@ -653,7 +672,10 @@ def geoplot(
         dropdown_widget.js_on_change("value", callback)
 
         # Add Dropdown widget above the plot:
-        layout = column(dropdown_widget, p)
+        if old_layout is None:
+            layout = column(dropdown_widget, p)
+        else:
+            layout = column(dropdown_widget, old_layout)
 
     # Add Slider Widget:
     if not slider is None:
@@ -708,7 +730,10 @@ def geoplot(
         slider_widget.js_on_change("value", callback)
 
         # Add Slider widget above the plot:
-        layout = column(slider_widget, p)
+        if old_layout is None:
+            layout = column(slider_widget, p)
+        else:
+            layout = column(slider_widget, old_layout)
 
     # Hide legend if user wants:
     if legend_input is False:
@@ -717,11 +742,11 @@ def geoplot(
     # Set click policy for legend:
     p.legend.click_policy = "hide"
 
-    #Set panning option:
+    # Set panning option:
     if panning is False:
         p.toolbar.active_drag = None
 
-    #Set zooming option:
+    # Set zooming option:
     if zooming is False:
         p.toolbar.active_scroll = None
 

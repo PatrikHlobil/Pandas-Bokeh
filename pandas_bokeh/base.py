@@ -123,10 +123,10 @@ def embedded_html(fig, resources="CDN"):
             )
     elif resources == "raw":
         raise NotImplementedError("<resources> = raw has to be implemented by Thomas!")
-    elif resources == "no resources":
+    elif resources == None:
         pass
     else:
-        raise ValueError("<resources> only accept 'CDN' or 'raw'.")
+        raise ValueError("<resources> only accept 'CDN', 'raw' or None.")
 
     # Add plot script and div
     script, div = components(fig)
