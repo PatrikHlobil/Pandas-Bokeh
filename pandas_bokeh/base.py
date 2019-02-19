@@ -134,3 +134,4 @@ def embedded_html(fig, resources="CDN"):
 
     return html_embedded
 
+

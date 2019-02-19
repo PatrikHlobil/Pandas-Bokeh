@@ -1,1 +1,1 @@
-python setup.py sdist bdist_wheel && pip uninstall --yes pandas_bokeh && pip install dist\pandas_bokeh-0.1-py2.py3-none-any.whl
+python setup.py sdist bdist_wheel && pip uninstall --yes pandas_bokeh && pip install dist\pandas_bokeh-0.1.1-py2.py3-none-any.whl
