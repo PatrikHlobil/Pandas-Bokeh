@@ -21,7 +21,9 @@ You can install **Pandas Bokeh** from [PyPI](https://pypi.org/project/pandas-bok
 
 **Pandas Bokeh** is supported on Python 2.7, as well as Python 3.6 and above.
 
-The current release is 0.1.1 (2019/02/19). For more details, see [Release Notes](#releasenotes).
+<br>
+
+The current release is **0.1.1** (2019-02-19). For more details, see [Release Notes](#releasenotes).
 
 <br>
 
