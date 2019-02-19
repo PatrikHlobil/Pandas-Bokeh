@@ -71,7 +71,9 @@ Changes:
 ## 0.1.1
 
 * Refactoring of mapplot API (calls GeoPandas API of Pandas Bokeh), such that all options of GeoPandas.GeoDataFrame.plot_bokeh are available.
-* Allow passing a Pandas_Bokeh figure to overlay geoplot (not supported for category/dropdown/slider yet)
+* Allow passing a Pandas_Bokeh figure to overlay geoplots (not fully supported for category/dropdown/slider yet)
+* Bug Fix for new **Pandas 0.24** release
+* Implementation of first tests 
 
 
 

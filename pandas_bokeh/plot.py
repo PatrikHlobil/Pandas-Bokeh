@@ -1653,7 +1653,10 @@ class FramePlotMethods(BasePlotMethods):
     """
 
     def __call__(self, *args, **kwargs):
-        return plot(self._data, *args, **kwargs)
+        if pd.__version__ >= "0.24":
+            return plot(self._parent, *args, **kwargs)
+        else:
+            return plot(self._data, *args, **kwargs)
 
     __call__.__doc__ = plot.__doc__
 
