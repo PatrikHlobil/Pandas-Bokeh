@@ -26,7 +26,7 @@ With **Pandas Bokeh**, creating stunning, interactive, HTML-based visualization 
 df.plot_bokeh()
 ```
 
-In release **0.1**, the following plot types are supported:
+In release **0.1.1**, the following plot types are supported:
 
 * line
 * point
