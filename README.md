@@ -21,7 +21,7 @@ You can install **Pandas Bokeh** from [PyPI](https://pypi.org/project/pandas-bok
 
 **Pandas Bokeh** is supported on Python 2.7, as well as Python 3.6 and above.
 
-The current release is 0.1. For more details, see [Release Notes](#releasenotes).
+The current release is 0.1.1 (2019/02/19). For more details, see [Release Notes](#releasenotes).
 
 <br>
 
@@ -1076,3 +1076,10 @@ Plots like scatterplot or histogram also have many more additional customization
 * Added <tile_attribution> & <tile_alpha> parameter for background tiles of geoplots
 * Support for xlim & ylim in WGS84 (Latitude/Longitude) for geoplots
 * Greatly Improved performance for Polygon Geoplots 
+
+## 0.1.1
+
+* Refactoring of mapplot API (calls GeoPandas API of Pandas Bokeh), such that all options of GeoPandas.GeoDataFrame.plot_bokeh are available.
+* Allow passing a Pandas_Bokeh figure to overlay geoplots (not fully supported for category/dropdown/slider yet)
+* Bug Fix for new **Pandas 0.24** release
+* Implementation of first tests 
