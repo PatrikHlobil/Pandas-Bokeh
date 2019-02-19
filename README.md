@@ -754,6 +754,51 @@ df_states.plot_bokeh(
 <br>
 <br>
 
+### Plot multiple geolayers
+
+If you wish to display multiple geolayers, you can pass the *Bokeh figure of a Pandas Bokeh plot* via the **figure** keyword to the next **plot_bokeh()** call:
+```python
+import geopandas as gpd
+import pandas_bokeh
+pandas_bokeh.output_notebook()
+
+# Read in GeoJSONs from URL:
+df_states = gpd.read_file(r"Testdata/states/states.geojson")
+df_cities = gpd.read_file(
+    r"Testdata/populated places/ne_10m_populated_places_simple_bigcities.geojson"
+)
+df_cities["size"] = df_cities.pop_max / 400000
+
+#Plot shapes of US states (pass figure options to this initial plot):
+figure = df_states.plot_bokeh(
+    figsize=(800, 450),
+    simplify_shapes=10000,
+    show_figure=False,
+    xlim=[-170, -80],
+    ylim=[10, 70],
+    category="REGION",
+    colormap="Dark2",
+    legend="States",
+    show_colorbar=False,
+)
+
+#Plot cities as points on top of the US states layer by passing the figure:
+df_cities.plot_bokeh(
+    figure=figure,         # <== pass figure here!
+    category="pop_max",
+    colormap="Viridis",
+    colormap_uselog=True,
+    size="size",
+    hovertool_string="""<h1>@name</h1>
+                        <h3>Population: @pop_max </h3>""",
+    marker="inverted_triangle",
+    legend="Cities",
+)
+
+```
+
+![Multiple Geolayers](Documentation/Images/Multiple_GeoLayers.gif)
+
 ---
 
 ### Point & Line plots:
