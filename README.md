@@ -146,6 +146,7 @@ There are various optional parameters to tune the plots, for example:
 
 * **kwargs****: Optional keyword arguments of [bokeh.plotting.figure.line](https://bokeh.pydata.org/en/latest/docs/reference/plotting.html#bokeh.plotting.figure.Figure.line)
 
+<p id="hovertool_string_example"></p>
 
 Try them out to get a feeling for the effects. Let us consider now:
 
@@ -829,7 +830,7 @@ In a similar way, also GeoDataFrames with (multi)line shapes can be drawn using 
 
 <p id="Layouts"></p>
 
-## Outputs and Layouts
+## Outputs, Formatting & Layouts
 
 ### Output options
 
@@ -901,6 +902,55 @@ This code will open up a webbrowser and show the following page. As you can see,
 ![Embedded HTML](Documentation/Images/embedded_HTML.png)
 
 
+### Number formats
+
+To change the formats of numbers in the hovertool, use the **number_format** keyword argument. For a documentation about the format to pass, have a look at the [Bokeh documentation](https://bokeh.pydata.org/en/latest/docs/reference/models/formatters.html#bokeh.models.formatters.NumeralTickFormatter.format).Let us consider some examples for the number **3.141592653589793**:
+
+| Format | Output |
+|--------|--------|
+| 0      | 3      |
+| 0.000  | 3.141  |
+| 0.00 \$ | 3.14 \$ |
+
+
+This number format will be applied to all numeric columns of the hovertool. If you want to make a very custom or complicated hovertool, you should probably use the **hovertool_string** keyword argument, see e.g. [this example](#hovertool_string_example). Below, we use the **number_format** parameter to specify the "Stock Price" format to 2 decimal digits and an additional \$ sign.
+```python
+import numpy as np
+
+#Lineplot:
+np.random.seed(42)
+df = pd.DataFrame({
+    "Google": np.random.randn(1000) + 0.2,
+    "Apple": np.random.randn(1000) + 0.17
+},
+                  index=pd.date_range('1/1/2000', periods=1000))
+df = df.cumsum()
+df = df + 50
+df.plot_bokeh(
+    kind="line",
+    title="Apple vs Google",
+    xlabel="Date",
+    ylabel="Stock price [$]",
+    yticks=[0, 100, 200, 300, 400],
+    ylim=(0, 400),
+    colormap=["red", "blue"],
+    number_format="1.00 $")
+```
+![Number format](Documentation/Images/Number_format.gif)
+
+#### Suppress scientific notation for axes
+
+If you want to suppress the scientific notation for axes, you can use the **disable_scientific_axes** parameter, which accepts one of *"x", "y", "xy"*:
+
+```python
+df = pd.DataFrame({"Animal": ["Mouse", "Rabbit", "Dog", "Tiger", "Elefant", "Wale"],
+                   "Weight [g]": [19, 3000, 40000, 200000, 6000000, 50000000]})
+p_scientific = df.plot_bokeh(x="Animal", y="Weight [g]", show_figure=False)
+p_non_scientific = df.plot_bokeh(x="Animal", y="Weight [g]", disable_scientific_axes="y", show_figure=False,)
+pandas_bokeh.plot_grid([[p_scientific, p_non_scientific]], plot_width = 450)
+```
+
+![Number format](Documentation/Images/Scientific_axes.png)
 
 ### Dashboard Layouts
 

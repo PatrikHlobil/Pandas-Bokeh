@@ -142,6 +142,8 @@ def plot(
     show_average=False,
     plot_data_points=False,
     plot_data_points_size=5,
+    number_format=None,
+    disable_scientific_axes = None,
     show_figure=True,
     return_html=False,
     panning=True,
@@ -151,10 +153,6 @@ def plot(
     hovertool_string=None,
     vertical_xlabel=False,
     webgl=True,
-    tile_provider="CARTODBPOSITRON_RETINA",
-    tile_provider_url=None,
-    tile_attribution="",
-    tile_alpha=1,
     **kwargs
 ):
     """Method for creating a interactive with 'Bokeh' as plotting backend. Available
@@ -229,6 +227,10 @@ def plot(
             figure_options["y_range"] = ylim
     if webgl:
         figure_options["output_backend"] = "webgl"
+    if number_format is None:
+        number_format = ""
+    else:
+        number_format = "{%s}"%number_format
 
     # Check plot kind input:
     allowed_kinds = [
@@ -451,6 +453,7 @@ def plot(
             plot_data_points,
             plot_data_points_size,
             hovertool_string,
+            number_format,
             **kwargs
         )
 
@@ -874,6 +877,19 @@ def plot(
                 "Legend can only be True/False or one of 'top_left', 'top_center', 'top_right', 'center_left', 'center', 'center_right', 'bottom_left', 'bottom_center', 'bottom_right'"
             )
 
+    #Scientific formatting for axes:
+    if disable_scientific_axes is None:
+        pass
+    elif disable_scientific_axes == "x":
+        p.xaxis[0].formatter.use_scientific = False
+    elif disable_scientific_axes == "y":
+        p.yaxis[0].formatter.use_scientific = False
+    elif disable_scientific_axes in ["xy", True]:
+        p.xaxis[0].formatter.use_scientific = False
+        p.yaxis[0].formatter.use_scientific = False
+    else:
+        raise ValueError("""Keyword parameter <disable_scientific_axes> only accepts "xy", True, "x", "y" or None.""")
+
     # Display plot if wanted
     if show_figure:
         show(p)
@@ -897,6 +913,7 @@ def lineplot(
     plot_data_points,
     plot_data_points_size,
     hovertool_string,
+    number_format,
     **kwargs
 ):
     """Adds lineplot to figure p for each data_col."""
@@ -935,13 +952,13 @@ def lineplot(
                 if x_axis_type == "datetime":
                     my_hover.tooltips = [
                         (xlabelname, "@__x__values_original{%F}"),
-                        (name, "@{%s}" % name),
+                        (name, "@{%s}%s" % (name, number_format)),
                     ]
                     my_hover.formatters = {"__x__values_original": "datetime"}
                 else:
                     my_hover.tooltips = [
                         (xlabelname, "@__x__values_original"),
-                        (name, "@{%s}" % name),
+                        (name, "@{%s}%s" % (name, number_format)),
                     ]
             else:
                 my_hover.tooltips = hovertool_string

@@ -75,5 +75,9 @@ Changes:
 * Bug Fix for new **Pandas 0.24** release
 * Implementation of first tests 
 
+## 0.1.2
+
+* Added use_scientific option for Plots
+
 
 
