@@ -180,15 +180,8 @@ def test_pointplot():
 def test_scatterplot():
     "Test for scatterplot"
 
-    # Load Iris Dataset from Scikit Learn:
-    from sklearn.datasets import load_iris
-
-    iris = load_iris()
-    df = pd.DataFrame(iris["data"])
-    df.columns = iris["feature_names"]
-    df["species"] = iris["target"]
-    df["species"] = df["species"].map(dict(zip(range(3), iris["target_names"])))
-    df = df.sample(frac=1)
+    # Load Iris Dataset:
+    df = pd.read_csv(r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata/iris/iris.csv")
 
     # Create Div with DataFrame:
     from bokeh.models import Div
@@ -226,16 +219,9 @@ def test_scatterplot():
 def test_scatterplot_2():
     "Test 2 for scatterplot"
 
-    # Load Iris Dataset from Scikit Learn:
-    from sklearn.datasets import load_iris
-
-    iris = load_iris()
-    df = pd.DataFrame(iris["data"])
-    df.columns = iris["feature_names"]
-    df["species"] = iris["target"]
-    df["species"] = df["species"].map(dict(zip(range(3), iris["target_names"])))
-    df = df.sample(frac=1)
-
+    # Load Iris Dataset:
+    df = pd.read_csv(r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata/iris/iris.csv")
+    
     #Change one value to clearly see the effect of the size keyword
     df.loc[13, "sepal length (cm)"] = 15     
 
