@@ -2283,3 +2283,5 @@ class FramePlotMethods(BasePlotMethods):
         df["y"] = np.log(np.tan(np.pi / 4 + np.radians(latitude) / 2)) * RADIUS
         df["x"] = np.radians(longitude) * RADIUS
         return geoplot(df, **kwds)
+
+

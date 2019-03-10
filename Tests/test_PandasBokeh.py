@@ -111,5 +111,152 @@ def test_lineplot_with_points():
     assert True
 
 
+def test_lineplot_with_points():
+    "Test for lineplot with data points:"
+
+    # Create complex lineplot:
+    np.random.seed(42)
+    df = pd.DataFrame(
+        {"Google": np.random.randn(1000) + 0.2, "Apple": np.random.randn(1000) + 0.17},
+        index=pd.date_range("1/1/2000", periods=1000),
+    )
+    df.index.name = "Date"
+    df = df.cumsum()
+    df = df + 50
+    arguments = dict(
+        figsize=(600, 450),
+        title="Apple vs Google",
+        xlabel="Date",
+        ylabel="Stock price [$]",
+        yticks=[0, 100, 200, 300, 400],
+        ylim=(100, 200),
+        xlim=("2001-01-01", "2001-02-01"),
+        colormap=["red", "blue"],
+        plot_data_points=True,
+        plot_data_points_size=10,
+        marker="asterisk",
+        show_figure=False,
+    )
+    p_lineplot_with_points = df.plot_bokeh(kind="line", **arguments)
+    p_lineplot_with_points_accessor = df.plot_bokeh.line(**arguments)
+
+    # Output plot as HTML:
+    output = pandas_bokeh.row([p_lineplot_with_points, p_lineplot_with_points_accessor])
+    with open(os.path.join(directory, "Plots", "Lineplot_with_points.html"), "w") as f:
+        f.write(pandas_bokeh.embedded_html(output))
+
+    assert True
 
 
+def test_pointplot():
+    "Test for pointplot"
+
+    x = np.arange(-3, 3, 0.1)
+    y2 = x ** 2
+    y3 = x ** 3
+    df = pd.DataFrame({"x": x, "Parabula": y2, "Cube": y3})
+
+    arguments = dict(
+        x="x",
+        xticks=range(-3, 4),
+        size=5,
+        colormap=["#009933", "#ff3399"],
+        title="Pointplot (Parabula vs. Cube)",
+        marker="x",
+        show_figure=False,
+    )
+
+    p_pointplot = df.plot_bokeh(kind="point", **arguments)
+    p_pointplot_accessor = df.plot_bokeh.point(**arguments)
+
+    # Output plot as HTML:
+    output = pandas_bokeh.row([p_pointplot, p_pointplot_accessor])
+    with open(os.path.join(directory, "Plots", "Pointplot.html"), "w") as f:
+        f.write(pandas_bokeh.embedded_html(output))
+
+    assert True
+
+
+def test_scatterplot():
+    "Test for scatterplot"
+
+    # Load Iris Dataset from Scikit Learn:
+    from sklearn.datasets import load_iris
+
+    iris = load_iris()
+    df = pd.DataFrame(iris["data"])
+    df.columns = iris["feature_names"]
+    df["species"] = iris["target"]
+    df["species"] = df["species"].map(dict(zip(range(3), iris["target_names"])))
+    df = df.sample(frac=1)
+
+    # Create Div with DataFrame:
+    from bokeh.models import Div
+
+    div_df = Div(text=df.head(10).to_html(index=False), width=550)
+    div_df_accessor = Div(text=df.head(10).to_html(index=False), width=550)
+
+    # Create Scatterplot:
+    arguments = dict(
+        x="petal length (cm)",
+        y="sepal width (cm)",
+        category="species",
+        title="Iris DataSet Visualization",
+        show_figure=False,
+    )
+
+    p_scatter = df.plot_bokeh(kind="scatter", **arguments)
+    p_scatter_accessor = df.plot_bokeh.scatter(**arguments)
+
+    # Combine Div and Scatterplot via grid layout:
+    output = pandas_bokeh.plot_grid(
+        [[div_df, p_scatter], [div_df_accessor, p_scatter_accessor]],
+        show_plot=False,
+        return_html=True
+    )
+
+    with open(os.path.join(directory, "Plots", "Scatterplot.html"), "w") as f:
+        f.write(output)
+
+
+    assert True
+
+
+
+def test_scatterplot_2():
+    "Test 2 for scatterplot"
+
+    # Load Iris Dataset from Scikit Learn:
+    from sklearn.datasets import load_iris
+
+    iris = load_iris()
+    df = pd.DataFrame(iris["data"])
+    df.columns = iris["feature_names"]
+    df["species"] = iris["target"]
+    df["species"] = df["species"].map(dict(zip(range(3), iris["target_names"])))
+    df = df.sample(frac=1)
+
+    #Change one value to clearly see the effect of the size keyword
+    df.loc[13, "sepal length (cm)"] = 15     
+
+    #Make scatterplot:
+    # Create Scatterplot:
+    arguments = dict(
+        x="petal length (cm)",
+        y="sepal width (cm)",
+        category="species",
+        title="Iris DataSet Visualization",
+        size="sepal length (cm)",
+        show_figure=False,
+    )
+
+    p_scatter = df.plot_bokeh(kind="scatter", **arguments)
+    p_scatter_accessor = df.plot_bokeh.scatter(**arguments)
+
+    # Output plot as HTML:
+    output = pandas_bokeh.row([p_scatter, p_scatter_accessor])
+    with open(os.path.join(directory, "Plots", "Scatterplot_2.html"), "w") as f:
+        f.write(pandas_bokeh.embedded_html(output))
+
+
+    assert True
