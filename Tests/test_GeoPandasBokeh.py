@@ -6,6 +6,7 @@ import pandas_bokeh
 import os
 
 directory = os.path.dirname(__file__)
+os.makedirs(os.path.join(directory, "Plots"), exist_ok=True)
 
 # def test_geolayers_simple():
 #     "Tests for mutiple geolayers"
