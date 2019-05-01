@@ -631,7 +631,7 @@ def plot(
                 my_hover = HoverTool(mode=hovermode, renderers=[glyph[-1]])
                 if hovertool_string is None:
                     my_hover.tooltips = [(xlabelname, "@__x__values_original")] + [
-                        (col, "@%s" % col) for col in data_cols
+                        (col, "@{%s}" % col) for col in data_cols
                     ]
                 else:
                     my_hover.tooltips = hovertool_string
