@@ -2249,7 +2249,10 @@ class FramePlotMethods(BasePlotMethods):
         #return self(kind="map", x=x, y=y, **kwds)
         
         #Get data of x and y columns:
-        df = self._data.copy()
+        if pd.__version__ >= "0.24":
+            df = self._parent.copy()
+        else:
+            df = self._data.copy()
         if not x in df.columns:
             raise ValueError("<x> parameter has to be a column name of the provided dataframe.")
         if not y in df.columns:
