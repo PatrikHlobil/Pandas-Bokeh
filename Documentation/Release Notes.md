@@ -78,6 +78,6 @@ Changes:
 ## 0.1.2
 
 * Added use_scientific option for Plots
-
+* Bugfixes
 
 
