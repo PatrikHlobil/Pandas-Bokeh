@@ -1672,10 +1672,15 @@ class FramePlotMethods(BasePlotMethods):
     """
 
     def __call__(self, *args, **kwargs):
+
+        return plot(self.df, *args, **kwargs)
+
+    @property
+    def df(self):
         if pd.__version__ >= "0.24":
-            return plot(self._parent, *args, **kwargs)
+            return self._parent
         else:
-            return plot(self._data, *args, **kwargs)
+            return self._data
 
     __call__.__doc__ = plot.__doc__
 
@@ -2251,10 +2256,7 @@ class FramePlotMethods(BasePlotMethods):
         #return self(kind="map", x=x, y=y, **kwds)
         
         #Get data of x and y columns:
-        if pd.__version__ >= "0.24":
-            df = self._parent.copy()
-        else:
-            df = self._data.copy()
+        df = self.df.copy()
         if not x in df.columns:
             raise ValueError("<x> parameter has to be a column name of the provided dataframe.")
         if not y in df.columns:
