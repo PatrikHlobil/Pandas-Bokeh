@@ -1677,10 +1677,17 @@ class FramePlotMethods(BasePlotMethods):
 
     @property
     def df(self):
+
         if pd.__version__ >= "0.24":
-            return self._parent
+            dataframe = self._parent
         else:
-            return self._data
+            dataframe = self._data
+
+        # Convert PySpark Dataframe to Pandas Dataframe:
+        if hasattr(dataframe, "toPandas"):
+            dataframe = dataframe.toPandas()
+
+        return dataframe
 
     __call__.__doc__ = plot.__doc__
 
