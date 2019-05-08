@@ -629,7 +629,6 @@ df_mapplot.plot_bokeh.map(
 
 Les us start with a simple example using the ["World Borders Dataset"](http://thematicmapping.org/downloads/world_borders.php) . Let us first import all neccessary libraries and read the shapefile:
 ```python
-import requests
 import geopandas as gpd
 import pandas as pd
 import pandas_bokeh

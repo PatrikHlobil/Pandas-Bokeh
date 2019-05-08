@@ -467,6 +467,7 @@ def plot(
             hovertool_string,
             xlabelname,
             figure_options["x_axis_type"],
+            number_format,
             **kwargs
         )
 
@@ -976,6 +977,7 @@ def pointplot(
     hovertool_string,
     xlabelname,
     x_axis_type,
+    number_format,
     **kwargs
 ):
     """Adds pointplot to figure p for each data_col."""
@@ -1022,13 +1024,13 @@ def pointplot(
                 if x_axis_type == "datetime":
                     my_hover.tooltips = [
                         (xlabelname, "@__x__values_original{%F}"),
-                        (name, "@{%s}" % name),
+                        (name, "@{%s}%s" % (name, number_format)),
                     ]
                     my_hover.formatters = {"__x__values_original": "datetime"}
                 else:
                     my_hover.tooltips = [
                         (xlabelname, "@__x__values_original"),
-                        (name, "@{%s}" % name),
+                        (name, "@{%s}%s" % (name, number_format)),
                     ]
             else:
                 my_hover.tooltips = hovertool_string
