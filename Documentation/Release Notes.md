@@ -77,7 +77,8 @@ Changes:
 
 ## 0.1.2
 
-* Added use_scientific option for Plots
+* Added "disable_scientific_axes" option for Plots
 * Bugfixes
+* Implementation of **number_format** keyword
 
 

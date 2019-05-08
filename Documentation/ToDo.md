@@ -36,9 +36,14 @@
 - Add category option & xlim/ylim for mapplot (maybe also slider and dropdown --> refactor geoplots such that it can be used from base) ✓
 - Allow passing a Pandas_Bokeh figure to overlay geoplot (not supported for category/dropdown/slider yet) ✓
 
+## Release 0.1.2
+
+- Implement number_format keyword for all plottypes (line&plot already done)
+- Extend Tests to all plottypes
+
 ## Release 0.2:
 
-- Allow passing a Pandas_Bokeh figure to overlay plot (geoplots with category/dropdown/slider, pandas.DataFrame)
+- Allow passing a Pandas_Bokeh figure to overlay plot for geoplots with category/dropdown/slider, pandas.DataFrame)
 - Resources = "raw" & "CDN" für embedded_html
 - Improve Docstring Documentation
 - Horizontal/Vertical Boxplots
