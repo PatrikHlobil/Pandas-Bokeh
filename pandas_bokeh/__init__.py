@@ -9,7 +9,7 @@ from bokeh.layouts import column, row, layout
 
 import warnings
 
-__version__ = "0.1.2"
+__version__ = "0.2"
 
 # Define Bokeh-plot method for Pandas DataFrame and Series:
 try:
@@ -31,6 +31,16 @@ try:
 
     gpd.GeoDataFrame.plot_bokeh = geoplot
     gpd.GeoSeries.plot_bokeh = geoplot
-except:
+    
+except ModuleNotFoundError:
     pass
 
+
+# Define Bokeh-plot method for PySpark DataFrames:
+try:
+    import pyspark
+
+    plot_bokeh = CachedAccessor("plot_bokeh", FramePlotMethods)
+    pyspark.sql.dataframe.DataFrame.plot_bokeh = plot_bokeh
+except ModuleNotFoundError:
+    pass
