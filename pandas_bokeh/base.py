@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from bokeh.plotting import show
 from bokeh.layouts import gridplot
 import bokeh.plotting
 from bokeh.embed import components
 from bokeh.resources import CDN
 
+OUTPUT_TYPE = "file"
 
 def plot_grid(children, show_plot=True, return_html=False, **kwargs):
     """Create a grid of plots rendered on separate canvases and shows the layout. 
@@ -58,23 +58,50 @@ def plot_grid(children, show_plot=True, return_html=False, **kwargs):
     return layout
 
 
-def output_notebook(**kwargs):
+def output_notebook(notebook_type="auto", **kwargs):
     """Set the output of Bokeh to the current notebook.
 
     Parameters:
-    ----------------------------------------------------------------	
+    ----------------------------------------------------------------
+    notebook_type (string, default: "auto) - Either "jupyter", "zeppelin" or "auto"	
     resources (Resource, optional) – How and where to load BokehJS from (default: CDN)
     verbose (bool, optional) – whether to display detailed BokehJS banner (default: False)
     hide_banner (bool, optional) – whether to hide the Bokeh banner (default: False)
     load_timeout (int, optional) – Timeout in milliseconds when plots assume load 
                                    timed out (default: 5000)
-    notebook_type (string, optional) – Notebook type (default: jupyter)
 
     Returns:
     ----------------------------------------------------------------	
     None"""
+
+    if notebook_type == "auto":
+        notebook_type = detect_notebook_server()
+    elif notebook_type in ("jupyter", "zeppelin"):
+        pass
+    else:
+        raise ValueError('<notebook_type> can only be "jupyter", "zeppelin" or "auto"')
+
+    global OUTPUT_TYPE
+    OUTPUT_TYPE = notebook_type
+
+    # Reset Bokeh output:
     bokeh.plotting.reset_output()
-    bokeh.plotting.output_notebook(**kwargs)
+
+    if notebook_type == "jupyter":
+        bokeh.plotting.output_notebook(**kwargs)
+    else:
+        #Preload JS resources:
+        print(u"%html\n\n" + get_bokeh_resources())
+
+
+def detect_notebook_server():
+    "Autodetects if user is in Jupyter or Zeppelin notebook."
+
+    try:
+        get_ipython()
+        return "jupyter"
+    except:
+        return "zeppelin"
 
 
 def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
@@ -94,8 +121,22 @@ def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
     Returns:	
     ----------------------------------------------------------------
     None"""
+    global OUTPUT_TYPE
+    OUTPUT_TYPE = "file"
+
     bokeh.plotting.reset_output()
     bokeh.plotting.output_file(filename, title=title, mode=mode, root_dir=root_dir)
+
+
+def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888"):
+    
+    if OUTPUT_TYPE != "zeppelin":
+        bokeh.plotting.show(obj, browser, new, notebook_handle, notebook_url)
+    else:
+        html_embedded = embedded_html(obj, resources=None)
+        print(u"%html\n\n" + html_embedded)
+
+show.__doc__ = bokeh.plotting.show.__doc__
 
 
 def embedded_html(fig, resources="CDN"):
@@ -105,22 +146,8 @@ def embedded_html(fig, resources="CDN"):
 
     html_embedded = ""
     if resources == "CDN":
-        # Pack CDN resources:
-        for css in CDN.css_files:
-            html_embedded += (
-                """<link
-            href="%s"
-            rel="stylesheet" type="text/css">
-        """
-                % css
-            )
-
-        for js in CDN.js_files:
-            html_embedded += (
-                """<script src="%s"></script>
-        """
-                % js
-            )
+        js_css_resources = get_bokeh_resources()
+        html_embedded += js_css_resources
     elif resources == "raw":
         raise NotImplementedError("<resources> = raw has to be implemented by Thomas!")
     elif resources == None:
@@ -134,4 +161,25 @@ def embedded_html(fig, resources="CDN"):
 
     return html_embedded
 
+def get_bokeh_resources():
+    "Returns string with all JS & CSS resources needed for Bokeh for HTML output"
 
+    # Pack CDN resources:
+    js_css_resources = ""
+    for css in CDN.css_files:
+        js_css_resources += (
+            """<link
+        href="%s"
+        rel="stylesheet" type="text/css">
+    """
+            % css
+        )
+
+    for js in CDN.js_files:
+        js_css_resources += (
+            """<script src="%s"></script>
+    """
+            % js
+        )
+
+    return js_css_resources

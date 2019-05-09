@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from .base import output_notebook, output_file, plot_grid, embedded_html
-from .plot import plot, show, FramePlotMethods
+from .base import output_notebook, output_file, plot_grid, show, embedded_html
+from .plot import plot, FramePlotMethods
 from .geoplot import geoplot
 
 from bokeh.layouts import column, row, layout
