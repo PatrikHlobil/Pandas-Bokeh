@@ -75,10 +75,12 @@ Changes:
 * Bug Fix for new **Pandas 0.24** release
 * Implementation of first tests 
 
-## 0.1.2
+## 0.2
 
+* **PySpark** support
+* **Zeppelin Notebooks** support
 * Added "disable_scientific_axes" option for Plots
 * Bugfixes
-* Implementation of **number_format** keyword
+* Implementation of **number_format** keyword for line, scatterplots
 
 

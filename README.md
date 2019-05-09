@@ -1,6 +1,8 @@
 # Pandas Bokeh
 
-**Pandas Bokeh** provides a [Bokeh](https://bokeh.pydata.org/en/latest/) plotting backend for [Pandas](https://pandas.pydata.org/) and [GeoPandas](http://geopandas.org/), similar to the already existing [Visualization](https://pandas.pydata.org/pandas-docs/stable/visualization.html) feature of Pandas. Importing the library adds a complementary plotting method ***plot_bokeh()*** on **DataFrames** and **Series** (and also on **GeoDataFrames**).
+<span style="color:red">09.05.2019: **Major update Pandas Bokeh 0.2 released!** </span>
+
+**Pandas Bokeh** provides a [Bokeh](https://bokeh.pydata.org/en/latest/) plotting backend for [Pandas](https://pandas.pydata.org/), [GeoPandas](http://geopandas.org/) and [Pyspark](https://spark.apache.org/docs/latest/api/python/index.html) <span style="color:red">(**new in Pandas Bokeh 0.2**!)</span> **DataFrames**, similar to the already existing [Visualization feature of Pandas](https://pandas.pydata.org/pandas-docs/stable/visualization.html). Importing the library adds a complementary plotting method ***plot_bokeh()*** on **DataFrames** and **Series**.
 
 With **Pandas Bokeh**, creating stunning, interactive, HTML-based visualization is as easy as calling:
 ```python
@@ -19,11 +21,11 @@ You can install **Pandas Bokeh** from [PyPI](https://pypi.org/project/pandas-bok
 
     pip install pandas-bokeh
 
-**Pandas Bokeh** is supported on Python 2.7, as well as Python 3.6 and above.
+**Pandas Bokeh** is supported on Python 2.7, as well as Python 3.4 and above.
 
 <br>
 
-The current release is **0.1.1** (2019-02-19). For more details, see [Release Notes](#releasenotes).
+The current release is **0.2** (2019-02-19). For more details, see [Release Notes](#releasenotes).
 
 <br>
 
@@ -31,9 +33,10 @@ The current release is **0.1.1** (2019-02-19). For more details, see [Release No
 
 <p id="Basics"> </p>
 
-The **Pandas-Bokeh** library should be imported after **Pandas**. After the import, one should define the plotting output, which can be:
+The **Pandas-Bokeh** library should be imported after **Pandas**, **GeoPandas** and/or **Pyspark**. After the import, one should define the plotting output, which can be:
 
 * **pandas_bokeh.output_notebook()**: Embeds the Plots in the cell outputs of the notebook. Ideal when working in Jupyter Notebooks.
+
 * **pandas_bokeh.output_file(filename)**: Exports the plot to the provided filename as an HTML.
 
 For more details about the plotting outputs, see the reference [here](#Layouts) or the [Bokeh documentation](https://bokeh.pydata.org/en/latest/docs/user_guide/quickstart.html#getting-started).
@@ -46,6 +49,7 @@ import pandas_bokeh
 pandas_bokeh.output_notebook()
 ```
 
+<span style="color:red">***New in Pandas Bokeh 0.2:** Zeppelin Notebook Support</span>
 <p id="output_file"> </p>
 
 ### File output to "Interactive Plot.html" (see also [bokeh.io.output_file](https://bokeh.pydata.org/en/latest/docs/reference/io.html#bokeh.io.output_file))
@@ -1059,7 +1063,7 @@ pandas_bokeh.show(layout)
 
 <p id="releasenotes"> </p>
 
-## Release Notes
+# Release Notes
 
 ## 0.0.1
 
@@ -1128,9 +1132,19 @@ Plots like scatterplot or histogram also have many more additional customization
 * Support for xlim & ylim in WGS84 (Latitude/Longitude) for geoplots
 * Greatly Improved performance for Polygon Geoplots 
 
+
 ## 0.1.1
 
 * Refactoring of mapplot API (calls GeoPandas API of Pandas Bokeh), such that all options of GeoPandas.GeoDataFrame.plot_bokeh are available.
 * Allow passing a Pandas_Bokeh figure to overlay geoplots (not fully supported for category/dropdown/slider yet)
 * Bug Fix for new **Pandas 0.24** release
 * Implementation of first tests 
+
+## 0.2
+
+* **PySpark** support
+* **Zeppelin Notebooks** support
+* Added "disable_scientific_axes" option for Plots
+* Bugfixes
+* Implementation of **number_format** keyword for line, scatterplots
+* Official support also for Python 3.4 & 3.5 
