@@ -842,6 +842,7 @@ In a similar way, also GeoDataFrames with (multi)line shapes can be drawn using 
 ## Outputs, Formatting & Layouts
 
 <p id="output_options"></p>
+
 ### Output options
 
 The **pandas.DataFrame.plot_bokeh** API has the following additional keyword arguments:
@@ -912,6 +913,7 @@ This code will open up a webbrowser and show the following page. As you can see,
 ![Embedded HTML](Documentation/Images/embedded_HTML.png)
 
 <p id="number_formats"></p>
+
 ### Number formats
 
 To change the formats of numbers in the hovertool, use the **number_format** keyword argument. For a documentation about the format to pass, have a look at the [Bokeh documentation](https://bokeh.pydata.org/en/latest/docs/reference/models/formatters.html#bokeh.models.formatters.NumeralTickFormatter.format).Let us consider some examples for the number **3.141592653589793**:
@@ -963,6 +965,7 @@ pandas_bokeh.plot_grid([[p_scientific, p_non_scientific]], plot_width = 450)
 ![Number format](Documentation/Images/Scientific_axes.png)
 
 <p id="dashboard_layouts"></p>
+
 ### Dashboard Layouts
 
 As shown in the [Scatterplot Example](#scatterplot_picture), combining plots with  plots or other HTML elements is straighforward in **Pandas Bokeh** due to the layout capabilities of [Bokeh](https://bokeh.pydata.org/en/latest/docs/user_guide/layout.html). The easiest way to generate a dashboard layout is using the **pandas_bokeh.plot_grid** method (which is an extension of [bokeh.layouts.gridplot](https://bokeh.pydata.org/en/latest/docs/reference/layouts.html#bokeh.layouts.gridplot)):
