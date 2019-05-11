@@ -2,7 +2,7 @@ import setuptools
 
 long_description = """# Pandas Bokeh
 
-**Pandas Bokeh** provides a [Bokeh](https://bokeh.pydata.org/en/latest/) plotting backend for [Pandas](https://pandas.pydata.org/) and [GeoPandas](http://geopandas.org/), similar to the already existing [Visualization](https://pandas.pydata.org/pandas-docs/stable/visualization.html) feature of Pandas. Importing the library adds a complementary plotting method ***plot_bokeh()*** on **DataFrames** and **Series** (and also on **GeoDataFrames**).
+**Pandas Bokeh** provides a [Bokeh](https://bokeh.pydata.org/en/latest/) plotting backend for [Pandas](https://pandas.pydata.org/) and [GeoPandas](http://geopandas.org/), similar to the already existing [Visualization](https://pandas.pydata.org/pandas-docs/stable/visualization.html) feature of Pandas. Importing the library adds a complementary plotting method ***plot_bokeh()*** on **DataFrames** and **Series**.
 
 For more information and examples have a look at the [Github Repository](https://github.com/PatrikHlobil/Pandas-Bokeh).
 
@@ -15,7 +15,7 @@ You can install **Pandas Bokeh** from *PyPI* via **pip**:
 
     pip install pandas-bokeh
 
-**Pandas Bokeh** is officially supported on Python 2.7, as well as Python 3.6 and above.
+**Pandas Bokeh** is officially supported on Python 2.7, as well as Python 3.4 and above.
 
 ---
 
@@ -26,7 +26,7 @@ With **Pandas Bokeh**, creating stunning, interactive, HTML-based visualization 
 df.plot_bokeh()
 ```
 
-In release **0.1.1**, the following plot types are supported:
+In release **0.2**, the following plot types are supported:
 
 * line
 * point
@@ -39,7 +39,7 @@ In release **0.1.1**, the following plot types are supported:
 
 <br>
 
-Furthermore, also **GeoDataFrames** have a new plotting backend as can be seen in the provided [examples](https://github.com/PatrikHlobil/Pandas-Bokeh#geoplots).
+Furthermore, also **GeoPandas** and **Pyspark** have a new plotting backend as can be seen in the provided [examples](https://github.com/PatrikHlobil/Pandas-Bokeh#geoplots).
 
 <br>
 
@@ -60,10 +60,10 @@ Each plot type like scatterplot or histogram further has many more additional cu
 
 setuptools.setup(
     name="pandas-bokeh",
-    version="0.1.1",
+    version="0.2",
     author="Patrik Hlobil",
     author_email="patrik.hlobil@googlemail.com",
-    description="Bokeh plotting backend for Pandas.DataFrames",
+    description="Bokeh plotting backend for Pandas, GeoPandas & Pyspark",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/PatrikHlobil/Pandas-Bokeh",

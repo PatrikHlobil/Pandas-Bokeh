@@ -7,7 +7,7 @@ import warnings
 from copy import deepcopy
 import re
 
-from bokeh.plotting import figure, show
+from bokeh.plotting import figure
 import pandas as pd
 import numpy as np
 from bokeh.models import (
@@ -32,7 +32,7 @@ from bokeh.events import Tap
 
 from pandas.plotting._core import BasePlotMethods
 
-from .base import embedded_html
+from .base import show, embedded_html
 from .geoplot import geoplot
 
 
