@@ -1,6 +1,7 @@
 # Pandas Bokeh
-
-<span style="color:red">11.05.2019: **Major update Pandas Bokeh 0.2 released!** </span>
+```diff
+- 11.05.2019: **Major update Pandas Bokeh 0.2 released!** </span>
+```
 
 **Pandas Bokeh** provides a [Bokeh](https://bokeh.pydata.org/en/latest/) plotting backend for [Pandas](https://pandas.pydata.org/), [GeoPandas](http://geopandas.org/) and [Pyspark](https://spark.apache.org/docs/latest/api/python/index.html) <span style="color:red">(**new in Pandas Bokeh 0.2**!)</span> **DataFrames**, similar to the already existing [Visualization feature of Pandas](https://pandas.pydata.org/pandas-docs/stable/visualization.html). Importing the library adds a complementary plotting method ***plot_bokeh()*** on **DataFrames** and **Series**.
 
