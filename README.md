@@ -769,9 +769,9 @@ import pandas_bokeh
 pandas_bokeh.output_notebook()
 
 # Read in GeoJSONs from URL:
-df_states = gpd.read_file(r"Testdata/states/states.geojson")
+df_states = gpd.read_file(r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata/states/states.geojson")
 df_cities = gpd.read_file(
-    r"Testdata/populated places/ne_10m_populated_places_simple_bigcities.geojson"
+    r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata/populated%20places/ne_10m_populated_places_simple_bigcities.geojson"
 )
 df_cities["size"] = df_cities.pop_max / 400000
 
