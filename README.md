@@ -82,9 +82,9 @@ Supported plottypes are at the moment:
 
 Also, check out the complementary chapter [Outputs, Formatting & Layouts](#Layouts) about:
 
-* [Output options (how to get HTML representation of Bokeh plots)](output_options)
-* [Number formats in Pandas Bokeh (modify Hovertool number format, suppress scientific notation on axes)](number_formats)
-* [Dashboard layouts (How to layout multiple plots in rows, columns and grids)](dashboard_layouts)
+* [Output options (how to get HTML representation of Bokeh plots)](#output_options)
+* [Number formats in Pandas Bokeh (modify Hovertool number format, suppress scientific notation on axes)](#number_formats)
+* [Dashboard layouts (How to layout multiple plots in rows, columns and grids)](#dashboard_layouts)
 
 ---
 
