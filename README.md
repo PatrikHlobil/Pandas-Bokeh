@@ -67,18 +67,24 @@ pandas_bokeh.output_file("Interactive Plot.html")
 ### Plot types
 
 Supported plottypes are at the moment:
+* Pandas &  <span style="color:red"> **Pyspark** (New in Relase 0.2) </span>
+  * [lineplot](#lineplot)
+  * [pointplot](#pointplot)
+  * [scatterplot](#scatterplot)
+  * [barplot](#barplot)
+  * [histogram](#histogram)
+  *  [areaplot](#areaplot)
+  * [pieplot](#pieplot)
+  * [mapplot](#mapplot)
 
-* [lineplot](#lineplot)
-* [pointplot](#pointplot)
-* [scatterplot](#scatterplot)
-* [barplot](#barplot)
-* [histogram](#histogram)
-* [areaplot](#areaplot)
-* [pieplot](#pieplot)
-* [mapplot](#mapplot)
 
+* [Geoplots (Point, Line, Polygon) with **GeoPandas**](#geoplots)
 
-* [Geoplots with **GeoPandas**](#geoplots)
+Also, check out the complementary chapter [Outputs, Formatting & Layouts](#Layouts) about:
+
+* [Output options (how to get HTML representation of Bokeh plots)](output_options)
+* [Number formats in Pandas Bokeh (modify Hovertool number format, suppress scientific notation on axes)](number_formats)
+* [Dashboard layouts (How to layout multiple plots in rows, columns and grids)](dashboard_layouts)
 
 ---
 
@@ -835,6 +841,7 @@ In a similar way, also GeoDataFrames with (multi)line shapes can be drawn using 
 
 ## Outputs, Formatting & Layouts
 
+<p id="output_options"></p>
 ### Output options
 
 The **pandas.DataFrame.plot_bokeh** API has the following additional keyword arguments:
@@ -904,7 +911,7 @@ This code will open up a webbrowser and show the following page. As you can see,
 
 ![Embedded HTML](Documentation/Images/embedded_HTML.png)
 
-
+<p id="number_formats"></p>
 ### Number formats
 
 To change the formats of numbers in the hovertool, use the **number_format** keyword argument. For a documentation about the format to pass, have a look at the [Bokeh documentation](https://bokeh.pydata.org/en/latest/docs/reference/models/formatters.html#bokeh.models.formatters.NumeralTickFormatter.format).Let us consider some examples for the number **3.141592653589793**:
@@ -955,6 +962,7 @@ pandas_bokeh.plot_grid([[p_scientific, p_non_scientific]], plot_width = 450)
 
 ![Number format](Documentation/Images/Scientific_axes.png)
 
+<p id="dashboard_layouts"></p>
 ### Dashboard Layouts
 
 As shown in the [Scatterplot Example](#scatterplot_picture), combining plots with  plots or other HTML elements is straighforward in **Pandas Bokeh** due to the layout capabilities of [Bokeh](https://bokeh.pydata.org/en/latest/docs/user_guide/layout.html). The easiest way to generate a dashboard layout is using the **pandas_bokeh.plot_grid** method (which is an extension of [bokeh.layouts.gridplot](https://bokeh.pydata.org/en/latest/docs/reference/layouts.html#bokeh.layouts.gridplot)):
