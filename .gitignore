@@ -13,4 +13,5 @@ build/
 */.vscode/
 .tox/
 *Untitled.ipynb
-*.coverage*
+.coverage*
+.coverage
