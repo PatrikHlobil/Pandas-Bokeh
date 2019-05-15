@@ -1,5 +1,6 @@
 import numbers
 import sys
+
 if sys.version_info >= (3, 0):
     from collections import OrderedDict
     from collections.abc import Iterable, Hashable
@@ -12,8 +13,54 @@ import pandas as pd
 from .base import embedded_html
 
 from bokeh.colors import RGB
+import bokeh
 
 blue_colormap = [RGB(255 - i, 255 - i, 255) for i in range(256)]
+
+TILE_PROVIDERS = [
+    "CARTODBPOSITRON",
+    "CARTODBPOSITRON_RETINA",
+    "STAMEN_TERRAIN",
+    "STAMEN_TERRAIN_RETINA",
+    "STAMEN_TONER",
+    "STAMEN_TONER_BACKGROUND",
+    "STAMEN_TONER_LABELS",
+]
+
+
+def get_background_tile(provider_name):
+    """Returns a Bokeh WTMS Tile Provider Source from <provider_name>. If 
+    <provider_name is not valid, it returns False."""
+
+    if provider_name not in TILE_PROVIDERS:
+        return False
+
+    if bokeh.__version__ >= "1.1":
+        from bokeh.tile_providers import get_provider
+
+        return get_provider(provider_name)
+    else:
+        from bokeh.tile_providers import (
+            CARTODBPOSITRON,
+            CARTODBPOSITRON_RETINA,
+            STAMEN_TERRAIN,
+            STAMEN_TERRAIN_RETINA,
+            STAMEN_TONER,
+            STAMEN_TONER_BACKGROUND,
+            STAMEN_TONER_LABELS,
+        )
+
+        tile_dict = {
+            "CARTODBPOSITRON": CARTODBPOSITRON,
+            "CARTODBPOSITRON_RETINA": CARTODBPOSITRON_RETINA,
+            "STAMEN_TERRAIN": STAMEN_TERRAIN,
+            "STAMEN_TERRAIN_RETINA": STAMEN_TERRAIN_RETINA,
+            "STAMEN_TONER": STAMEN_TONER,
+            "STAMEN_TONER_BACKGROUND": STAMEN_TONER_BACKGROUND,
+            "STAMEN_TONER_LABELS": STAMEN_TONER_LABELS,
+        }
+
+        return tile_dict[provider_name]
 
 
 def _add_backgroundtile(
@@ -23,27 +70,7 @@ def _add_backgroundtile(
     (parameter: tile_provider) or user passed a tile_provider_url of the form 
     '<url>/{Z}/{X}/{Y}*.png' or '<url>/{Z}/{Y}/{X}*.png'."""
 
-    from bokeh.tile_providers import (
-        CARTODBPOSITRON,
-        CARTODBPOSITRON_RETINA,
-        STAMEN_TERRAIN,
-        STAMEN_TERRAIN_RETINA,
-        STAMEN_TONER,
-        STAMEN_TONER_BACKGROUND,
-        STAMEN_TONER_LABELS,
-    )
     from bokeh.models import WMTSTileSource
-
-    tile_dict = {
-        None: None,
-        "CARTODBPOSITRON": CARTODBPOSITRON,
-        "CARTODBPOSITRON_RETINA": CARTODBPOSITRON_RETINA,
-        "STAMEN_TERRAIN": STAMEN_TERRAIN,
-        "STAMEN_TERRAIN_RETINA": STAMEN_TERRAIN_RETINA,
-        "STAMEN_TONER": STAMEN_TONER,
-        "STAMEN_TONER_BACKGROUND": STAMEN_TONER_BACKGROUND,
-        "STAMEN_TONER_LABELS": STAMEN_TONER_LABELS,
-    }
 
     if not tile_provider_url is None:
         if (
@@ -63,13 +90,13 @@ def _add_backgroundtile(
     elif not tile_provider is None:
         if not isinstance(tile_provider, str):
             raise ValueError(
-                "<tile_provider> only accepts the values: %s" % tile_dict.keys()
+                "<tile_provider> only accepts the values: %s" % TILE_PROVIDERS
             )
-        elif tile_provider.upper() in tile_dict:
-            t = p.add_tile(tile_dict[tile_provider])
+        elif get_background_tile(tile_provider) != False:
+            t = p.add_tile(get_background_tile(tile_provider))
         else:
             raise ValueError(
-                "<tile_provider> only accepts the values: %s" % tile_dict.keys()
+                "<tile_provider> only accepts the values: %s" % TILE_PROVIDERS
             )
         t.alpha = tile_alpha
 
@@ -411,7 +438,9 @@ def geoplot(
         old_layout = figure
         p = get_figure(old_layout)
     else:
-        raise ValueError("Parameter <figure> has to be of type bokeh.plotting.figure or bokeh.layouts.column.")
+        raise ValueError(
+            "Parameter <figure> has to be of type bokeh.plotting.figure or bokeh.layouts.column."
+        )
 
     # Get ridd of zoom on axes:
     for t in p.tools:
@@ -770,4 +799,3 @@ def geoplot(
     # Return plot:
     if return_figure:
         return layout
-
