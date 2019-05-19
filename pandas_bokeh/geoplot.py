@@ -28,7 +28,7 @@ TILE_PROVIDERS = [
 ]
 
 
-def get_background_tile(provider_name):
+def _get_background_tile(provider_name):
     """Returns a Bokeh WTMS Tile Provider Source from <provider_name>. If 
     <provider_name is not valid, it returns False."""
 
@@ -92,8 +92,8 @@ def _add_backgroundtile(
             raise ValueError(
                 "<tile_provider> only accepts the values: %s" % TILE_PROVIDERS
             )
-        elif get_background_tile(tile_provider) != False:
-            t = p.add_tile(get_background_tile(tile_provider))
+        elif _get_background_tile(tile_provider) != False:
+            t = p.add_tile(_get_background_tile(tile_provider))
         else:
             raise ValueError(
                 "<tile_provider> only accepts the values: %s" % TILE_PROVIDERS
@@ -103,7 +103,7 @@ def _add_backgroundtile(
     return p
 
 
-def get_figure(col):
+def _get_figure(col):
     """Gets the bokeh.plotting.figure from a bokeh.layouts.column."""
 
     from bokeh.layouts import column
@@ -113,7 +113,7 @@ def get_figure(col):
         if isinstance(children, type(figure())):
             return children
         elif isinstance(children, type(column())):
-            return get_figure(children)
+            return _get_figure(children)
 
 
 def convert_geoDataFrame_to_patches(gdf, geometry_column_name="geometry"):
@@ -432,11 +432,17 @@ def geoplot(
     old_layout = None
     if figure is None:
         p = bokeh.plotting.figure(**figure_options)
+
+        # Add Tile Source as Background:
+        p = _add_backgroundtile(
+            p, tile_provider, tile_provider_url, tile_attribution, tile_alpha
+        )
+
     elif isinstance(figure, type(bokeh.plotting.figure())):
         p = figure
     elif isinstance(figure, type(column())):
         old_layout = figure
-        p = get_figure(old_layout)
+        p = _get_figure(old_layout)
     else:
         raise ValueError(
             "Parameter <figure> has to be of type bokeh.plotting.figure or bokeh.layouts.column."
@@ -447,10 +453,6 @@ def geoplot(
         if type(t) == WheelZoomTool:
             t.zoom_on_axis = False
 
-    # Add Tile Source as Background:
-    p = _add_backgroundtile(
-        p, tile_provider, tile_provider_url, tile_attribution, tile_alpha
-    )
 
     # Hide legend if wanted:
     legend_input = legend
