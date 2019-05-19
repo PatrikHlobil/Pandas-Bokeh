@@ -5,6 +5,10 @@ import pandas_bokeh
 import os
 
 directory = os.path.dirname(__file__)
+test_sets_directory = os.path.join(
+    os.path.dirname(directory), "Documentation", "Testdata"
+)
+
 os.makedirs(os.path.join(directory, "Plots"), exist_ok=True)
 
 
@@ -182,9 +186,7 @@ def test_scatterplot():
     "Test for scatterplot"
 
     # Load Iris Dataset:
-    df = pd.read_csv(
-        r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata/iris/iris.csv"
-    )
+    df = pd.read_csv(os.path.join(test_sets_directory, "iris", "iris.csv"))
 
     # Create Div with DataFrame:
     from bokeh.models import Div
@@ -221,9 +223,7 @@ def test_scatterplot_2():
     "Test 2 for scatterplot"
 
     # Load Iris Dataset:
-    df = pd.read_csv(
-        r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata/iris/iris.csv"
-    )
+    df = pd.read_csv(os.path.join(test_sets_directory, "iris", "iris.csv"))
 
     # Change one value to clearly see the effect of the size keyword
     df.loc[13, "sepal length (cm)"] = 15
@@ -369,7 +369,7 @@ def test_barplot_layout():
         [[p_bar, p_stacked_bar], [p_hbar, p_stacked_hbar]],
         plot_width=450,
         show_plot=False,
-        return_html=True
+        return_html=True,
     )
 
     # Output plot as HTML:
@@ -377,3 +377,196 @@ def test_barplot_layout():
         f.write(output)
 
     assert True
+
+
+def test_histogram():
+    "Test for histograms"
+
+    import numpy as np
+
+    df_hist = pd.DataFrame(
+        {
+            "a": np.random.randn(1000) + 1,
+            "b": np.random.randn(1000),
+            "c": np.random.randn(1000) - 1,
+        },
+        columns=["a", "b", "c"],
+    )
+
+    # Top-on-Top Histogram (Default):
+    p_tt = df_hist.plot_bokeh.hist(
+        bins=np.linspace(-5, 5, 41),
+        vertical_xlabel=True,
+        hovertool=False,
+        title="Normal distributions (Top-on-Top)",
+        line_color="black",
+        show_figure=False,
+    )
+
+    # Side-by-Side Histogram (multiple bars share bin side-by-side) also accessible via
+    # kind="hist":
+    p_ss = df_hist.plot_bokeh(
+        kind="hist",
+        bins=np.linspace(-5, 5, 41),
+        histogram_type="sidebyside",
+        vertical_xlabel=True,
+        hovertool=False,
+        title="Normal distributions (Side-by-Side)",
+        line_color="black",
+        show_figure=False,
+    )
+
+    # Stacked histogram:
+    p_stack = df_hist.plot_bokeh.hist(
+        bins=np.linspace(-5, 5, 41),
+        histogram_type="stacked",
+        vertical_xlabel=True,
+        hovertool=False,
+        title="Normal distributions (Stacked)",
+        line_color="black",
+        show_figure=False,
+    )
+
+    layout = pandas_bokeh.column([p_tt, p_ss, p_stack])
+    pandas_bokeh.output_file(os.path.join(directory, "Plots", "Histogram.html"))
+    pandas_bokeh.save(layout)
+
+
+def test_histogram_average_diplay():
+    "Test average & cumulative function of histogram"
+
+    import numpy as np
+
+    df_hist = pd.DataFrame(
+        {
+            "a": np.random.randn(1000) + 1,
+            "b": np.random.randn(1000),
+            "c": np.random.randn(1000) - 1,
+        },
+        columns=["a", "b", "c"],
+    )
+
+    p_hist = df_hist.plot_bokeh.hist(
+        y=["a", "b"],
+        bins=np.arange(-4, 6.5, 0.5),
+        normed=100,
+        vertical_xlabel=True,
+        ylabel="Share[%]",
+        title="Normal distributions (normed)",
+        show_average=True,
+        xlim=(-4, 6),
+        ylim=(0, 30),
+        show_figure=False,
+    )
+
+    p_hist_cum = df_hist.plot_bokeh.hist(
+        y=["a", "b"],
+        bins=np.arange(-4, 6.5, 0.5),
+        normed=100,
+        cumulative=True,
+        vertical_xlabel=True,
+        ylabel="Share[%]",
+        title="Normal distributions (normed & cumulative)",
+        show_figure=False,
+    )
+
+    p_average = pandas_bokeh.plot_grid(
+        [[p_hist, p_hist_cum]], plot_width=450, plot_height=300, show_plot=False
+    )
+
+    pandas_bokeh.output_file(
+        os.path.join(directory, "Plots", "Histogram_average_and_cumulative.html")
+    )
+    pandas_bokeh.save(p_average)
+
+
+def test_area_plots():
+    "Test area plots"
+
+    df_energy = pd.read_csv(
+        os.path.join(test_sets_directory, "energy", "energy.csv"), parse_dates=["Year"]
+    )
+
+    p_area = df_energy.plot_bokeh.area(
+        x="Year",
+        stacked=True,
+        legend="top_left",
+        colormap=["brown", "orange", "black", "grey", "blue", "green"],
+        title="Worldwide energy consumption split by energy source",
+        ylabel="Million tonnes oil equivalent",
+        ylim=(0, 16000),
+        show_figure=False,
+    )
+
+    p_area_normed = df_energy.plot_bokeh(
+        kind="area",
+        x="Year",
+        stacked=True,
+        normed=100,
+        legend="bottom_left",
+        colormap=["brown", "orange", "black", "grey", "blue", "green"],
+        title="Worldwide energy consumption split by energy source",
+        ylabel="Million tonnes oil equivalent",
+        show_figure=False,
+    )
+
+    layout = pandas_bokeh.plot_grid(
+        [[p_area, p_area_normed]], plot_width=450, plot_height=300, show_plot=False
+    )
+
+    pandas_bokeh.output_file(os.path.join(directory, "Plots", "Areaplot.html"))
+    pandas_bokeh.save(layout)
+
+
+def test_pieplot():
+    "Test Pieplot"
+
+    p_pie = df_pie = pd.read_csv(
+        os.path.join(test_sets_directory, "Bundestagswahl", "Bundestagswahl.csv")
+    )
+
+    p_pie = df_pie.plot_bokeh.pie(
+        x="Partei",
+        y="2017",
+        colormap=["blue", "red", "yellow", "green", "purple", "orange", "grey"],
+        title="Results of German Bundestag Election 2017",
+        show_figure=False,
+    )
+
+    p_pie_multiple = df_pie.plot_bokeh(
+        kind="pie",
+        x="Partei",
+        colormap=["blue", "red", "yellow", "green", "purple", "orange", "grey"],
+        title="Results of German Bundestag Elections [2002-2017]",
+        line_color="grey",
+        show_figure=False,
+    )
+
+    layout = pandas_bokeh.plot_grid(
+        [[p_pie, p_pie_multiple]], plot_width=450, plot_height=300, show_plot=False
+    )
+
+    pandas_bokeh.output_file(os.path.join(directory, "Plots", "Pieplot.html"))
+    pandas_bokeh.save(layout)
+
+def test_mapplot():
+    "Mapplot test"
+
+    df_mapplot = pd.read_csv(os.path.join(test_sets_directory, "populated places","populated_places.csv"))
+
+    df_mapplot["size"] = df_mapplot["pop_max"] / 1000000
+
+    p_map = df_mapplot.plot_bokeh.map(
+        x="longitude",
+        y="latitude",
+        hovertool_string="""<h2> @{name} </h2> 
+        
+                            <h3> Population: @{pop_max} </h3>""",
+        tile_provider="STAMEN_TERRAIN_RETINA",
+        size="size", 
+        figsize=(900, 600),
+        title="World cities with more than 1.000.000 inhabitants",
+        show_figure=False)
+
+    pandas_bokeh.output_file(os.path.join(directory, "Plots", "Mapplot.html"))
+    pandas_bokeh.save(p_map)

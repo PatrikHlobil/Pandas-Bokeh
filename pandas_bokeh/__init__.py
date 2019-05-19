@@ -6,6 +6,7 @@ from .plot import plot, FramePlotMethods
 from .geoplot import geoplot
 
 from bokeh.layouts import column, row, layout
+from bokeh.io import save
 
 import warnings
 

@@ -454,8 +454,6 @@ p_hist_cum = df_hist.plot_bokeh.hist(
     show_figure=False)
 
 pandas_bokeh.plot_grid([[p_hist, p_hist_cum]], plot_width=450, plot_height=300)
-
-pandas_bokeh.plot_grid([[p_hist, p_hist_cum]], plot_width=450, plot_height=300)
 ```
 
 ![Histogram2](Documentation/Images/Histogram2.png)
