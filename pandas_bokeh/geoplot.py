@@ -788,7 +788,10 @@ def geoplot(
 
     # Display plot and if wanted return plot:
     if layout is None:
-        layout = p
+        if old_layout is None:
+            layout = p
+        else:
+            layout = old_layout
 
     # Display plot if wanted
     if show_figure:
