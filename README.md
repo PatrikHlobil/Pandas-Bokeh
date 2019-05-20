@@ -624,7 +624,7 @@ df_mapplot.plot_bokeh.map(
 
 <p id="geoplots"> </p>
 
-![Mapplot](Documentation/Images/Mapplot.gif)
+![Mapplot](Documentation/Images/Pointmap.gif)
 
 ## Geoplots
 
