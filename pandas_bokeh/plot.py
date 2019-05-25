@@ -18,8 +18,16 @@ from bokeh.models import (
     LogColorMapper,
     CategoricalColorMapper,
     ColorBar,
+    BasicTicker,
+
     FuncTickFormatter,
     NumeralTickFormatter,
+    BasicTickFormatter,
+    PrintfTickFormatter,
+    CategoricalTickFormatter,
+    DatetimeTickFormatter,
+    MercatorTickFormatter,
+    LogTickFormatter,
     TickFormatter,
     WheelZoomTool,
 )
@@ -35,7 +43,7 @@ from bokeh.events import Tap
 from pandas.plotting._core import BasePlotMethods
 
 from .base import show, embedded_html
-from .geoplot import geoplot
+from .utils import get_tick_formatter
 
 
 
@@ -1114,15 +1122,16 @@ def scatterplot(
             # Define Colorbar:
             colorbar_options = {
                 "color_mapper": colormapper,
-                "label_standoff": 0,
+                "label_standoff": 12,
                 "border_line_color": None,
                 "location": (0, 0),
+                "ticker": BasicTicker()
             }
-            if colorbar_tick_format and issubclass(colorbar_tick_format, TickFormatter):
-                colorbar_options["formatter"] = colorbar_tick_format
 
-            if colorbar_tick_format and isinstance(colorbar_tick_format, str):
-                colorbar_options["formatter"] = NumeralTickFormatter(format=colorbar_tick_format)
+            if colorbar_tick_format:
+                colorbar_options["formatter"] = get_tick_formatter(colorbar_tick_format)
+
+            print(colorbar_options)
 
             colorbar = ColorBar(**colorbar_options)
             p.add_layout(colorbar, "right")
