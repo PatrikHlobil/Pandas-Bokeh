@@ -162,7 +162,7 @@ def geoplot(
     slider_range=None,
     slider_name="",
     show_colorbar=True,
-    colorbar_format=None,
+    colorbar_tick_format=None,
     xrange=None,
     yrange=None,
     hovertool=True,
@@ -677,6 +677,12 @@ def geoplot(
         }
         if colormap_uselog:
             colorbar_options["ticker"] = LogTicker()
+
+        if colorbar_tick_format and issubclass(colorbar_tick_format, bokeh.models.TickFormatter):
+            colorbar_options["formatter"] = colorbar_tick_format
+
+        if colorbar_tick_format and isinstance(colorbar_tick_format, str):
+            colorbar_options["formatter"] = NumeralTickFormatter(format=colorbar_tick_format)
 
         colorbar = ColorBar(**colorbar_options)
 
