@@ -19,6 +19,8 @@ from bokeh.models import (
     CategoricalColorMapper,
     ColorBar,
     FuncTickFormatter,
+    NumeralTickFormatter,
+    TickFormatter,
     WheelZoomTool,
 )
 from bokeh.models.tickers import FixedTicker
@@ -1054,6 +1056,7 @@ def scatterplot(
     x_axis_type,
     xlabelname,
     ylabelname,
+    colorbar_tick_format=None,
     **kwargs
 ):
     """Adds a scatterplot to figure p for each data_col."""
@@ -1115,6 +1118,12 @@ def scatterplot(
                 "border_line_color": None,
                 "location": (0, 0),
             }
+            if colorbar_tick_format and issubclass(colorbar_tick_format, TickFormatter):
+                colorbar_options["formatter"] = colorbar_tick_format
+
+            if colorbar_tick_format and isinstance(colorbar_tick_format, str):
+                colorbar_options["formatter"] = NumeralTickFormatter(format=colorbar_tick_format)
+
             colorbar = ColorBar(**colorbar_options)
             p.add_layout(colorbar, "right")
 
