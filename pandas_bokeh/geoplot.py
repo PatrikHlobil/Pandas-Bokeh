@@ -11,10 +11,19 @@ import numpy as np
 import pandas as pd
 
 from .base import embedded_html
-from .utils import get_tick_formatter
 
 from bokeh.colors import RGB
 import bokeh
+from bokeh.models import (
+        FuncTickFormatter,
+        NumeralTickFormatter,
+        BasicTickFormatter,
+        PrintfTickFormatter,
+        CategoricalTickFormatter,
+        DatetimeTickFormatter,
+        MercatorTickFormatter,
+        LogTickFormatter
+    )
 
 blue_colormap = [RGB(255 - i, 255 - i, 255) for i in range(256)]
 
@@ -143,6 +152,21 @@ def convert_geoDataFrame_to_patches(gdf, geometry_column_name="geometry"):
 
     return gdf_new
 
+
+def get_tick_formatter(formatter_arg):
+
+    if isinstance(formatter_arg, (
+            FuncTickFormatter,
+            NumeralTickFormatter,
+            BasicTickFormatter,
+            PrintfTickFormatter,
+            CategoricalTickFormatter,
+            DatetimeTickFormatter,
+            MercatorTickFormatter,
+            LogTickFormatter)):
+        return formatter_arg
+    if isinstance(formatter_arg, str):
+        return NumeralTickFormatter(format=formatter_arg)
 
 def geoplot(
     gdf_in,
