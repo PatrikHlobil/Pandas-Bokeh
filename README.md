@@ -842,7 +842,7 @@ In a similar way, also GeoDataFrames with (multi)line shapes can be drawn using 
 
 If you want to display the numerical labels on your colorbar with an alternative to the scientific format, you
 can pass in a one of the [bokeh number string formats](https://bokeh.pydata.org/en/latest/_modules/bokeh/models/formatters.html#NumeralTickFormatter)
-or an instance of one of the [bokeh.modles.fomrmatters](bokeh.models.formatters) to the `colorbar_tick_format` argument
+or an instance of one of the [bokeh.models.formatters](https://bokeh.pydata.org/en/latest/docs/reference/models/formatters.html) to the `colorbar_tick_format` argument
 in the geoplot
 
 An example of using the string format argument:
