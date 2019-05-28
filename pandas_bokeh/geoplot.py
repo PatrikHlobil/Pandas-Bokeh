@@ -149,7 +149,7 @@ def convert_geoDataFrame_to_patches(gdf, geometry_column_name="geometry"):
 
 def get_tick_formatter(formatter_arg):
 
-    if isinstance(formatter_arg, TickFormatter):
+    if issubclass(formatter_arg.__class__, TickFormatter):
         return formatter_arg
     elif isinstance(formatter_arg, str):
         return NumeralTickFormatter(format=formatter_arg)
