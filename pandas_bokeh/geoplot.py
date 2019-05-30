@@ -14,6 +14,10 @@ from .base import embedded_html
 
 from bokeh.colors import RGB
 import bokeh
+from bokeh.models import (
+        TickFormatter,
+        NumeralTickFormatter
+    )
 
 blue_colormap = [RGB(255 - i, 255 - i, 255) for i in range(256)]
 
@@ -143,6 +147,17 @@ def convert_geoDataFrame_to_patches(gdf, geometry_column_name="geometry"):
     return gdf_new
 
 
+def get_tick_formatter(formatter_arg):
+
+    if issubclass(formatter_arg.__class__, TickFormatter):
+        return formatter_arg
+    elif isinstance(formatter_arg, str):
+        return NumeralTickFormatter(format=formatter_arg)
+    else:
+        raise ValueError(
+            "<colorbar_tick_format> parameter only accepts a string or a objects of bokeh.models.formatters.")
+
+
 def geoplot(
     gdf_in,
     figure=None,
@@ -162,6 +177,7 @@ def geoplot(
     slider_range=None,
     slider_name="",
     show_colorbar=True,
+    colorbar_tick_format=None,
     xrange=None,
     yrange=None,
     hovertool=True,
@@ -675,6 +691,9 @@ def geoplot(
         }
         if colormap_uselog:
             colorbar_options["ticker"] = LogTicker()
+
+        if colorbar_tick_format:
+            colorbar_options["formatter"] = get_tick_formatter(colorbar_tick_format)
 
         colorbar = ColorBar(**colorbar_options)
 

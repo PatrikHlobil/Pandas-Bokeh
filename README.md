@@ -836,6 +836,55 @@ In a similar way, also GeoDataFrames with (multi)line shapes can be drawn using 
 
 <br>
 
+---
+
+### Colorbar formatting:
+
+If you want to display the numerical labels on your colorbar with an alternative to the scientific format, you
+can pass in a one of the [bokeh number string formats](https://bokeh.pydata.org/en/latest/_modules/bokeh/models/formatters.html#NumeralTickFormatter)
+or an instance of one of the [bokeh.models.formatters](https://bokeh.pydata.org/en/latest/docs/reference/models/formatters.html) to the `colorbar_tick_format` argument
+in the geoplot
+
+An example of using the string format argument:
+
+```python
+df_states = gpd.read_file(r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata/states/states.geojson")
+
+df_states["STATE_NAME_SMALL"] = df_states["STATE_NAME"].str.lower()
+
+# pass in a string format to colorbar_tick_format to display the ticks as 10m rather than 1e7
+df_states.plot_bokeh(
+    figsize=(900, 600),
+    category="POPESTIMATE2017",
+    simplify_shapes=5000,    
+    colormap="Inferno",
+    colormap_uselog=True,
+    colorbar_tick_format="0.0a")
+```
+![colorbar_tick_format with string argument](Documentation/Images/geoplot_string_tickformatter.png)
+
+An example of using the bokeh `PrintfTickFormatter`:
+
+```python
+df_states = gpd.read_file(r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata/states/states.geojson")
+
+df_states["STATE_NAME_SMALL"] = df_states["STATE_NAME"].str.lower()
+
+for i in range(8):
+    df_states["Delta_Population_201%d"%i] = ((df_states["POPESTIMATE201%d"%i] / df_states["POPESTIMATE2010"]) -1 ) * 100
+
+# pass in a PrintfTickFormatter instance colorbar_tick_format to display the ticks with 2 decimal places  
+df_states.plot_bokeh(
+    figsize=(900, 600),
+    category="Delta_Population_2017",
+    simplify_shapes=5000,    
+    colormap="Inferno",
+    colorbar_tick_format=PrintfTickFormatter(format="%4.2f"))
+```
+![colorbar_tick_format with bokeh.models.formatter_instance](Documentation/Images/geoplot_PrintfTickFormatter.png)
+
+<br>
+
 <p id="Layouts"></p>
 
 ## Outputs, Formatting & Layouts
