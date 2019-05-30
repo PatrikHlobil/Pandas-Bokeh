@@ -235,6 +235,7 @@ def plot(
     # Check plot kind input:
     allowed_kinds = [
         "line",
+        "step",
         "point",
         "scatter",
         "bar",
@@ -443,6 +444,22 @@ def plot(
     # Add Glyphs to Plot:
     if kind == "line":
         p = lineplot(
+            p,
+            source,
+            data_cols,
+            colormap,
+            hovertool,
+            xlabelname,
+            figure_options["x_axis_type"],
+            plot_data_points,
+            plot_data_points_size,
+            hovertool_string,
+            number_format,
+            **kwargs
+        )
+
+    if kind == "step":
+        p = stepplot(
             p,
             source,
             data_cols,
@@ -903,7 +920,8 @@ def plot(
     return p
 
 
-def lineplot(
+def _base_lineplot(
+    linetype,
     p,
     source,
     data_cols,
@@ -926,8 +944,9 @@ def lineplot(
         marker = "circle"
 
     # Add line (and optional scatter glyphs) to figure:
+    linetype = getattr(p, linetype.lower())
     for name, color in zip(data_cols, colormap):
-        glyph = p.line(
+        glyph = linetype(
             x="__x__values",
             y=name,
             legend=" " + name,
@@ -966,6 +985,68 @@ def lineplot(
             p.add_tools(my_hover)
 
     return p
+
+
+def lineplot(
+    p,
+    source,
+    data_cols,
+    colormap,
+    hovertool,
+    xlabelname,
+    x_axis_type,
+    plot_data_points,
+    plot_data_points_size,
+    hovertool_string,
+    number_format,
+    **kwargs
+):
+    return _base_lineplot(
+        linetype="line",
+        p=p,
+        source=source,
+        data_cols=data_cols,
+        colormap=colormap,
+        hovertool=hovertool,
+        xlabelname=xlabelname,
+        x_axis_type=x_axis_type,
+        plot_data_points=plot_data_points,
+        plot_data_points_size=plot_data_points_size,
+        hovertool_string=hovertool_string,
+        number_format=number_format,
+        **kwargs
+    )
+
+
+def stepplot(
+    p,
+    source,
+    data_cols,
+    colormap,
+    hovertool,
+    xlabelname,
+    x_axis_type,
+    plot_data_points,
+    plot_data_points_size,
+    hovertool_string,
+    number_format,
+    **kwargs
+):
+    return _base_lineplot(
+        linetype="step",
+        p=p,
+        source=source,
+        data_cols=data_cols,
+        colormap=colormap,
+        hovertool=hovertool,
+        xlabelname=xlabelname,
+        x_axis_type=x_axis_type,
+        plot_data_points=plot_data_points,
+        plot_data_points_size=plot_data_points_size,
+        hovertool_string=hovertool_string,
+        number_format=number_format,
+        **kwargs
+    )
 
 
 def pointplot(
@@ -1741,6 +1822,57 @@ class FramePlotMethods(BasePlotMethods):
             >>> lines = df.plot_bokeh.line(x='pig', y='horse')
         """
         return self(kind="line", x=x, y=y, **kwargs)
+
+    def step(self, x=None, y=None, **kwargs):
+        """
+        Plot DataFrame columns as step lines.
+
+        This function is useful to plot step lines using DataFrame's values
+        as coordinates.
+
+        Parameters
+        ----------
+        x : int or str, optional
+            Columns to use for the horizontal axis.
+            Either the location or the label of the columns to be used.
+            By default, it will use the DataFrame indices.
+        y : int, str, or list of them, optional
+            The values to be plotted.
+            Either the location or the label of the columns to be used.
+            By default, it will use the remaining DataFrame numeric columns.
+        **kwds
+            Keyword arguments to pass on to :meth:`pandas.DataFrame.plot_bokeh`.
+
+        Returns
+        -------
+        
+        Bokeh.plotting.figure or Bokeh.layouts.row
+
+        Examples
+        --------
+
+        .. plot::
+            :context: close-figs
+
+            The following example shows the populations for some animals
+            over the years.
+
+            >>> df = pd.DataFrame({
+            ...    'pig': [20, 18, 489, 675, 1776],
+            ...    'horse': [4, 25, 281, 600, 1900]
+            ...    }, index=[1990, 1997, 2003, 2009, 2014])
+            >>> steps = df.plot_bokeh.step()
+
+
+        .. plot::
+            :context: close-figs
+
+            The following example shows the relationship between both
+            populations.
+
+            >>> steps = df.plot_bokeh.step(x='pig', y='horse')
+        """
+        return self(kind="step", x=x, y=y, **kwargs)
 
     def point(self, x=None, y=None, **kwargs):
         """
