@@ -33,8 +33,8 @@ steps:
 - script: sudo apt-get install openjdk-8-jre icedtea-8-plugin 
   displayName: 'Install OpenJDK8'
 
-- script: pip install tox
-  displayName: 'Install Tox'
+- script: pip install Tests/requirements_test.txt
+  displayName: 'Install Python Libaries'
 
-- script: tox -e py
-  displayName: 'Run Tox'
+- script: python -m pytest -xs --cov=pandas_bokeh 
+  displayName: 'Run Pytest'
