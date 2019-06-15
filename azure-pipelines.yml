@@ -28,7 +28,7 @@ steps:
   displayName: 'Use Python $(python.version)'
 
 - script: pip install tox
-    displayName: 'Install Tox'
+  displayName: 'Install Tox'
 
 - script: tox -e py
   displayName: 'Run Tox'
