@@ -27,6 +27,9 @@ steps:
     versionSpec: '$(python.version)'
   displayName: 'Use Python $(python.version)'
 
+- script: sudo apt-get install openjdk-8-jre icedtea-8-plugin 
+  displayName: 'Install OpenJDK8'
+
 - script: pip install tox
   displayName: 'Install Tox'
 
