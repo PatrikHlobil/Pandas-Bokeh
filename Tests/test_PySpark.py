@@ -3,20 +3,21 @@ import pandas as pd
 import numpy as np
 import pandas_bokeh
 import os
+import pytest
 
 directory = os.path.dirname(__file__)
 os.makedirs(os.path.join(directory, "Plots"), exist_ok=True)
 
+@pytest.fixture
+def spark():
+    # Start PySpark
+    from pyspark.sql import SparkSession
+    spark = SparkSession.builder.getOrCreate()
+    yield spark
+    spark.stop()
 
-# Start PySpark
-import findspark
-findspark.init()
-import pyspark
-from pyspark.sql import SparkSession
-spark = SparkSession.builder.getOrCreate()
 
-
-def test_basic_lineplot_pyspark():
+def test_basic_lineplot_pyspark(spark):
     """Test for basic lineplot with Pyspark"""
 
     # Create basic lineplot:
