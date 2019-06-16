@@ -126,24 +126,30 @@ def convert_geoDataFrame_to_patches(gdf, geometry_column_name="geometry"):
     import geopandas as gpd
 
     gdf_new = gpd.GeoDataFrame(columns=gdf.columns)
+
+    def extract(row, geometry):
+        x, y = geometry.exterior.xy
+        # Convert to int for web mercador projection to save space:
+        row["__x__"] = [[[int(_) for _ in x]]]
+        row["__y__"] = [[[int(_) for _ in y]]]
+
+        for interior in geometry.interiors:
+            x, y, *z = zip(*interior.coords)
+            row["__x__"][0].append([int(_) for _ in x])
+            row["__y__"][0].append([int(_) for _ in y])
+
+        return row
+
     for i, row in gdf.iterrows():
         geometry = row[geometry_column_name]
         if geometry.type == "Polygon":
-            x, y = geometry.exterior.xy
-            # Convert to int for web mercador projection to save space:
-            row["__x__"] = [int(_) for _ in x]
-            row["__y__"] = [int(_) for _ in y]
-            gdf_new = gdf_new.append(row, ignore_index=True)
+            gdf_new = gdf_new.append(extract(row, geometry), ignore_index=True)
+
         if geometry.type == "MultiPolygon":
             for polygon in geometry:
-                x, y = polygon.exterior.xy
-                # Convert to int for web mercador projection to save space:
-                row["__x__"] = [int(_) for _ in x]
-                row["__y__"] = [int(_) for _ in y]
-                gdf_new = gdf_new.append(row, ignore_index=True)
+                gdf_new = gdf_new.append(extract(row, polygon), ignore_index=True)
 
     gdf_new = gdf_new.drop(columns=["geometry"])
-
     return gdf_new
 
 
@@ -668,7 +674,7 @@ def geoplot(
         geo_source = ColumnDataSource(convert_geoDataFrame_to_patches(gdf))
 
         # Plot polygons:
-        glyph = p.patches(
+        glyph = p.multi_polygons(
             xs="__x__", ys="__y__", source=geo_source, legend=legend, **kwargs
         )
 
