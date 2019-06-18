@@ -104,7 +104,7 @@ def test_hole_geplot():
     "Tests for (multi-)polygones with holes."
 
     df = gpd.GeoDataFrame.from_file(
-        os.path.join(directory, '../Documentation/Testdata/hole_shapes/hole_shapes.geojson')
+        os.path.join(test_sets_directory, 'hole_shapes', 'hole_shapes.geojson')
     )
     figure = df.plot_bokeh(show_figure=False)
 
