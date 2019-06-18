@@ -97,5 +97,20 @@ def test_geolayers_slider():
     ) as f:
         f.write(html_multilayer_slider)
 
-
 #     assert False  # ASSERT IS FALSE BECAUSE SLIDER IS NOT VISIBLE RIGHT NOW:
+
+
+def test_hole_geplot():
+    "Tests for (multi-)polygones with holes."
+
+    df = gpd.GeoDataFrame.from_file(
+        os.path.join(directory, '../Documentation/Testdata/hole_shapes/hole_shapes.geojson')
+    )
+    figure = df.plot_bokeh(show_figure=False)
+
+    with open(
+        os.path.join(directory, "Plots", "Geolayers_Multipolygons_Holes.html"), "w"
+    ) as f:
+        f.write(pandas_bokeh.embedded_html(figure))
+
+    assert True
