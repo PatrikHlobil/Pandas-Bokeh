@@ -33,6 +33,9 @@ steps:
 - script: sudo apt-get install openjdk-8-jre icedtea-8-plugin 
   displayName: 'Install OpenJDK8'
 
+- script: pip install --upgrade setuptools, pip
+  displayName: 'Update setuptools & pip'
+
 - script: pip install -r Tests/requirements_test.txt
   displayName: 'Install Python Libaries'
 
