@@ -36,5 +36,5 @@ steps:
 - script: pip install -r Tests/requirements_test.txt
   displayName: 'Install Python Libaries'
 
-- script: python -m pytest -xs --cov=pandas_bokeh 
+- script: python -m pytest --color=yes -s -x -vv --cov-report term-missing --cov=pandas_bokeh Tests/
   displayName: 'Run Pytest'
