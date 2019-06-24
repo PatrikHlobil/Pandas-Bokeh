@@ -10,7 +10,7 @@ from bokeh.io import save
 
 import warnings
 
-__version__ = "0.2"
+__version__ = "0.3"
 
 # Define Bokeh-plot method for Pandas DataFrame and Series:
 try:

@@ -15,7 +15,7 @@ You can install **Pandas Bokeh** from *PyPI* via **pip**:
 
     pip install pandas-bokeh
 
-**Pandas Bokeh** is officially supported on Python 2.7, as well as Python 3.4 and above.
+**Pandas Bokeh** is officially supported on Python 3.5 and above.
 
 ---
 
@@ -26,9 +26,10 @@ With **Pandas Bokeh**, creating stunning, interactive, HTML-based visualization 
 df.plot_bokeh()
 ```
 
-In release **0.2**, the following plot types are supported:
+In release **0.3**, the following plot types are supported:
 
 * line
+* step
 * point
 * scatter
 * bar
@@ -60,7 +61,7 @@ Each plot type like scatterplot or histogram further has many more additional cu
 
 setuptools.setup(
     name="pandas-bokeh",
-    version="0.2",
+    version="0.3",
     author="Patrik Hlobil",
     author_email="patrik.hlobil@googlemail.com",
     description="Bokeh plotting backend for Pandas, GeoPandas & Pyspark",
@@ -70,12 +71,14 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=["bokeh", "pandas"],
     classifiers=[
-        'Programming Language :: Python :: 2.7',
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Visualization'
     ],
+    python_requires=">=3.5"
 )
