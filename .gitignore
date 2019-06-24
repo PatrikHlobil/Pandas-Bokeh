@@ -1,6 +1,5 @@
 *.html
 *.pyc
-*.txt
 dist/
 old_dist/
 build/

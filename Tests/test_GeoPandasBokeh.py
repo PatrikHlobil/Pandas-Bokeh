@@ -3,10 +3,9 @@ import pandas as pd
 import geopandas as gpd
 import numpy as np
 import sys
-
-sys.path.append(r"/home/patrik/projects/Pandas-Bokeh")
-import pandas_bokeh
 import os
+import pytest
+import pandas_bokeh
 
 directory = os.path.dirname(__file__)
 test_sets_directory = os.path.join(
@@ -14,18 +13,30 @@ test_sets_directory = os.path.join(
 )
 os.makedirs(os.path.join(directory, "Plots"), exist_ok=True)
 
+@pytest.fixture
+def df_states():
 
-def test_geolayers_simple():
-    "Tests for simple"
-
-    # Read in GeoJSON from URL:
-    df_states = gpd.read_file(
-        r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata/states/states.geojson"
+    return gpd.read_file(
+        os.path.join(test_sets_directory, "states", "states.geojson")
     )
+
+@pytest.fixture
+def df_cities():
+
+    return gpd.read_file(
+        os.path.join(
+            test_sets_directory,
+            "populated places",
+            "ne_10m_populated_places_simple_bigcities.geojson",
+        )
+    )
+
+def test_geolayers_simple(df_states):
+    "Tests for simple geoplot"
 
     figure = df_states.plot_bokeh(simplify_shapes=10000, show_figure=False)
 
-    with open(  # +ä
+    with open(
         os.path.join(directory, "Plots", "Geolayers_Simple.html"), "w"
     ) as f:
         f.write(pandas_bokeh.embedded_html(figure))
@@ -33,7 +44,7 @@ def test_geolayers_simple():
     assert True
 
 
-def test_geolayers_slider():
+def test_geolayers_slider(df_states, df_cities):
     "Tests for mutiple geolayers"
 
     # Read in GeoJSON from URL:
@@ -97,9 +108,6 @@ def test_geolayers_slider():
     ) as f:
         f.write(html_multilayer_slider)
 
-#     assert False  # ASSERT IS FALSE BECAUSE SLIDER IS NOT VISIBLE RIGHT NOW:
-
-
 def test_hole_geplot():
     "Tests for (multi-)polygones with holes."
 
@@ -114,3 +122,4 @@ def test_hole_geplot():
         f.write(pandas_bokeh.embedded_html(figure))
 
     assert True
+
