@@ -14,3 +14,4 @@ build/
 *Untitled.ipynb
 .coverage*
 .coverage
+.idea

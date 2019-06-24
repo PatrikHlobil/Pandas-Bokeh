@@ -1,0 +1,47 @@
+{
+  "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "properties": {
+      "fill": "red"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [[1, 4], [1, 3], [2,3], [2,4], [1, 4]]
+      ]
+    }
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "fill": "limegreen"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [[1, 1], [3, 1], [1, 3], [1, 1]],
+        [[1.5, 1.5], [1.5, 2], [2, 1.5], [1.5,1.5]]
+      ]
+    }
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "fill": "goldenrod"
+    },
+    "geometry": {
+      "type": "MultiPolygon",
+      "coordinates": [
+        [
+          [[2, 2], [4, 2], [4, 4], [2, 4], [2, 2]],
+          [[2.5, 3], [2.5, 3.5], [3, 3.5], [2.5, 3]],
+          [[3.5, 2.5], [3, 2.5], [3, 3], [3.5, 3], [3.5, 2.5]]
+        ],
+        [
+          [[3.5, 1], [4, 1], [4, 1.5], [3.5, 1.5], [3.5, 1]]
+        ]
+     ]
+    }
+  }]
+}

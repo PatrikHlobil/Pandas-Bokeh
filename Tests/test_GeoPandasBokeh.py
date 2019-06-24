@@ -108,4 +108,18 @@ def test_geolayers_slider(df_states, df_cities):
     ) as f:
         f.write(html_multilayer_slider)
 
+def test_hole_geplot():
+    "Tests for (multi-)polygones with holes."
+
+    df = gpd.GeoDataFrame.from_file(
+        os.path.join(test_sets_directory, 'hole_shapes', 'hole_shapes.geojson')
+    )
+    figure = df.plot_bokeh(show_figure=False)
+
+    with open(
+        os.path.join(directory, "Plots", "Geolayers_Multipolygons_Holes.html"), "w"
+    ) as f:
+        f.write(pandas_bokeh.embedded_html(figure))
+
+    assert True
 
