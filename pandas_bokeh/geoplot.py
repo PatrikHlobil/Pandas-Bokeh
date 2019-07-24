@@ -391,6 +391,8 @@ def geoplot(
     else:
         if isinstance(color, str):
             colormap = [color]
+        elif color is None:
+            colormap = ["blue"]
         else:
             raise ValueError(
                 "<color> has to be a string specifying the fill_color of the map glyph."
