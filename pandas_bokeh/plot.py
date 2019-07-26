@@ -7,7 +7,7 @@ import warnings
 from copy import deepcopy
 import re
 
-from bokeh.plotting import figure
+from bokeh.plotting import figure as _figure
 import pandas as pd
 import numpy as np
 from bokeh.models import (
@@ -112,6 +112,7 @@ def _times_to_string(times):
 
 def plot(
     df_in,
+    figure=None,
     x=None,
     y=None,
     kind="line",
@@ -430,7 +431,7 @@ def plot(
         )
 
     # Create Figure for plotting:
-    p = figure(**figure_options)
+    p = _figure(**figure_options)
     if "x_axis_type" not in figure_options:
         figure_options["x_axis_type"] = None
 
@@ -443,6 +444,10 @@ def plot(
                                 """
             % x_labels_dict
         )
+
+    # Use figure when passed by user:
+    if figure is not None:
+        p = figure
 
     # Define ColumnDataSource for Plot if kind != "hist":
     if kind != "hist":
@@ -575,8 +580,10 @@ def plot(
         del figure_options["x_axis_type"]
         if "y_axis_label" not in figure_options and kind == "barh":
             figure_options["y_axis_label"] = xlabelname
-        p = figure(**figure_options)
+        p = _figure(**figure_options)
         figure_options["x_axis_type"] = None
+        if figure is not None:
+            p = figure
 
         # Set xticks:
         if kind == "bar":
@@ -813,6 +820,9 @@ def plot(
         )
 
     if kind == "pie":
+
+        if figure is not None:
+            raise ValueError("<figure> keyword is not supported for pie-charts.")
 
         source["__x__values"] = x_old
         p = pieplot(
@@ -1580,7 +1590,7 @@ def pieplot(
     toolbar_location = None
     x_range = (-1.4 - 0.05 * max_col_stringlength, 2)
     y_range = (-1.2, 1.2)
-    p = figure(
+    p = _figure(
         plot_width=plot_width,
         plot_height=plot_height,
         title=title,
