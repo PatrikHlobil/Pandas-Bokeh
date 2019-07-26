@@ -27,6 +27,7 @@ if pd.__version__ >= "0.25":
         "line",
         "point",
         "step",
+        "scatter",
         "bar",
         "barh",
         "area",
@@ -35,21 +36,34 @@ if pd.__version__ >= "0.25":
         "map",
     )
 
+    pd.DataFrame.plot._dataframe_kinds = ("map", "scatter")
+
     # Define additional plotting APIs (not default in pandas.core.plotting defined)
-    def mapplot(self, x=None, y=None, **kwargs):
-        return self(kind="map", x=x, y=y, **kwargs)
+    def mapplot(self, **kwargs):
+        return self(kind="map", **kwargs)
     pd.DataFrame.plot.map = mapplot
 
-    def pointplot(self, x=None, y=None, **kwargs):
-        return self(kind="point", x=x, y=y, **kwargs)
+    def pointplot(self, **kwargs):
+        return self(kind="point", **kwargs)
     pd.DataFrame.plot.point = pointplot
 
-    def stepplot(self, x=None, y=None, **kwargs):
-        return self(kind="step", x=x, y=y, **kwargs)
+    def stepplot(self, **kwargs):
+        return self(kind="step", **kwargs)
     pd.DataFrame.plot.step = stepplot
 
     for kind in ["map", "point", "step"]:
         getattr(pd.DataFrame.plot, kind).__doc__ = getattr(FramePlotMethods, kind).__doc__
+
+    # Define API methods on pandas.plotting:
+    pd.plotting.output_notebook = output_notebook
+    pd.plotting.output_file = output_file
+    pd.plotting.plot_grid = plot_grid 
+    pd.plotting.show = show
+    pd.plotting.embedded_html = embedded_html
+    pd.plotting.column = column
+    pd.plotting.row = row
+    pd.plotting.layout = layout
+    pd.plotting.save = save
 
 
 # Define Bokeh-plot method for GeoPandas and Series:

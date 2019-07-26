@@ -524,6 +524,13 @@ def plot(
         # Get values for y-axis:
         y = df[y_column].values
 
+        # Delete additionally created values by pandas.plotting:
+        for add_param in ["s", "c"]:
+            if add_param in kwargs:
+                del kwargs[add_param]
+
+        
+
         # Get values for categorical colormap:
         category_values = None
         if category in df.columns:
@@ -684,6 +691,10 @@ def plot(
         elif kwargs["line_color"] == True:
             del kwargs["line_color"]
 
+        if "by" in kwargs and y is None:
+            y = kwargs["by"]
+            del kwargs["by"]
+
         # Check for stacked keyword:
         if stacked and histogram_type not in [None, "stacked"]:
             warnings.warn(
@@ -842,42 +853,6 @@ def plot(
     # Rotate xlabel if wanted:
     if vertical_xlabel:
         p.xaxis.major_label_orientation = np.pi / 2
-
-    # Make mapplot:
-    if kind == "map":
-        if xlabel is None:
-            figure_options["x_axis_label"] = "Longitude"
-        if ylabel is None:
-            figure_options["y_axis_label"] = "Latitude"
-        figure_options["x_axis_type"] = "mercator"
-        figure_options["y_axis_type"] = "mercator"
-
-        if len(data_cols) > 1:
-            raise ValueError(
-                "For map plots, only one <y>-column representing the latitude of the coordinate can be passed."
-            )
-
-        source["latitude"] = source[data_cols[0]]
-        source["longitude"] = source["__x__values"]
-
-        # p = mapplot(
-        #     source,
-        #     hovertool,
-        #     hovertool_string,
-        #     figure_options,
-        #     colormap,
-        #     tile_provider,
-        #     tile_provider_url,
-        #     tile_attribution,
-        #     tile_alpha,
-        #     **kwargs
-        # )
-
-        gdf = pd.DataFrame(source)
-        gdf["x"] = gdf["longitude"]
-        gdf["y"] = gdf["latitude"]
-
-        p = geoplot(gdf)  # , colormap, hovertool)
 
     # Set panning option:
     if panning is False:

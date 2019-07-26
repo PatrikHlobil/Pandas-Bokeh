@@ -12,6 +12,8 @@ TEST_SETS_DIRECTORY = os.path.join(
 
 os.makedirs(os.path.join(DIRECTORY, "Plots"), exist_ok=True)
 
+# Set pandas plotting backend:
+pd.set_option("plotting.backend", "pandas_bokeh")
 
 ##############################################################################
 #################################FIXTURES#####################################
@@ -117,6 +119,9 @@ def test_basic_lineplot(df_stock):
     p_basic_lineplot = df_stock.plot_bokeh(kind="line", show_figure=False)
     p_basic_lineplot_accessor = df_stock.plot_bokeh.line(show_figure=False)
 
+    p_basic_lineplot_pandas_backend = df_stock.plot(kind="line", show_figure=False)
+    p_basic_lineplot_accessor_pandas_backend = df_stock.plot.line(show_figure=False)
+
     # Output plot as HTML:
     output = pandas_bokeh.row([p_basic_lineplot, p_basic_lineplot_accessor])
     with open(os.path.join(DIRECTORY, "Plots", "Basic_lineplot.html"), "w") as f:
@@ -153,6 +158,9 @@ def test_complex_lineplot(df_stock):
     p_complex_lineplot = df_stock.plot_bokeh(kind="line", **arguments)
     p_complex_lineplot_accessor = df_stock.plot_bokeh.line(**arguments)
 
+    p_complex_lineplot_pandas_backend = df_stock.plot(kind="line", **arguments)
+    p_complex_lineplot_accessor_pandas_backend = df_stock.plot.line(**arguments)
+
     # Output plot as HTML:
     output = pandas_bokeh.row([p_complex_lineplot, p_complex_lineplot_accessor])
     with open(os.path.join(DIRECTORY, "Plots", "Complex_lineplot.html"), "w") as f:
@@ -182,6 +190,9 @@ def test_lineplot_with_points(df_stock):
     p_lineplot_with_points = df_stock.plot_bokeh(kind="line", **arguments)
     p_lineplot_with_points_accessor = df_stock.plot_bokeh.line(**arguments)
 
+    p_lineplot_with_points_pandas_backend = df_stock.plot(kind="line", **arguments)
+    p_lineplot_with_points_accessor_pandas_backend = df_stock.plot.line(**arguments)
+
     # Output plot as HTML:
     output = pandas_bokeh.row([p_lineplot_with_points, p_lineplot_with_points_accessor])
     with open(os.path.join(DIRECTORY, "Plots", "Lineplot_with_points.html"), "w") as f:
@@ -195,6 +206,9 @@ def test_basic_stepplot(df_stock):
 
     p_basic_stepplot = df_stock.plot_bokeh(kind="step", show_figure=False)
     p_basic_stepplot_accessor = df_stock.plot_bokeh.step(show_figure=False)
+
+    p_basic_stepplot_pandas_backend = df_stock.plot(kind="step", show_figure=False)
+    p_basic_stepplot_accessor_pandas_backend = df_stock.plot.step(show_figure=False)
 
     # Output plot as HTML:
     output = pandas_bokeh.row([p_basic_stepplot, p_basic_stepplot_accessor])
@@ -225,6 +239,9 @@ def test_pointplot():
     p_pointplot = df.plot_bokeh(kind="point", **arguments)
     p_pointplot_accessor = df.plot_bokeh.point(**arguments)
 
+    p_pointplot_pandas_backend = df.plot(kind="point", **arguments)
+    p_pointplot_accessor_pandas_backend = df.plot.point(**arguments)
+
     # Output plot as HTML:
     output = pandas_bokeh.row([p_pointplot, p_pointplot_accessor])
     with open(os.path.join(DIRECTORY, "Plots", "Pointplot.html"), "w") as f:
@@ -253,6 +270,9 @@ def test_scatterplot(df_iris):
 
     p_scatter = df_iris.plot_bokeh(kind="scatter", **arguments)
     p_scatter_accessor = df_iris.plot_bokeh.scatter(**arguments)
+
+    p_scatter_pandas_backend = df_iris.plot(kind="scatter", **arguments)
+    p_scatter_accessor_pandas_backend = df_iris.plot.scatter(**arguments)
 
     # Combine Div and Scatterplot via grid layout:
     output = pandas_bokeh.plot_grid(
@@ -287,6 +307,9 @@ def test_scatterplot_2(df_iris):
     p_scatter = df_iris.plot_bokeh(kind="scatter", **arguments)
     p_scatter_accessor = df_iris.plot_bokeh.scatter(**arguments)
 
+    p_scatter_pandas_backend = df_iris.plot(kind="scatter", **arguments)
+    p_scatter_accessor_pandas_backend = df_iris.plot.scatter(**arguments)
+
     # Output plot as HTML:
     output = pandas_bokeh.row([p_scatter, p_scatter_accessor])
     with open(os.path.join(DIRECTORY, "Plots", "Scatterplot_2.html"), "w") as f:
@@ -308,6 +331,9 @@ def test_barplot_basic(df_fruits):
 
     p_bar = df_fruits.plot_bokeh(kind="bar", **arguments)
     p_bar_accessor = df_fruits.plot_bokeh.bar(**arguments)
+
+    p_bar_pandas_backend = df_fruits.plot(kind="bar", **arguments)
+    p_bar_accessor_pandas_backend = df_fruits.plot.bar(**arguments)
 
     # Output plot as HTML:
     output = pandas_bokeh.row([p_bar, p_bar_accessor])
@@ -331,6 +357,9 @@ def test_barplot_stacked(df_fruits):
 
     p_bar = df_fruits.plot_bokeh(kind="bar", **arguments)
     p_bar_accessor = df_fruits.plot_bokeh.bar(**arguments)
+
+    p_bar_pandas_backend = df_fruits.plot(kind="bar", **arguments)
+    p_bar_accessor_pandas_backend = df_fruits.plot.bar(**arguments)
 
     # Output plot as HTML:
     output = pandas_bokeh.row([p_bar, p_bar_accessor])
@@ -358,10 +387,24 @@ def test_barplot_layout(df_fruits):
         show_figure=False,
     )
 
+    p_bar_pandas_backend = df_fruits.plot.bar(
+        ylabel="Price per Unit [€]",
+        title="Fruit prices per Year",
+        alpha=0.6,
+        show_figure=False,
+    )
+
+    p_stacked_bar_pandas_backend = df_fruits.plot.bar(
+        ylabel="Price per Unit [€]",
+        title="Fruit prices per Year",
+        stacked=True,
+        alpha=0.6,
+        show_figure=False,
+    )
+
     # Reset index, such that "fruits" is now a column of the DataFrame:
     df_fruits.reset_index(inplace=True)
 
-    # Create horizontal bar (via kind keyword):
     p_hbar = df_fruits.plot_bokeh(
         kind="barh",
         x="fruits",
@@ -372,8 +415,27 @@ def test_barplot_layout(df_fruits):
         show_figure=False,
     )
 
-    # Create stacked horizontal bar (via barh accessor):
     p_stacked_hbar = df_fruits.plot_bokeh.barh(
+        x="fruits",
+        stacked=True,
+        xlabel="Price per Unit [€]",
+        title="Fruit prices per Year",
+        alpha=0.6,
+        legend="bottom_right",
+        show_figure=False,
+    )
+
+    p_hbar_pandas_backend = df_fruits.plot(
+        kind="barh",
+        x="fruits",
+        xlabel="Price per Unit [€]",
+        title="Fruit prices per Year",
+        alpha=0.6,
+        legend="bottom_right",
+        show_figure=False,
+    )
+
+    p_stacked_hbar_pandas_backend = df_fruits.plot.barh(
         x="fruits",
         stacked=True,
         xlabel="Price per Unit [€]",
@@ -435,6 +497,40 @@ def test_histogram(df_hist):
         show_figure=False,
     )
 
+    # Top-on-Top Histogram (Default):
+    p_tt_pandas_backend = df_hist.plot.hist(
+        bins=np.linspace(-5, 5, 41),
+        vertical_xlabel=True,
+        hovertool=False,
+        title="Normal distributions (Top-on-Top)",
+        line_color="black",
+        show_figure=False,
+    )
+
+    # Side-by-Side Histogram (multiple bars share bin side-by-side) also accessible via
+    # kind="hist":
+    p_ss_pandas_backend = df_hist.plot(
+        kind="hist",
+        bins=np.linspace(-5, 5, 41),
+        histogram_type="sidebyside",
+        vertical_xlabel=True,
+        hovertool=False,
+        title="Normal distributions (Side-by-Side)",
+        line_color="black",
+        show_figure=False,
+    )
+
+    # Stacked histogram:
+    p_stack_pandas_backend = df_hist.plot.hist(
+        bins=np.linspace(-5, 5, 41),
+        histogram_type="stacked",
+        vertical_xlabel=True,
+        hovertool=False,
+        title="Normal distributions (Stacked)",
+        line_color="black",
+        show_figure=False,
+    )
+
     layout = pandas_bokeh.column([p_tt, p_ss, p_stack])
     pandas_bokeh.output_file(os.path.join(DIRECTORY, "Plots", "Histogram.html"))
     pandas_bokeh.save(layout)
@@ -458,6 +554,17 @@ def test_histogram_average_diplay(df_hist):
 
     p_hist_cum = df_hist.plot_bokeh.hist(
         y=["a", "b"],
+        bins=np.arange(-4, 6.5, 0.5),
+        normed=100,
+        cumulative=True,
+        vertical_xlabel=True,
+        ylabel="Share[%]",
+        title="Normal distributions (normed & cumulative)",
+        show_figure=False,
+    )
+
+    p_hist_cum_pandas_backend = df_hist.plot.hist(
+        by=["a", "b"],
         bins=np.arange(-4, 6.5, 0.5),
         normed=100,
         cumulative=True,
@@ -503,6 +610,29 @@ def test_area_plots(df_energy):
         show_figure=False,
     )
 
+    p_area_pandas_backend = df_energy.plot.area(
+        x="Year",
+        stacked=True,
+        legend="top_left",
+        colormap=["brown", "orange", "black", "grey", "blue", "green"],
+        title="Worldwide energy consumption split by energy source",
+        ylabel="Million tonnes oil equivalent",
+        ylim=(0, 16000),
+        show_figure=False,
+    )
+
+    p_area_normed_pandas_backend = df_energy.plot(
+        kind="area",
+        x="Year",
+        stacked=True,
+        normed=100,
+        legend="bottom_left",
+        colormap=["brown", "orange", "black", "grey", "blue", "green"],
+        title="Worldwide energy consumption split by energy source",
+        ylabel="Million tonnes oil equivalent",
+        show_figure=False,
+    )
+
     layout = pandas_bokeh.plot_grid(
         [[p_area, p_area_normed]], plot_width=450, plot_height=300, show_plot=False
     )
@@ -531,6 +661,23 @@ def test_pieplot(df_election):
         show_figure=False,
     )
 
+    p_pie_pandas_backend = df_election.plot.pie(
+        x="Partei",
+        y="2017",
+        colormap=["blue", "red", "yellow", "green", "purple", "orange", "grey"],
+        title="Results of German Bundestag Election 2017",
+        show_figure=False,
+    )
+
+    p_pie_multiple_pandas_backend = df_election.plot(
+        kind="pie",
+        x="Partei",
+        colormap=["blue", "red", "yellow", "green", "purple", "orange", "grey"],
+        title="Results of German Bundestag Elections [2002-2017]",
+        line_color="grey",
+        show_figure=False,
+    )
+
     layout = pandas_bokeh.plot_grid(
         [[p_pie, p_pie_multiple]], plot_width=450, plot_height=300, show_plot=False
     )
@@ -542,7 +689,7 @@ def test_pieplot(df_election):
 def test_mapplot(df_mapplot):
     "Mapplot test"
 
-    p_map = df_mapplot.plot_bokeh.map(
+    kwargs = dict(
         x="longitude",
         y="latitude",
         hovertool_string="""<h2> @{name} </h2> 
@@ -555,5 +702,15 @@ def test_mapplot(df_mapplot):
         show_figure=False,
     )
 
+    p_map = df_mapplot.plot_bokeh(kind="map", **kwargs)
+    p_map_accessor = df_mapplot.plot_bokeh.map(**kwargs)
+
+    p_map_pandas_backend = df_mapplot.plot(kind="map", **kwargs)
+    p_map_accessor_pandas_backend = df_mapplot.plot.map(**kwargs)
+
+    layout = pandas_bokeh.plot_grid(
+        [[p_map, p_map_accessor]], plot_width=450, plot_height=300, show_plot=False
+    )
+
     pandas_bokeh.output_file(os.path.join(DIRECTORY, "Plots", "Mapplot.html"))
-    pandas_bokeh.save(p_map)
+    pandas_bokeh.save(layout)
