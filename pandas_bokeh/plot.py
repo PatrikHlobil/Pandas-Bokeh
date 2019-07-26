@@ -30,11 +30,10 @@ from bokeh.models.glyphs import Text
 from bokeh.models.callbacks import CustomJS
 from bokeh.events import Tap
 
-from pandas.plotting._core import BasePlotMethods
+from pandas.core.base import PandasObject
 
 from .base import show, embedded_html
 from .geoplot import geoplot
-
 
 
 def check_type(data):
@@ -119,7 +118,6 @@ def plot(
     figsize=None,
     use_index=True,
     title="",
-    grid=None,  # TODO:
     legend="top_right",
     logx=False,
     logy=False,
@@ -143,7 +141,7 @@ def plot(
     plot_data_points=False,
     plot_data_points_size=5,
     number_format=None,
-    disable_scientific_axes = None,
+    disable_scientific_axes=None,
     show_figure=True,
     return_html=False,
     panning=True,
@@ -182,13 +180,36 @@ def plot(
     
     """
 
-    if kind == "map":
-        raise ValueError("Mapplots can only be plotted using the accessor methods. Please use df.plot_bokeh.map(...) instead of df.plot_bokeh(kind='map', ...).")
-
     # Make a local copy of the DataFrame:
     df = df_in.copy()
     if isinstance(df, pd.Series):
         df = pd.DataFrame(df)
+
+    if kind == "map":
+        return mapplot(
+            df,
+            x=x,
+            y=y,
+            figsize=figsize,
+            title=title,
+            legend=legend,
+            xlabel=xlabel,
+            ylabel=ylabel,
+            xlim=xlim,
+            color=color,
+            colormap=colormap,
+            category=category,
+            show_figure=show_figure,
+            return_html=return_html,
+            panning=panning,
+            zooming=zooming,
+            toolbar_location=toolbar_location,
+            hovertool=hovertool,
+            hovertool_string=hovertool_string,
+            webgl=webgl,
+            **kwargs
+        )
+
 
     # Get and check options for base figure:
     figure_options = {
@@ -230,7 +251,7 @@ def plot(
     if number_format is None:
         number_format = ""
     else:
-        number_format = "{%s}"%number_format
+        number_format = "{%s}" % number_format
 
     # Check plot kind input:
     allowed_kinds = [
@@ -503,6 +524,13 @@ def plot(
         # Get values for y-axis:
         y = df[y_column].values
 
+        # Delete additionally created values by pandas.plotting:
+        for add_param in ["s", "c"]:
+            if add_param in kwargs:
+                del kwargs[add_param]
+
+        
+
         # Get values for categorical colormap:
         category_values = None
         if category in df.columns:
@@ -663,6 +691,10 @@ def plot(
         elif kwargs["line_color"] == True:
             del kwargs["line_color"]
 
+        if "by" in kwargs and y is None:
+            y = kwargs["by"]
+            del kwargs["by"]
+
         # Check for stacked keyword:
         if stacked and histogram_type not in [None, "stacked"]:
             warnings.warn(
@@ -822,42 +854,6 @@ def plot(
     if vertical_xlabel:
         p.xaxis.major_label_orientation = np.pi / 2
 
-    # Make mapplot:
-    if kind == "map":
-        if xlabel is None:
-            figure_options["x_axis_label"] = "Longitude"
-        if ylabel is None:
-            figure_options["y_axis_label"] = "Latitude"
-        figure_options["x_axis_type"] = "mercator"
-        figure_options["y_axis_type"] = "mercator"
-
-        if len(data_cols) > 1:
-            raise ValueError(
-                "For map plots, only one <y>-column representing the latitude of the coordinate can be passed."
-            )
-
-        source["latitude"] = source[data_cols[0]]
-        source["longitude"] = source["__x__values"]
-
-        # p = mapplot(
-        #     source,
-        #     hovertool,
-        #     hovertool_string,
-        #     figure_options,
-        #     colormap,
-        #     tile_provider,
-        #     tile_provider_url,
-        #     tile_attribution,
-        #     tile_alpha,
-        #     **kwargs
-        # )
-
-        gdf = pd.DataFrame(source)
-        gdf["x"] = gdf["longitude"]
-        gdf["y"] = gdf["latitude"]
-
-        p = geoplot(gdf)#, colormap, hovertool)
-
     # Set panning option:
     if panning is False:
         p.toolbar.active_drag = None
@@ -895,7 +891,7 @@ def plot(
                 "Legend can only be True/False or one of 'top_left', 'top_center', 'top_right', 'center_left', 'center', 'center_right', 'bottom_left', 'bottom_center', 'bottom_right'"
             )
 
-    #Scientific formatting for axes:
+    # Scientific formatting for axes:
     if disable_scientific_axes is None:
         pass
     elif disable_scientific_axes == "x":
@@ -906,7 +902,9 @@ def plot(
         p.xaxis[0].formatter.use_scientific = False
         p.yaxis[0].formatter.use_scientific = False
     else:
-        raise ValueError("""Keyword parameter <disable_scientific_axes> only accepts "xy", True, "x", "y" or None.""")
+        raise ValueError(
+            """Keyword parameter <disable_scientific_axes> only accepts "xy", True, "x", "y" or None."""
+        )
 
     # Display plot if wanted
     if show_figure:
@@ -1661,23 +1659,25 @@ def pieplot(
     return p
 
 
-def mapplot(
-    source,
-    hovertool,
-    hovertool_string,
-    figure_options,
-    colormap,
-    tile_provider,
-    tile_provider_url,
-    tile_attribution,
-    tile_alpha,
-    **kwargs
-):
-    """Creates Point on a Map from the provided data. Provided x,y coordinates
-    have to be longitude, latitude in WGS84 projection."""
+def mapplot(df, x, y, **kwargs):
 
-    latitude = source["latitude"]
-    longitude = source["longitude"]
+    # Get data of x and y columns:
+    if not x in df.columns:
+        raise ValueError(
+            "<x> parameter has to be a column name of the provided dataframe."
+        )
+    if not y in df.columns:
+        raise ValueError(
+            "<y> parameter has to be a column name of the provided dataframe."
+        )
+    latitude = df[y]
+    longitude = df[x]
+
+    # Check if NaN values are in x & y columns:
+    if (pd.isnull(latitude).sum() > 0) or (pd.isnull(longitude).sum() > 0):
+        raise ValueError(
+            "There are NaN values in the <x> or <y> column. The map plot API of Pandas Bokeh does not support this. Please drop the NaN rows for plotting."
+        )
 
     # Check values of longitude and latitude:
     if not (check_type(latitude) == "numeric" and check_type(longitude) == "numeric"):
@@ -1693,49 +1693,30 @@ def mapplot(
             "All values of the x-column have to be restricted to (-180, 180). The <x> value corresponds to the longitude in WGS84 projection."
         )
 
-    # Convert longitude, latitude coordinates to Web Mercator projection:
+    # Convert longitude & latitude coordinates to Web Mercator projection:
+    if "x" in df.columns or "y" in df.columns:
+        raise ValueError(
+            "The map plot API overrides the columns named 'x' and 'y' with the coordinates for plotting. Please rename your columns 'x' and 'y'."
+        )
+
     RADIUS = 6378137.0
-    source["y"] = np.log(np.tan(np.pi / 4 + np.radians(latitude) / 2)) * RADIUS
-    source["x"] = np.radians(longitude) * RADIUS
+    df["y"] = np.log(np.tan(np.pi / 4 + np.radians(latitude) / 2)) * RADIUS
+    df["x"] = np.radians(longitude) * RADIUS
 
-    # Create map figure to plot:
-    p = figure(**figure_options)
-
-    # Get ridd of zoom on axes:
-    for t in p.tools:
-        if type(t) == WheelZoomTool:
-            t.zoom_on_axis = False
-
-    # Add Background Tile:
-    from .geoplot import _add_backgroundtile
-
-    p = _add_backgroundtile(
-        p, tile_provider, tile_provider_url, tile_attribution, tile_alpha
-    )
-
-    # Plot geocoordinates on map:
-    glyph = p.scatter(
-        x="x",
-        y="y",
-        source=source,
-        legend="Show/Hide Layer",
-        color=colormap[0],
-        **kwargs
-    )
-
-    # Add hovertool:
-    if hovertool:
-        if hovertool_string is not None:
-            my_hover = HoverTool(renderers=[glyph])
-            my_hover.tooltips = hovertool_string
-            p.add_tools(my_hover)
-
-    return p
+    return geoplot(df, **kwargs)
 
 
 ##############################################################################
 ###########Class to add Bokeh plotting methods to Pandas DataFrame
 ##############################################################################
+
+
+class BasePlotMethods(PandasObject):
+    def __init__(self, data):
+        self._parent = data  # can be Series or DataFrame
+
+    def __call__(self, *args, **kwargs):
+        raise NotImplementedError
 
 
 class FramePlotMethods(BasePlotMethods):
@@ -1753,7 +1734,6 @@ class FramePlotMethods(BasePlotMethods):
     """
 
     def __call__(self, *args, **kwargs):
-
         return plot(self.df, *args, **kwargs)
 
     @property
@@ -2392,42 +2372,5 @@ class FramePlotMethods(BasePlotMethods):
             ...     title="World cities with more than 1.000.000 inhabitants")
 
         """
-        #return self(kind="map", x=x, y=y, **kwds)
-        
-        #Get data of x and y columns:
-        df = self.df.copy()
-        if not x in df.columns:
-            raise ValueError("<x> parameter has to be a column name of the provided dataframe.")
-        if not y in df.columns:
-            raise ValueError("<y> parameter has to be a column name of the provided dataframe.")    
-        latitude = df[y]
-        longitude = df[x]
-
-        #Check if NaN values are in x & y columns:
-        if (pd.isnull(latitude).sum() > 0) or (pd.isnull(longitude).sum() > 0):
-            raise ValueError("There are NaN values in the <x> or <y> column. The map plot API of Pandas Bokeh does not support this. Please drop the NaN rows for plotting.")
-
-        # Check values of longitude and latitude:
-        if not (check_type(latitude) == "numeric" and check_type(longitude) == "numeric"):
-            raise ValueError(
-                "<x> and <y> have to be numeric columns of the DataFrame. Further they correspond to longitude, latitude in WGS84 projection."
-            )
-        if not (np.min(latitude) > -90 and np.max(latitude) < 90):
-            raise ValueError(
-                "All values of the y-column have to be restricted to (-90, 90). The <y> value corresponds to the latitude in WGS84 projection."
-            )
-        if not (np.min(longitude) > -180 and np.max(longitude) < 180):
-            raise ValueError(
-                "All values of the x-column have to be restricted to (-180, 180). The <x> value corresponds to the longitude in WGS84 projection."
-            )
-
-        # Convert longitude & latitude coordinates to Web Mercator projection:
-        if "x" in df.columns or "y" in df.columns:
-            raise ValueError("The map plot API overrides the columns named 'x' and 'y' with the coordinates for plotting. Please rename your columns 'x' and 'y'.")
-
-        RADIUS = 6378137.0
-        df["y"] = np.log(np.tan(np.pi / 4 + np.radians(latitude) / 2)) * RADIUS
-        df["x"] = np.radians(longitude) * RADIUS
-        return geoplot(df, **kwds)
-
+        return self(kind="map", x=x, y=y, **kwds)
 

@@ -1,14 +1,23 @@
 # Pandas Bokeh
-```diff
-- 11.05.2019: **Major update Pandas Bokeh 0.2 released!**
-```
 
-**Pandas Bokeh** provides a [Bokeh](https://bokeh.pydata.org/en/latest/) plotting backend for [Pandas](https://pandas.pydata.org/), [GeoPandas](http://geopandas.org/) and [Pyspark](https://spark.apache.org/docs/latest/api/python/index.html) <span style="color:red">(**new in Pandas Bokeh 0.2**!)</span> **DataFrames**, similar to the already existing [Visualization feature of Pandas](https://pandas.pydata.org/pandas-docs/stable/visualization.html). Importing the library adds a complementary plotting method ***plot_bokeh()*** on **DataFrames** and **Series**.
+**Pandas Bokeh** provides a [Bokeh](https://bokeh.pydata.org/en/latest/) plotting backend for [Pandas](https://pandas.pydata.org/), [GeoPandas](http://geopandas.org/) and [Pyspark](https://spark.apache.org/docs/latest/api/python/index.html) **DataFrames**, similar to the already existing [Visualization feature of Pandas](https://pandas.pydata.org/pandas-docs/stable/visualization.html). Importing the library adds a complementary plotting method ***plot_bokeh()*** on **DataFrames** and **Series**.
 
 With **Pandas Bokeh**, creating stunning, interactive, HTML-based visualization is as easy as calling:
 ```python
 df.plot_bokeh()
 ```
+---
+```diff
+- 26.07.2019: New in Pandas Bokeh 0.3
+```
+
+Native support as a Pandas Plotting backend for [Pandas >= 0.25](https://pandas.pydata.org/pandas-docs/stable/whatsnew/v0.25.0.html). When **Pandas Bokeh** is installed, switchting the default Pandas plotting backend to Bokeh can be done via:
+
+    pd.set_option('plotting.backend', 'pandas_bokeh')
+
+More details about the new Pandas backend can be found [below.](#pandas_backend)
+
+---
 
 For more information have a look at the [Examples](#Examples) below or at  notebooks on the [Github Repository](https://github.com/PatrikHlobil/Pandas-Bokeh/tree/master/Documentation) of this project. 
 
@@ -22,16 +31,17 @@ You can install **Pandas Bokeh** from [PyPI](https://pypi.org/project/pandas-bok
 
     pip install pandas-bokeh
 
-**Pandas Bokeh** is supported on Python 2.7, as well as Python 3.4 and above.
+With the current release 0.3, **Pandas Bokeh** drops official support for older Python versions (2.7 & 3.4) and now supports only **Python 3.5** and above. It will probably still work for older Python versions, but is not  tested against these.
 
 <br>
 
-The current release is **0.2** (2019-02-19). For more details, see [Release Notes](#releasenotes).
+The current release is **0.3**. For more details, see [Release Notes](#releasenotes).
 
 <br>
 
 ## How To Use
 
+### Classical Use
 <p id="Basics"> </p>
 
 The **Pandas-Bokeh** library should be imported after **Pandas**, **GeoPandas** and/or **Pyspark**. After the import, one should define the plotting output, which can be:
@@ -42,7 +52,7 @@ The **Pandas-Bokeh** library should be imported after **Pandas**, **GeoPandas** 
 
 For more details about the plotting outputs, see the reference [here](#Layouts) or the [Bokeh documentation](https://bokeh.pydata.org/en/latest/docs/user_guide/quickstart.html#getting-started).
 
-### Notebook output (see also [bokeh.io.output_notebook](https://bokeh.pydata.org/en/latest/docs/reference/io.html#bokeh.io.output_notebook))
+#### Notebook output (see also [bokeh.io.output_notebook](https://bokeh.pydata.org/en/latest/docs/reference/io.html#bokeh.io.output_notebook))
 
 ```python
 import pandas as pd
@@ -50,16 +60,39 @@ import pandas_bokeh
 pandas_bokeh.output_notebook()
 ```
 
-<span style="color:red">***New in Pandas Bokeh 0.2:** Zeppelin Notebook Support</span>
-<p id="output_file"> </p>
-
-### File output to "Interactive Plot.html" (see also [bokeh.io.output_file](https://bokeh.pydata.org/en/latest/docs/reference/io.html#bokeh.io.output_file))
+#### File output to "Interactive Plot.html" (see also [bokeh.io.output_file](https://bokeh.pydata.org/en/latest/docs/reference/io.html#bokeh.io.output_file))
 
 ```python
 import pandas as pd
 import pandas_bokeh
 pandas_bokeh.output_file("Interactive Plot.html")
 ```
+
+### **Pandas Bokeh** as native Pandas plotting backend
+<p id="pandas_backend"> </p>
+
+For pandas >= 0.25, a plotting backend switch is natively supported. It can be achievied by calling:
+
+    import pandas as pd
+    pd.set_option('plotting.backend', 'pandas_bokeh')
+
+Now, the plotting API is accessible for a Pandas DataFrame via:
+
+    df.plot(...)
+
+All additional functionalities of **Pandas Bokeh** are then accessible at *pd.plotting*. So, setting the output to notebook is:
+
+    pd.plotting.output_notebook()
+
+or calling the [grid layout functionality](#dashboard_layouts):
+
+    pd.plotting.plot_grid(...)
+
+**Note:** Backwards compatibility is kept since there will still be the *df.plot_bokeh(...)* methods for a DataFrame.
+
+<p id="output_file"> </p>
+
+
 
 <br>
 
@@ -68,9 +101,10 @@ pandas_bokeh.output_file("Interactive Plot.html")
 ### Plot types
 
 Supported plottypes are at the moment:
-* Pandas &  <span style="color:red"> **Pyspark** (New in Relase 0.2) </span>
+* Pandas &  Pyspark DataFrames
   * [lineplot](#lineplot)
   * [pointplot](#pointplot)
+  * [stepplot](#stepplot)
   * [scatterplot](#scatterplot)
   * [barplot](#barplot)
   * [histogram](#histogram)
@@ -238,6 +272,43 @@ df.plot_bokeh.point(
 ```
 
 ![Pointplot](Documentation/Images/Pointplot.gif)
+
+<br>
+
+## Stepplot
+With a similar API as the line- & pointplots, one can generate a stepplot. Additional keyword arguments for this plot type are passes to [bokeh.plotting.figure.step](bokeh.plotting.figure.scatter), e.g. **mode** (before, after, center), see the following example 
+
+```python
+
+import numpy as np
+
+x = np.arange(-3, 3, 1)
+y2 = x**2
+y3 = x**3
+df = pd.DataFrame({"x": x, "Parabula": y2, "Cube": y3})
+df.plot_bokeh.step(
+    x="x",
+    xticks=range(-1, 1),
+    colormap=["#009933", "#ff3399"],
+    title="Pointplot (Parabula vs. Cube)",
+    figsize=(800,300)
+    )
+
+df.plot_bokeh.step(
+    x="x",
+    xticks=range(-1, 1),
+    colormap=["#009933", "#ff3399"],
+    title="Pointplot (Parabula vs. Cube)",
+    mode="after",
+    figsize=(800,300)
+    )
+```
+
+![Stepplot](Documentation/Images/stepplot.png)
+
+
+
+*Note that the step-plot API of Bokeh does so far not support a [hovertool functionality](https://github.com/bokeh/bokeh/issues/7419)*.
 
 <br>
 
@@ -1207,3 +1278,11 @@ Plots like scatterplot or histogram also have many more additional customization
 * Bugfixes
 * Implementation of **number_format** keyword for line, scatterplots
 * Official support also for Python 3.4 & 3.5 
+
+## 0.3
+
+* Official Pandas backend switch support for pandas >= 0.25
+* Add **stepplot**
+* Add support for colormap ticker formatting in Geoplots
+* Support for multipolygons & holes in Geoplots
+* Bugfixes
