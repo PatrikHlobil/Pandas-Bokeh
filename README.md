@@ -6,14 +6,18 @@ With **Pandas Bokeh**, creating stunning, interactive, HTML-based visualization 
 ```python
 df.plot_bokeh()
 ```
+---
+```diff
+- 26.07.2019: New in Pandas Bokeh 0.3
+```
 
-<span style="color:red">**New in Pandas Bokeh 0.3**:</span>
-
-<span style="color:red">Native support as a Pandas Plotting backend for [Pandas >= 0.25](https://pandas.pydata.org/pandas-docs/stable/whatsnew/v0.25.0.html). When **Pandas Bokeh** is installed, switchting the default Pandas plotting backend to Bokeh can be done via:</span>
+Native support as a Pandas Plotting backend for [Pandas >= 0.25](https://pandas.pydata.org/pandas-docs/stable/whatsnew/v0.25.0.html). When **Pandas Bokeh** is installed, switchting the default Pandas plotting backend to Bokeh can be done via:
 
     pd.set_option('plotting.backend', 'pandas_bokeh')
 
-<span style="color:red">More details about the new Pandas backend can be found [below.](#pandas_backend)</span>
+More details about the new Pandas backend can be found [below.](#pandas_backend)
+
+---
 
 For more information have a look at the [Examples](#Examples) below or at  notebooks on the [Github Repository](https://github.com/PatrikHlobil/Pandas-Bokeh/tree/master/Documentation) of this project. 
 
