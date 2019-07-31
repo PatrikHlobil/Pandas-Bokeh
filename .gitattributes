@@ -1,6 +1,6 @@
 # Basic .gitattributes for a python repo.
 
-.ipynb linguist-documentation
+*.ipynb linguist-documentation
 
 # Source files
 # ============
