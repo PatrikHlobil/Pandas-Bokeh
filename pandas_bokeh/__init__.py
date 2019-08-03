@@ -73,7 +73,7 @@ try:
     gpd.GeoDataFrame.plot_bokeh = geoplot
     gpd.GeoSeries.plot_bokeh = geoplot
 
-except ModuleNotFoundError:
+except ImportError:
     pass
 
 
@@ -83,5 +83,5 @@ try:
 
     plot_bokeh = CachedAccessor("plot_bokeh", FramePlotMethods)
     pyspark.sql.dataframe.DataFrame.plot_bokeh = plot_bokeh
-except ModuleNotFoundError:
+except ImportError:
     pass
