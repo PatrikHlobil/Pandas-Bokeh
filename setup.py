@@ -59,9 +59,12 @@ Each plot type like scatterplot or histogram further has many more additional cu
 
 """
 
+import pandas_bokeh
+version = pandas_bokeh.__version__
+
 setuptools.setup(
     name="pandas-bokeh",
-    version="0.3",
+    version=version,
     author="Patrik Hlobil",
     author_email="patrik.hlobil@googlemail.com",
     description="Bokeh plotting backend for Pandas, GeoPandas & Pyspark",
