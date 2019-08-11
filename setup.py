@@ -15,6 +15,10 @@ You can install **Pandas Bokeh** from *PyPI* via **pip**:
 
     pip install pandas-bokeh
 
+or *conda*:
+
+    conda install -c patrikhlobil pandas-bokeh 
+
 **Pandas Bokeh** is officially supported on Python 3.5 and above.
 
 ---
@@ -59,9 +63,12 @@ Each plot type like scatterplot or histogram further has many more additional cu
 
 """
 
+import pandas_bokeh
+version = pandas_bokeh.__version__
+
 setuptools.setup(
     name="pandas-bokeh",
-    version="0.3",
+    version=version,
     author="Patrik Hlobil",
     author_email="patrik.hlobil@googlemail.com",
     description="Bokeh plotting backend for Pandas, GeoPandas & Pyspark",
@@ -69,7 +76,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/PatrikHlobil/Pandas-Bokeh",
     packages=setuptools.find_packages(),
-    install_requires=["bokeh >=1.0.0", "pandas >=0.23.0"],
+    install_requires=["bokeh >=0.13", "pandas >=0.22.0"],
     classifiers=[
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",

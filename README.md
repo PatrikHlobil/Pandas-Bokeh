@@ -27,11 +27,15 @@ For more information have a look at the [Examples](#Examples) below or at  noteb
 
 ## Installation
 
-You can install **Pandas Bokeh** from [PyPI](https://pypi.org/project/pandas-bokeh/) via *pip*:
+You can install **Pandas Bokeh** from [PyPI](https://pypi.org/project/pandas-bokeh/) via *pip*
 
     pip install pandas-bokeh
 
-With the current release 0.3, **Pandas Bokeh** drops official support for older Python versions (2.7 & 3.4) and now supports only **Python 3.5** and above. It will probably still work for older Python versions, but is not  tested against these.
+or *conda*:
+
+    conda install -c patrikhlobil pandas-bokeh 
+
+With the current release 0.3, **Pandas Bokeh** drops official support for older Python versions (2.7 & 3.4) and now supports only **Python 3.5** and above. It will probably still work for older Python versions, but is not tested against these.
 
 <br>
 
@@ -1286,3 +1290,4 @@ Plots like scatterplot or histogram also have many more additional customization
 * Add support for colormap ticker formatting in Geoplots
 * Support for multipolygons & holes in Geoplots
 * Bugfixes
+* conda support
