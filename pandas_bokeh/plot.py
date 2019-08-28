@@ -170,7 +170,7 @@ def plot(
     look at the underlying method accessors (like df.plot_bokeh.line) or visit
     https://github.com/PatrikHlobil/Pandas-Bokeh. 
 
-    If `scaling_mode` is not fixed (default), it will overide the set plot width or height
+    If `sizing_mode` is not fixed (default), it will overide the set plot width or height
     depending on which axis it is scaled on.
     
     """
