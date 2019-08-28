@@ -1035,6 +1035,8 @@ This code will open up a webbrowser and show the following page. As you can see,
 
 ![Embedded HTML](Documentation/Images/embedded_HTML.png)
 
+### Auto Scaling Plots
+
 For single plots that have a number of x axis values or for larger monitors, you can auto scale the figure to the width of the entire jupyter cell by setting the `sizing_mode` parameter.
 
 ```python
