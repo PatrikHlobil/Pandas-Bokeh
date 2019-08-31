@@ -1,9 +1,10 @@
 import json
-import pytest
-import pandas as pd
-import numpy as np
-import pandas_bokeh
 import os
+
+import numpy as np
+import pandas as pd
+import pandas_bokeh
+import pytest
 
 DIRECTORY = os.path.dirname(__file__)
 TEST_SETS_DIRECTORY = os.path.join(
@@ -714,3 +715,19 @@ def test_mapplot(df_mapplot):
 
     pandas_bokeh.output_file(os.path.join(DIRECTORY, "Plots", "Mapplot.html"))
     pandas_bokeh.save(layout)
+
+def test_autosizing(df_fruits):
+    """
+    Autoscaling test
+    """
+
+    kwargs = dict(
+        figsize=(500,200),
+        sizing_mode="scale_width"
+    )
+
+    p_autoscale = df_fruits.plot_bokeh(kind='bar', **kwargs)
+    pandas_bokeh.output_file(os.path.join(DIRECTORY, "Plots", "AutoScale.html"))
+    pandas_bokeh.save(p_autoscale)
+
+    assert True

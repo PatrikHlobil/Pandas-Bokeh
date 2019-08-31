@@ -3,36 +3,27 @@
 
 import datetime
 import numbers
+import re
 import warnings
 from copy import deepcopy
-import re
 
-from bokeh.plotting import figure
-import pandas as pd
 import numpy as np
-from bokeh.models import (
-    HoverTool,
-    ColumnDataSource,
-    DatetimeTickFormatter,
-    LinearColorMapper,
-    LogColorMapper,
-    CategoricalColorMapper,
-    ColorBar,
-    FuncTickFormatter,
-    WheelZoomTool,
-)
-from bokeh.models.tickers import FixedTicker
-from bokeh.palettes import all_palettes, Inferno256
-from bokeh.models.ranges import FactorRange
-from bokeh.transform import dodge, cumsum
+import pandas as pd
 from bokeh.core.properties import value as _value
-from bokeh.models.glyphs import Text
-from bokeh.models.callbacks import CustomJS
 from bokeh.events import Tap
-
+from bokeh.models import (CategoricalColorMapper, ColorBar, ColumnDataSource,
+                          DatetimeTickFormatter, FuncTickFormatter, HoverTool,
+                          LinearColorMapper, LogColorMapper, WheelZoomTool)
+from bokeh.models.callbacks import CustomJS
+from bokeh.models.glyphs import Text
+from bokeh.models.ranges import FactorRange
+from bokeh.models.tickers import FixedTicker
+from bokeh.palettes import Inferno256, all_palettes
+from bokeh.plotting import figure
+from bokeh.transform import cumsum, dodge
 from pandas.core.base import PandasObject
 
-from .base import show, embedded_html
+from .base import embedded_html, show
 from .geoplot import geoplot
 
 
@@ -146,6 +137,7 @@ def plot(
     return_html=False,
     panning=True,
     zooming=True,
+    sizing_mode="fixed",
     toolbar_location="right",
     hovertool=True,
     hovertool_string=None,
@@ -177,6 +169,9 @@ def plot(
     For more information about the individual plot kind implementations, have a
     look at the underlying method accessors (like df.plot_bokeh.line) or visit
     https://github.com/PatrikHlobil/Pandas-Bokeh. 
+
+    If `sizing_mode` is not fixed (default), it will overide the set plot width or height
+    depending on which axis it is scaled on.
     
     """
 
@@ -219,6 +214,7 @@ def plot(
         "plot_width": 600,
         "plot_height": 400,
         "output_backend": "webgl",
+        "sizing_mode": sizing_mode
     }
     if not figsize is None:
         width, height = figsize
@@ -2370,4 +2366,3 @@ class FramePlotMethods(BasePlotMethods):
 
         """
         return self(kind="map", x=x, y=y, **kwds)
-
