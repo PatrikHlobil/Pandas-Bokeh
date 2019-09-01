@@ -30,7 +30,7 @@ steps:
 - script: pip install -r Tests/requirements_test.txt
   displayName: 'Install Python Libaries'
 
-- script: pip install -r Tests/requirements_test.txt && pip install dist/pandas-bokeh-*
+- script: python setup.py sdist && pip install dist/pandas-bokeh-*
   displayName: 'Build Python wheel & install Pandas Bokeh'
 
 - script: pytest --color=yes -s -x -vv --cov-report term-missing --cov=pandas_bokeh Tests/
