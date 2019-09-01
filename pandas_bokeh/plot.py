@@ -143,6 +143,7 @@ def plot(
     hovertool_string=None,
     vertical_xlabel=False,
     webgl=True,
+    reuse_plot=None, # This keyword is not used by Pandas-Bokeh, but pandas plotting API adds it for series object calls
     **kwargs
 ):
     """Method for creating a interactive with 'Bokeh' as plotting backend. Available
