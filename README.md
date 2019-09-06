@@ -210,8 +210,8 @@ df.plot_bokeh.line(
     ylim=(0, 400),
     toolbar_location=None,
     colormap=["red", "blue"],
-    hovertool_string="""<img
-                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/170px-Apple_logo_black.svg.png" 
+    hovertool_string=r"""<img
+                        src='https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/170px-Apple_logo_black.svg.png' 
                         height="42" alt="@imgs" width="42"
                         style="float: left; margin: 0px 15px 15px 0px;"
                         border="2"></img> Apple 

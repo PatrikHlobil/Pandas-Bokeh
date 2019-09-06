@@ -905,7 +905,7 @@ def plot(
 
     # Display plot if wanted
     if show_figure:
-        show(p)
+        return show(p)
 
     # Return as (embeddable) HTML if wanted:
     if return_html:
