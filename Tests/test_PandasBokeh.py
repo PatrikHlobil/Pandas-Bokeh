@@ -721,12 +721,9 @@ def test_autosizing(df_fruits):
     Autoscaling test
     """
 
-    kwargs = dict(
-        figsize=(500,200),
-        sizing_mode="scale_width"
-    )
+    kwargs = dict(figsize=(500, 200), sizing_mode="scale_width", show_figure=False)
 
-    p_autoscale = df_fruits.plot_bokeh(kind='bar', **kwargs)
+    p_autoscale = df_fruits.plot_bokeh(kind="bar", **kwargs)
     pandas_bokeh.output_file(os.path.join(DIRECTORY, "Plots", "AutoScale.html"))
     pandas_bokeh.save(p_autoscale)
 

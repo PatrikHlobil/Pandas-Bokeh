@@ -17,3 +17,7 @@
 [gjeusel](https://github.com/gjeusel)
 
  * Pull request [#27](https://github.com/PatrikHlobil/Pandas-Bokeh/pull/27): *Add step plot*
+
+ [ashton-sidhu](https://github.com/ashton-sidhu)
+
+ * Pull request[#41](https://github.com/PatrikHlobil/Pandas-Bokeh/pull/41) *Add autoscaling*

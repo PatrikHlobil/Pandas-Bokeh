@@ -1035,6 +1035,19 @@ This code will open up a webbrowser and show the following page. As you can see,
 
 ![Embedded HTML](Documentation/Images/embedded_HTML.png)
 
+### Auto Scaling Plots
+
+For single plots that have a number of x axis values or for larger monitors, you can auto scale the figure to the width of the entire jupyter cell by setting the `sizing_mode` parameter.
+
+```python
+df = pd.DataFrame(np.random.rand(10, 4), columns=['a', 'b', 'c', 'd'])
+
+df.plot_bokeh(kind="bar", figsize=(500, 200), sizing_mode="scale_width")
+```
+![Scaled Plot](Documentation/Images/scaled_plot.png)
+
+The `figsize` parameter can be used to change the height and width as well as act as a scaling multiplier against the axis that is not being scaled.
+
 <p id="number_formats"></p>
 
 ### Number formats
