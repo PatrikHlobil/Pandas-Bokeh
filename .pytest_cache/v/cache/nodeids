@@ -1,0 +1,19 @@
+[
+  "Tests/test_PandasBokeh.py::test_basic_lineplot",
+  "Tests/test_PandasBokeh.py::test_basic_lineplot_rangetool",
+  "Tests/test_PandasBokeh.py::test_complex_lineplot",
+  "Tests/test_PandasBokeh.py::test_lineplot_with_points",
+  "Tests/test_PandasBokeh.py::test_basic_stepplot",
+  "Tests/test_PandasBokeh.py::test_pointplot",
+  "Tests/test_PandasBokeh.py::test_scatterplot",
+  "Tests/test_PandasBokeh.py::test_scatterplot_2",
+  "Tests/test_PandasBokeh.py::test_barplot_basic",
+  "Tests/test_PandasBokeh.py::test_barplot_stacked",
+  "Tests/test_PandasBokeh.py::test_barplot_layout",
+  "Tests/test_PandasBokeh.py::test_histogram",
+  "Tests/test_PandasBokeh.py::test_histogram_average_diplay",
+  "Tests/test_PandasBokeh.py::test_area_plots",
+  "Tests/test_PandasBokeh.py::test_pieplot",
+  "Tests/test_PandasBokeh.py::test_mapplot",
+  "Tests/test_PandasBokeh.py::test_autosizing"
+]

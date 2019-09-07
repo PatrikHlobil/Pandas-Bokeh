@@ -11,9 +11,11 @@ import numpy as np
 import pandas as pd
 from bokeh.core.properties import value as _value
 from bokeh.events import Tap
+from bokeh.layouts import column
 from bokeh.models import (CategoricalColorMapper, ColorBar, ColumnDataSource,
                           DatetimeTickFormatter, FuncTickFormatter, HoverTool,
-                          LinearColorMapper, LogColorMapper, WheelZoomTool)
+                          LinearColorMapper, LogColorMapper, RangeTool,
+                          WheelZoomTool)
 from bokeh.models.callbacks import CustomJS
 from bokeh.models.glyphs import Text
 from bokeh.models.ranges import FactorRange
@@ -141,6 +143,7 @@ def plot(
     toolbar_location="right",
     hovertool=True,
     hovertool_string=None,
+    use_rangetool=False,
     vertical_xlabel=False,
     webgl=True,
     reuse_plot=None, # This keyword is not used by Pandas-Bokeh, but pandas plotting API adds it for series object calls
@@ -461,7 +464,7 @@ def plot(
 
     # Add Glyphs to Plot:
     if kind == "line":
-        p = lineplot(
+        p, select = lineplot(
             p,
             source,
             data_cols,
@@ -473,11 +476,12 @@ def plot(
             plot_data_points_size,
             hovertool_string,
             number_format,
+            use_rangetool,
             **kwargs
         )
 
     if kind == "step":
-        p = stepplot(
+        p, select = stepplot(
             p,
             source,
             data_cols,
@@ -489,6 +493,7 @@ def plot(
             plot_data_points_size,
             hovertool_string,
             number_format,
+            use_rangetool,
             **kwargs
         )
 
@@ -903,6 +908,10 @@ def plot(
             """Keyword parameter <disable_scientific_axes> only accepts "xy", True, "x", "y" or None."""
         )
 
+    # Display range tool if wanted
+    if use_rangetool and kind == 'line':
+        show(column(p, select))
+
     # Display plot if wanted
     if show_figure:
         show(p)
@@ -928,6 +937,7 @@ def _base_lineplot(
     plot_data_points_size,
     hovertool_string,
     number_format,
+    use_rangetool,
     **kwargs
 ):
     """Adds lineplot to figure p for each data_col."""
@@ -938,6 +948,7 @@ def _base_lineplot(
     else:
         marker = "circle"
 
+    select = None
     # Add line (and optional scatter glyphs) to figure:
     linetype = getattr(p, linetype.lower())
     for name, color in zip(data_cols, colormap):
@@ -979,7 +990,31 @@ def _base_lineplot(
                 my_hover.tooltips = hovertool_string
             p.add_tools(my_hover)
 
-    return p
+        if use_rangetool:
+            select = figure(title="Drag the box to change the range above.",
+                plot_height=130,
+                plot_width=p.plot_width,
+                y_range=p.y_range,
+                x_axis_type=x_axis_type,
+                y_axis_type=None,
+                tools="",
+                toolbar_location=None,
+            )
+
+            range_tool = RangeTool(x_range=)
+            range_tool.overlay.fill_color = "navy"
+            range_tool.overlay.fill_alpha = 0.2
+
+            select.line(
+                "__x__values",
+                name,
+                source=source
+            )
+            select.ygrid.grid_line_color = None
+            select.add_tools(range_tool)
+            select.toolbar.active_multi = range_tool
+
+    return p, select
 
 
 def lineplot(
@@ -994,6 +1029,7 @@ def lineplot(
     plot_data_points_size,
     hovertool_string,
     number_format,
+    use_rangetool,
     **kwargs
 ):
     return _base_lineplot(
@@ -1009,6 +1045,7 @@ def lineplot(
         plot_data_points_size=plot_data_points_size,
         hovertool_string=hovertool_string,
         number_format=number_format,
+        use_rangetool=use_rangetool,
         **kwargs
     )
 
@@ -1025,6 +1062,7 @@ def stepplot(
     plot_data_points_size,
     hovertool_string,
     number_format,
+    use_rangetool,
     **kwargs
 ):
     return _base_lineplot(
@@ -1040,6 +1078,7 @@ def stepplot(
         plot_data_points_size=plot_data_points_size,
         hovertool_string=hovertool_string,
         number_format=number_format,
+        use_rangetool=use_rangetool,
         **kwargs
     )
 
