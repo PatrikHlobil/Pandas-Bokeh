@@ -3,8 +3,9 @@ import os
 
 import numpy as np
 import pandas as pd
-import pandas_bokeh
 import pytest
+
+import pandas_bokeh
 
 DIRECTORY = os.path.dirname(__file__)
 TEST_SETS_DIRECTORY = os.path.join(
@@ -131,7 +132,7 @@ def test_basic_lineplot(df_stock):
     assert True
 
 def test_basic_lineplot_rangetool(df_stock):
-    """Test for basic lineplot above with a range tool extension"""
+    """Test for basic lineplot above with a rangetool extension"""
 
     p_basic_lineplot_accessor_pandas_backend = df_stock.plot.line(show_figure=False, rangetool=True)
 
