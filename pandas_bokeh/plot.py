@@ -18,7 +18,7 @@ from bokeh.models import (CategoricalColorMapper, ColorBar, ColumnDataSource,
                           WheelZoomTool)
 from bokeh.models.callbacks import CustomJS
 from bokeh.models.glyphs import Text
-from bokeh.models.ranges import FactorRange
+from bokeh.models.ranges import FactorRange, Range1d
 from bokeh.models.tickers import FixedTicker
 from bokeh.palettes import Inferno256, all_palettes
 from bokeh.plotting import figure
@@ -1001,7 +1001,14 @@ def _base_lineplot(
                 toolbar_location=None,
             )
 
-            range_tool = RangeTool(x_range=)
+            start_index = int(0.75 * len(source['__x__values']))
+
+            p.x_range = Range1d(source['__x__values'][start_index], source['__x__values'][-1])
+
+            # p.x_range.start = source['__x__values'][start_index]
+            # p.x_range.end = source['__x__values'][-1]
+
+            range_tool = RangeTool(x_range=p.x_range)
             range_tool.overlay.fill_color = "navy"
             range_tool.overlay.fill_alpha = 0.2
 
