@@ -191,6 +191,7 @@ There are various optional parameters to tune the plots, for example:
 * **toolbar_location**: Specify the position of the toolbar location (None, "above", "below", "left" or "right"). Default: *"right"*
 * **zooming**: Enables/Disables zooming. Default: *True*
 * **panning**: Enables/Disables panning. Default: *True*
+* **rangetool** Enables a range tool scroller. Default *False*
 
 
 * **kwargs****: Optional keyword arguments of [bokeh.plotting.figure.line](https://bokeh.pydata.org/en/latest/docs/reference/plotting.html#bokeh.plotting.figure.Figure.line)
@@ -252,6 +253,17 @@ df.plot_bokeh.line(
 ```
 
 ![ApplevsGoogle_3](Documentation/Images/ApplevsGoogle_3.png)
+
+#### Lineplot with rangetool
+
+```python
+df = pd.DataFrame(np.random.randn(1000, 4), index=ts.index, columns=list('ABCD'))
+df = df.cumsum()
+
+df.plot_bokeh(rangetool=True)
+```
+
+![rangetool](Documentation/Images/rangetool.png)
 
 <br>
 
