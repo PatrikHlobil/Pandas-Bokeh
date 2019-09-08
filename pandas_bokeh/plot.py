@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import math
 import numbers
 import re
 import warnings
@@ -38,7 +39,6 @@ def check_type(data):
         return "datetime"
     else:
         return "object"
-
 
 def get_colormap(colormap, N_cols):
 
@@ -143,8 +143,9 @@ def plot(
     toolbar_location="right",
     hovertool=True,
     hovertool_string=None,
-    use_rangetool=False,
+    rangetool=False,
     vertical_xlabel=False,
+    x_axis_location="below",
     webgl=True,
     reuse_plot=None, # This keyword is not used by Pandas-Bokeh, but pandas plotting API adds it for series object calls
     **kwargs
@@ -209,6 +210,8 @@ def plot(
             **kwargs
         )
 
+    if rangetool:
+        x_axis_location = "above"
 
     # Get and check options for base figure:
     figure_options = {
@@ -218,7 +221,8 @@ def plot(
         "plot_width": 600,
         "plot_height": 400,
         "output_backend": "webgl",
-        "sizing_mode": sizing_mode
+        "sizing_mode": sizing_mode,
+        "x_axis_location": x_axis_location
     }
     if not figsize is None:
         width, height = figsize
@@ -476,7 +480,7 @@ def plot(
             plot_data_points_size,
             hovertool_string,
             number_format,
-            use_rangetool,
+            rangetool,
             **kwargs
         )
 
@@ -493,7 +497,7 @@ def plot(
             plot_data_points_size,
             hovertool_string,
             number_format,
-            use_rangetool,
+            rangetool,
             **kwargs
         )
 
@@ -908,13 +912,13 @@ def plot(
             """Keyword parameter <disable_scientific_axes> only accepts "xy", True, "x", "y" or None."""
         )
 
-    # Display range tool if wanted
-    if use_rangetool and kind == 'line':
-        show(column(p, select))
-
     # Display plot if wanted
     if show_figure:
-        show(p)
+         # Display range tool if wanted, otherwise display without
+        if rangetool and kind == 'line':
+            show(column(p, select))
+        else:
+            show(p)
 
     # Return as (embeddable) HTML if wanted:
     if return_html:
@@ -937,20 +941,45 @@ def _base_lineplot(
     plot_data_points_size,
     hovertool_string,
     number_format,
-    use_rangetool,
+    rangetool,
     **kwargs
 ):
     """Adds lineplot to figure p for each data_col."""
 
-    if "marker" in kwargs:
-        marker = kwargs["marker"]
-        del kwargs["marker"]
-    else:
-        marker = "circle"
-
     select = None
-    # Add line (and optional scatter glyphs) to figure:
+     # Add line (and optional scatter glyphs) to figure:
     linetype = getattr(p, linetype.lower())
+
+    marker = kwargs.pop("marker", "circle")
+
+    if rangetool:
+        max_y_range = 0
+        # Initialize range tool plot
+        select = figure(
+            title="Drag the box to change the range above.",
+            plot_height=130,
+            plot_width=p.plot_width,
+            y_range=p.y_range,
+            x_axis_type=x_axis_type,
+            y_axis_type=None,
+            tools="",
+            toolbar_location=None,
+        )
+
+        # Need to explicitly set the initial range of the plot for the tool.
+        start_index = int(0.75 * len(source['__x__values']))
+        p.x_range = Range1d(source['__x__values'][start_index], source['__x__values'][-1])
+
+        select.ygrid.grid_line_color = None
+
+        range_tool = RangeTool(x_range=p.x_range)
+        range_tool.overlay.fill_color = "navy"
+        range_tool.overlay.fill_alpha = 0.2
+
+        select.ygrid.grid_line_color = None
+        select.add_tools(range_tool)
+        select.toolbar.active_multi = range_tool
+
     for name, color in zip(data_cols, colormap):
         glyph = linetype(
             x="__x__values",
@@ -990,36 +1019,14 @@ def _base_lineplot(
                 my_hover.tooltips = hovertool_string
             p.add_tools(my_hover)
 
-        if use_rangetool:
-            select = figure(title="Drag the box to change the range above.",
-                plot_height=130,
-                plot_width=p.plot_width,
-                y_range=p.y_range,
-                x_axis_type=x_axis_type,
-                y_axis_type=None,
-                tools="",
-                toolbar_location=None,
-            )
-
-            start_index = int(0.75 * len(source['__x__values']))
-
-            p.x_range = Range1d(source['__x__values'][start_index], source['__x__values'][-1])
-
-            # p.x_range.start = source['__x__values'][start_index]
-            # p.x_range.end = source['__x__values'][-1]
-
-            range_tool = RangeTool(x_range=p.x_range)
-            range_tool.overlay.fill_color = "navy"
-            range_tool.overlay.fill_alpha = 0.2
+        if rangetool:           
 
             select.line(
                 "__x__values",
                 name,
-                source=source
+                source=source,
+                color=color
             )
-            select.ygrid.grid_line_color = None
-            select.add_tools(range_tool)
-            select.toolbar.active_multi = range_tool
 
     return p, select
 
@@ -1036,7 +1043,7 @@ def lineplot(
     plot_data_points_size,
     hovertool_string,
     number_format,
-    use_rangetool,
+    rangetool,
     **kwargs
 ):
     return _base_lineplot(
@@ -1052,7 +1059,7 @@ def lineplot(
         plot_data_points_size=plot_data_points_size,
         hovertool_string=hovertool_string,
         number_format=number_format,
-        use_rangetool=use_rangetool,
+        rangetool=rangetool,
         **kwargs
     )
 
@@ -1069,7 +1076,7 @@ def stepplot(
     plot_data_points_size,
     hovertool_string,
     number_format,
-    use_rangetool,
+    rangetool,
     **kwargs
 ):
     return _base_lineplot(
@@ -1085,7 +1092,7 @@ def stepplot(
         plot_data_points_size=plot_data_points_size,
         hovertool_string=hovertool_string,
         number_format=number_format,
-        use_rangetool=use_rangetool,
+        rangetool=rangetool,
         **kwargs
     )
 
