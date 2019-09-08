@@ -949,7 +949,6 @@ def _base_lineplot(
     select = None
      # Add line (and optional scatter glyphs) to figure:
     linetype = getattr(p, linetype.lower())
-
     marker = kwargs.pop("marker", "circle")
 
     if rangetool:
@@ -969,8 +968,6 @@ def _base_lineplot(
         # Need to explicitly set the initial range of the plot for the tool.
         start_index = int(0.75 * len(source['__x__values']))
         p.x_range = Range1d(source['__x__values'][start_index], source['__x__values'][-1])
-
-        select.ygrid.grid_line_color = None
 
         range_tool = RangeTool(x_range=p.x_range)
         range_tool.overlay.fill_color = "navy"
