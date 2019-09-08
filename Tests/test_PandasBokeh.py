@@ -133,7 +133,7 @@ def test_basic_lineplot(df_stock):
 def test_basic_lineplot_rangetool(df_stock):
     """Test for basic lineplot above with a range tool extension"""
 
-    p_basic_lineplot_accessor_pandas_backend = df_stock.plot.line(show_figure=False, use_rangetool=True)
+    p_basic_lineplot_accessor_pandas_backend = df_stock.plot.line(show_figure=False, rangetool=True)
 
     # Output plot as HTML:
     pandas_bokeh.output_file(os.path.join(DIRECTORY, "Plots", "Basic_lineplot_rangetool.html"))
