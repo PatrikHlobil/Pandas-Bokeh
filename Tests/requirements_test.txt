@@ -4,4 +4,4 @@ pandas
 geopandas
 bokeh
 pyspark==2.4.2
-markdown2
+markdown

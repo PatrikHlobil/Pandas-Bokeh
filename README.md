@@ -1,5 +1,7 @@
 # Pandas Bokeh
 
+![](Documentation/Images/Pandas-Bokeh-Logo.png)
+
 **Pandas Bokeh** provides a [Bokeh](https://bokeh.pydata.org/en/latest/) plotting backend for [Pandas](https://pandas.pydata.org/), [GeoPandas](http://geopandas.org/) and [Pyspark](https://spark.apache.org/docs/latest/api/python/index.html) **DataFrames**, similar to the already existing [Visualization feature of Pandas](https://pandas.pydata.org/pandas-docs/stable/visualization.html). Importing the library adds a complementary plotting method ***plot_bokeh()*** on **DataFrames** and **Series**.
 
 With **Pandas Bokeh**, creating stunning, interactive, HTML-based visualization is as easy as calling:
