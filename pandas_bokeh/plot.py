@@ -2415,17 +2415,16 @@ def _initialize_rangetool(p, x_axis_type, source):
     
     Parameters
     ----------
-    p : bokeh.figure
+    p : Bokeh.plotting.figure
         Bokeh plot that the figure tool is going to supplement.
     x_axis_type : str
         Type of the xaxis (ex. datetime)
-    source : Bokeh Source
+    source : Bokeh.models.sources
         Data
 
     Returns
     -------
-    bokeh.figure
-        Supplementary plot with rangetool.
+        Bokeh.plotting.figure
     """
 
     max_y_range = 0
