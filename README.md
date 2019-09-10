@@ -264,7 +264,7 @@ df = df.cumsum()
 df.plot_bokeh(rangetool=True)
 ```
 
-![rangetool](Documentation/Images/rangetool.png)
+![rangetool](Documentation/Images/rangetool.gif)
 
 <br>
 
