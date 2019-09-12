@@ -235,7 +235,7 @@ def plot(
 
     if rangetool and kind not in rangetool_allowed_kinds:
         allowed_rangetool_kinds = "', '".join(rangetool_allowed_kinds)
-        raise ValueError("Allowed plot kinds are '%s'." % allowed_rangetool_kinds)
+        raise ValueError("For using the rangetool, the allowed plot kinds are '%s'." % allowed_rangetool_kinds)
 
     if rangetool:
         x_axis_location = "above"
