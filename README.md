@@ -1158,8 +1158,7 @@ p_scatter = df.plot_bokeh(
     x="petal length (cm)",
     y="sepal width (cm)",
     category="species",
-    title="Iris DataSet Visus
-    alization",
+    title="Iris DataSet Visualization",
     show_figure=False)
 
 #Histogram:

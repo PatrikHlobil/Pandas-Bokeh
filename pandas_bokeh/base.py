@@ -9,6 +9,7 @@ from bokeh.resources import CDN
 OUTPUT_TYPE = "file"
 SUPPRESS_OUTPUT = False
 
+
 def plot_grid(children, show_plot=True, return_html=False, **kwargs):
     """Create a grid of plots rendered on separate canvases and shows the layout. 
     plot_grid is designed to layout a set of plots. 
@@ -130,11 +131,7 @@ def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
 
 
 def show(
-    obj,
-    browser=None,
-    new="tab",
-    notebook_handle=False,
-    notebook_url="localhost:8888",
+    obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888"
 ):
 
     global SUPPRESS_OUTPUT
@@ -169,7 +166,7 @@ def embedded_html(fig, resources="CDN"):
 
     # Add plot script and div
     script, div = components(fig)
-    html_embedded += "\n\n" + div + "\n\n" + script 
+    html_embedded += "\n\n" + div + "\n\n" + script
 
     return html_embedded
 
@@ -181,18 +178,11 @@ def get_bokeh_resources():
     js_css_resources = ""
     for css in CDN.css_files:
         js_css_resources += (
-            """<link
-        href="%s"
-        rel="stylesheet" type="text/css">
-    """
+            """<link href="%s" rel="stylesheet" type="text/css">\n"""
             % css
         )
 
     for js in CDN.js_files:
-        js_css_resources += (
-            """<script src="%s"></script>
-    """
-            % js
-        )
+        js_css_resources += """<script src="%s"></script>\n""" % js
 
     return js_css_resources
