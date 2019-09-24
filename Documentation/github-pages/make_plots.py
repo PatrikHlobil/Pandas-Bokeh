@@ -86,13 +86,9 @@ def plot_Startimage() -> tuple:
     )
 
     # Scatterplot:
-    from sklearn.datasets import load_iris
-
-    iris = load_iris()
-    df = pd.DataFrame(iris["data"])
-    df.columns = iris["feature_names"]
-    df["species"] = iris["target"]
-    df["species"] = df["species"].map(dict(zip(range(3), iris["target_names"])))
+    df = pd.read_csv(
+        r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata/iris/iris.csv"
+    )
     p_scatter = df.plot_bokeh(
         kind="scatter",
         x="petal length (cm)",
@@ -124,7 +120,7 @@ def plot_Startimage() -> tuple:
 
     # Make Dashboard with Grid Layout:
     plot = pandas_bokeh.plot_grid(
-        [[p_line, p_bar], [p_scatter, p_hist]], plot_width=450, **SUPPRESS_OUTPUT
+        [[p_line, p_bar], [p_scatter, p_hist]], plot_width=450, return_html=True
     )
 
     plotname = inspect.stack()[0][3][5:]
