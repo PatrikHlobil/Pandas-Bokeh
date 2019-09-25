@@ -33,9 +33,11 @@ from .geoplot import geoplot
 def check_type(data):
     """Checks type of provided data array."""
 
-    if isinstance(data[0], numbers.Number):
+    first_value = np.array(data)[0]
+
+    if isinstance(first_value, numbers.Number):
         return "numeric"
-    elif isinstance(data[0], (np.datetime64, datetime.datetime, datetime.date)):
+    elif isinstance(first_value, (np.datetime64, datetime.datetime, datetime.date)):
         return "datetime"
     else:
         return "object"
