@@ -8,7 +8,7 @@ df.plot_bokeh()
 ```
 ---
 ```diff
-- 26.07.2019: New in Pandas Bokeh 0.3
+- 26.07.2019: New in Pandas Bokeh
 ```
 
 Native support as a Pandas Plotting backend for [Pandas >= 0.25](https://pandas.pydata.org/pandas-docs/stable/whatsnew/v0.25.0.html). When **Pandas Bokeh** is installed, switchting the default Pandas plotting backend to Bokeh can be done via:
@@ -35,11 +35,11 @@ or *conda*:
 
     conda install -c patrikhlobil pandas-bokeh 
 
-With the current release 0.3, **Pandas Bokeh** drops official support for older Python versions (2.7 & 3.4) and now supports only **Python 3.5** and above. It will probably still work for older Python versions, but is not tested against these.
+With the current release 0.4, **Pandas Bokeh** officially supports **Python 3.5** and newer. It will probably still work for older Python versions, but is not tested against these.
 
 <br>
 
-The current release is **0.3**. For more details, see [Release Notes](#releasenotes).
+The current release is **0.4**. For more details, see [Release Notes](#releasenotes).
 
 <br>
 
@@ -1304,3 +1304,9 @@ Plots like scatterplot or histogram also have many more additional customization
 * Support for multipolygons & holes in Geoplots
 * Bugfixes
 * conda support
+
+## 0.4</td>      <td>
+
+* Rangetool support
+* Autoscaling support using the **sizing_mode** keyword
+* Bugfixes 
