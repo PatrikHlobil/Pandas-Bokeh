@@ -3,8 +3,9 @@ import os
 
 import numpy as np
 import pandas as pd
-import pandas_bokeh
 import pytest
+
+import pandas_bokeh
 
 DIRECTORY = os.path.dirname(__file__)
 TEST_SETS_DIRECTORY = os.path.join(
@@ -127,6 +128,17 @@ def test_basic_lineplot(df_stock):
     output = pandas_bokeh.row([p_basic_lineplot, p_basic_lineplot_accessor])
     with open(os.path.join(DIRECTORY, "Plots", "Basic_lineplot.html"), "w") as f:
         f.write(pandas_bokeh.embedded_html(output))
+
+    assert True
+
+def test_basic_lineplot_rangetool(df_stock):
+    """Test for basic lineplot above with a rangetool extension"""
+
+    p_basic_lineplot_accessor_pandas_backend = df_stock.plot.line(show_figure=False, rangetool=True)
+
+    # Output plot as HTML:
+    pandas_bokeh.output_file(os.path.join(DIRECTORY, "Plots", "Basic_lineplot_rangetool.html"))
+    pandas_bokeh.save(p_basic_lineplot_accessor_pandas_backend)
 
     assert True
 
@@ -715,7 +727,6 @@ def test_mapplot(df_mapplot):
 
     pandas_bokeh.output_file(os.path.join(DIRECTORY, "Plots", "Mapplot.html"))
     pandas_bokeh.save(layout)
-
 
 def test_autosizing(df_fruits):
     """
