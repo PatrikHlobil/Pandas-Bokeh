@@ -10,7 +10,7 @@ from bokeh.io import save
 
 import warnings
 
-__version__ = "0.3.1"
+__version__ = "0.4"
 
 
 # Register plot_bokeh accessor for Pandas DataFrames and Series:
