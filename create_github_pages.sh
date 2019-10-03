@@ -20,8 +20,6 @@ popd
 # Add Bootstrap template theme:
 python docs/github-pages/apply_template_theme_to_readme.py --readme_file markdown-to-html-github-style/README.html
 
-# Copy HTML to final destination:
-cp markdown-to-html-github-style/README.html docs/github-pages/pages/index.html
 
 
 

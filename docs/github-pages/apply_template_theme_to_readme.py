@@ -5,6 +5,7 @@ import re
 import os
 
 CUR_DIR = os.path.dirname(os.path.realpath(__file__))
+PARENT_DIR = os.path.dirname(CUR_DIR)
 
 parser = argparse.ArgumentParser(
     description="Replace all Bokeh images with interactivet Bokeh plots."
@@ -26,5 +27,5 @@ body = re.sub(r"<style.+<\/style>", "", body, flags=re.DOTALL)
 with open(os.path.join(CUR_DIR, "template.html")) as f:
     template = f.read()
 
-with open(readme_file, "w") as f:
+with open(os.path.join(PARENT_DIR, "index.html"), "w") as f:
     f.write(template.format(body=body))

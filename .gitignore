@@ -18,3 +18,4 @@ build/
 conda/
 markdown*/
 !index.html
+!template.html

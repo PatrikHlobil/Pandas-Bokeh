@@ -927,13 +927,13 @@ def plot(
             """Keyword parameter <disable_scientific_axes> only accepts "xy", True, "x", "y" or None."""
         )
 
+    # If rangetool is used, add it to layout:
+    if p_rangetool is not None:
+        p = column(p, p_rangetool)
+        
     # Display plot if wanted
     if show_figure:
-         # Display range tool if wanted, otherwise display without
-        if isintance(p_rangetool, bokeh.figure):
-            show(column(p, p_rangetool))
-        else:
-            show(p)
+        show(p)
 
     # Return as (embeddable) HTML if wanted:
     if return_html:

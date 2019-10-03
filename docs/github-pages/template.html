@@ -1,0 +1,212 @@
+<html>
+
+<head>
+    <title>Pandas Bokeh Documentation</title>
+    <link rel="icon" type="image/png" href="Images/Pandas-Bokeh-Logo.png">
+</head>
+
+<body>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <div class="jumbotron bg-dark text-white">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h1>Pandas-Bokeh</h1>
+                    <h5>Pandas Bokeh provides a Bokeh plotting backend for Pandas, GeoPandas and Pyspark DataFrames,
+                        similar to the already existing Visualization feature of Pandas.</h5>
+                </div>
+                <div class="col-md-6">
+                    <img src="Images/Pandas-Bokeh-Logo.png" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style type='text/css'>body {{
+        font: 400 16px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif;
+        color: #111;
+        background-color: #fdfdfd;
+        -webkit-text-size-adjust: 100%;
+        -webkit-font-feature-settings: "kern" 1;
+        -moz-font-feature-settings: "kern" 1;
+        -o-font-feature-settings: "kern" 1;
+        font-feature-settings: "kern" 1;
+        font-kerning: normal;
+        padding: 30px;
+      }}
+      
+      @media only screen and (max-width: 600px) {{
+        body {{
+          padding: 5px;
+        }}
+      
+        body > #content {{
+          padding: 0px 20px 20px 20px !important;
+        }}
+      }}
+      
+      body > #content {{
+        margin: 0px;
+        max-width: 1500px;
+        border: 1px solid #e1e4e8;
+        padding: 10px 40px;
+        padding-bottom: 20px;
+        border-radius: 2px;
+        margin-left: auto;
+        margin-right: auto;
+      }}
+      
+      hr {{
+        color: #bbb;
+        background-color: #bbb;
+        height: 1px;
+        flex: 0 1 auto;
+        margin: 1em 0;
+        padding: 0;
+        border: none;
+      }}
+      
+      /**
+       * Links
+       */
+      a {{
+        color: #0366d6;
+        text-decoration: none; }}
+        a:visited {{
+          color: #0366d6; }}
+        a:hover {{
+          color: #0366d6;
+          text-decoration: underline; }}
+      
+      pre {{
+        background-color: #f6f8fa;
+        border-radius: 3px;
+        font-size: 85%;
+        line-height: 1.45;
+        overflow: auto;
+        padding: 16px;
+      }}
+      
+      /**
+        * Code blocks
+        */
+      
+      code {{
+        background-color: rgba(27,31,35,.05);
+        border-radius: 3px;
+        font-size: 85%;
+        margin: 0;
+        word-wrap: break-word;
+        padding: .2em .4em;
+        font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
+      }}
+      
+      pre > code {{
+        background-color: transparent;
+        border: 0;
+        display: inline;
+        line-height: inherit;
+        margin: 0;
+        overflow: visible;
+        padding: 0;
+        word-wrap: normal;
+        font-size: 100%;
+      }}
+      
+      
+      /**
+       * Blockquotes
+       */
+      blockquote {{
+        margin-left: 30px;
+        margin-top: 0px;
+        margin-bottom: 16px;
+        border-left-width: 3px;
+        padding: 0 1em;
+        color: #828282;
+        border-left: 4px solid #e8e8e8;
+        padding-left: 15px;
+        font-size: 18px;
+        letter-spacing: -1px;
+        font-style: italic;
+      }}
+      blockquote * {{
+        font-style: normal !important;
+        letter-spacing: 0;
+        color: #6a737d !important;
+      }}
+      
+      /**
+       * Tables
+       */
+      table {{
+        border-spacing: 2px;
+        display: block;
+        font-size: 14px;
+        overflow: auto;
+        width: 100%;
+        margin-bottom: 16px;
+        border-spacing: 0;
+        border-collapse: collapse;
+      }}
+      
+      td {{
+        padding: 6px 13px;
+        border: 1px solid #dfe2e5;
+      }}
+      
+      th {{
+        font-weight: 600;
+        padding: 6px 13px;
+        border: 1px solid #dfe2e5;
+      }}
+      
+      tr {{
+        background-color: #fff;
+        border-top: 1px solid #c6cbd1;
+      }}
+      
+      table tr:nth-child(2n) {{
+        background-color: #f6f8fa;
+      }}
+      
+      </style>
+
+    <!-- <div class="jumbotron">
+            <div class="paragraphs">
+                    <div class="row">
+                      <div class="span4">
+                        <div class="clearfix content-heading">
+                            <img class="pull-left" src="../../Images/Pandas-Bokeh-Logo.png"/>
+                            <h3>Experience &nbsp </h3>
+                        </div>
+                        <p>Donec id elit non mi porta gravida at eget metus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.</p>
+                      </div>
+                    </div>
+                  </div>
+        <h1 class="display-4">Hello, world!</h1>
+        <p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to
+            featured content or information.</p>
+        <hr class="my-4">
+        <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
+        <p class="lead">
+            <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
+        </p>
+    </div> -->
+
+    {body}
+
+</body>
+
+</html>
