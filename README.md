@@ -1,17 +1,15 @@
 ![](docs/Images/Pandas-Bokeh-Logo.png)
 
-**Pandas Bokeh** provides a [Bokeh](https://bokeh.pydata.org/en/latest/) plotting backend for [Pandas](https://pandas.pydata.org/), [GeoPandas](http://geopandas.org/) and [Pyspark](https://spark.apache.org/docs/latest/api/python/index.html) **DataFrames**, similar to the already existing [Visualization feature of Pandas](https://pandas.pydata.org/pandas-docs/stable/visualization.html). Importing the library adds a complementary plotting method ***plot_bokeh()*** on **DataFrames** and **Series**.
+**Pandas-Bokeh** provides a [Bokeh](https://bokeh.pydata.org/en/latest/) plotting backend for [Pandas](https://pandas.pydata.org/), [GeoPandas](http://geopandas.org/) and [Pyspark](https://spark.apache.org/docs/latest/api/python/index.html) **DataFrames**, similar to the already existing [Visualization feature of Pandas](https://pandas.pydata.org/pandas-docs/stable/visualization.html). Importing the library adds a complementary plotting method ***plot_bokeh()*** on **DataFrames** and **Series**.
 
-With **Pandas Bokeh**, creating stunning, interactive, HTML-based visualization is as easy as calling:
+With **Pandas-Bokeh**, creating stunning, interactive, HTML-based visualization is as easy as calling:
 ```python
 df.plot_bokeh()
 ```
 ---
-```diff
-- 26.07.2019: New in Pandas Bokeh 0.3
-```
 
-Native support as a Pandas Plotting backend for [Pandas >= 0.25](https://pandas.pydata.org/pandas-docs/stable/whatsnew/v0.25.0.html). When **Pandas Bokeh** is installed, switchting the default Pandas plotting backend to Bokeh can be done via:
+
+**Pandas-Bokeh** also provides native support as a Pandas Plotting backend for [Pandas >= 0.25](https://pandas.pydata.org/pandas-docs/stable/whatsnew/v0.25.0.html). When **Pandas-Bokeh** is installed, switchting the default Pandas plotting backend to Bokeh can be done via:
 
     pd.set_option('plotting.backend', 'pandas_bokeh')
 
@@ -27,7 +25,7 @@ For more information have a look at the [Examples](#Examples) below or at notebo
 
 ## Installation
 
-You can install **Pandas Bokeh** from [PyPI](https://pypi.org/project/pandas-bokeh/) via *pip*
+You can install **Pandas-Bokeh** from [PyPI](https://pypi.org/project/pandas-bokeh/) via *pip*
 
     pip install pandas-bokeh
 
@@ -35,11 +33,11 @@ or *conda*:
 
     conda install -c patrikhlobil pandas-bokeh 
 
-With the current release 0.3, **Pandas Bokeh** drops official support for older Python versions (2.7 & 3.4) and now supports only **Python 3.5** and above. It will probably still work for older Python versions, but is not tested against these.
+With the current release 0.4, **Pandas-Bokeh** officially supports **Python 3.5** and newer. It will probably still work for older Python versions, but is not tested against these.
 
 <br>
 
-The current release is **0.3**. For more details, see [Release Notes](#releasenotes).
+The current release is **0.4**. For more details, see [Release Notes](#releasenotes).
 
 <br>
 
@@ -72,7 +70,7 @@ import pandas_bokeh
 pandas_bokeh.output_file("Interactive Plot.html")
 ```
 
-### **Pandas Bokeh** as native Pandas plotting backend
+### **Pandas-Bokeh** as native Pandas plotting backend
 <p id="pandas_backend"> </p>
 
 For pandas >= 0.25, a plotting backend switch is natively supported. It can be achievied by calling:
@@ -84,7 +82,7 @@ Now, the plotting API is accessible for a Pandas DataFrame via:
 
     df.plot(...)
 
-All additional functionalities of **Pandas Bokeh** are then accessible at *pd.plotting*. So, setting the output to notebook is:
+All additional functionalities of **Pandas-Bokeh** are then accessible at *pd.plotting*. So, setting the output to notebook is:
 
     pd.plotting.output_notebook()
 
@@ -122,7 +120,7 @@ Supported plottypes are at the moment:
 Also, check out the complementary chapter [Outputs, Formatting & Layouts](#Layouts) about:
 
 * [Output options (how to get HTML representation of Bokeh plots)](#output_options)
-* [Number formats in Pandas Bokeh (modify Hovertool number format, suppress scientific notation on axes)](#number_formats)
+* [Number formats in Pandas-Bokeh (modify Hovertool number format, suppress scientific notation on axes)](#number_formats)
 * [Dashboard layouts (How to layout multiple plots in rows, columns and grids)](#dashboard_layouts)
 
 ---
@@ -140,7 +138,7 @@ Also, check out the complementary chapter [Outputs, Formatting & Layouts](#Layou
 
 ### Basic Lineplot
 
-This simple **lineplot** in **Pandas Bokeh** already contains various interactive elements:
+This simple **lineplot** in **Pandas-Bokeh** already contains various interactive elements:
 
 * a pannable and zoomable (zoom in plotarea and zoom on axis) plot
 * by clicking on the legend elements, one can hide and show the individual lines
@@ -191,6 +189,7 @@ There are various optional parameters to tune the plots, for example:
 * **toolbar_location**: Specify the position of the toolbar location (None, "above", "below", "left" or "right"). Default: *"right"*
 * **zooming**: Enables/Disables zooming. Default: *True*
 * **panning**: Enables/Disables panning. Default: *True*
+* **rangetool** Enables a range tool scroller. Default *False*
 
 
 * **kwargs****: Optional keyword arguments of [bokeh.plotting.figure.line](https://bokeh.pydata.org/en/latest/docs/reference/plotting.html#bokeh.plotting.figure.Figure.line)
@@ -252,6 +251,18 @@ df.plot_bokeh.line(
 ```
 
 ![ApplevsGoogle_3](docs/Images/ApplevsGoogle_3.png)
+
+#### Lineplot with rangetool
+
+```python
+ts = pd.Series(np.random.randn(1000), index=pd.date_range('1/1/2000', periods=1000))
+df = pd.DataFrame(np.random.randn(1000, 4), index=ts.index, columns=list('ABCD'))
+df = df.cumsum()
+
+df.plot_bokeh(rangetool=True)
+```
+
+![rangetool](Documentation/Images/rangetool.gif)
 
 <br>
 
@@ -328,7 +339,7 @@ A basic **scatterplot** can be created using the *kind="scatter"* option. For **
 
 Note, that the **pandas.DataFrame.plot_bokeh()** method return per default a Bokeh figure, which can be embedded in Dashboard layouts with other figures and **Bokeh** objects (for more details about (sub)plot layouts and embedding the resulting Bokeh plots as HTML click [here](#Layouts)).
 
-In the example below, we use the building *grid layout* support of **Pandas Bokeh** to display both the DataFrame (embedded in a *Div*) and the resulting **scatterplot**:
+In the example below, we use the building *grid layout* support of **Pandas-Bokeh** to display both the DataFrame (embedded in a *Div*) and the resulting **scatterplot**:
 
 ```python
 #Load Iris Dataset from Scikit Learn:
@@ -448,7 +459,7 @@ pandas_bokeh.plot_grid([[p_bar, p_stacked_bar],
 
 ## Histogram
 
-For drawing **histograms** (kind="hist"), **Pandas Bokeh** has a lot of customization features. Optional keyword arguments for *histogram plots* are:
+For drawing **histograms** (kind="hist"), **Pandas-Bokeh** has a lot of customization features. Optional keyword arguments for *histogram plots* are:
 * **bins**: Determines bins to use for the histogram. If bins is an int, it defines the number of equal-width bins in the given range (10, by default). If bins is a sequence, it defines the bin edges, including the rightmost edge, allowing for non-uniform bin widths. If bins is a string, it defines the method used to calculate the optimal bin width, as defined by [histogram_bin_edges](https://docs.scipy.org/doc/numpy-1.15.1/reference/generated/numpy.histogram_bin_edges.html#numpy.histogram_bin_edges).
 * **histogram_type**: Either *"sidebyside"*, *"topontop"* or *"stacked"*. Default: *"topontop"*
 * **stacked**: Boolean that overrides the *histogram_type* as *"stacked"* if given. Default: *False*
@@ -618,7 +629,7 @@ df_pie.plot_bokeh.pie(
 
 ## Mapplot
 
-The **mapplot** method of **Pandas Bokeh** allows for plotting geographic points stored in a Pandas DataFrame on an interactive map. For more advanced **Geoplots** for line and polygon shapes have a look at the [Geoplots examples](#geoplots) for the GeoPandas API of **Pandas Bokeh**. 
+The **mapplot** method of **Pandas-Bokeh** allows for plotting geographic points stored in a Pandas DataFrame on an interactive map. For more advanced **Geoplots** for line and polygon shapes have a look at the [Geoplots examples](#geoplots) for the GeoPandas API of **Pandas-Bokeh**. 
 
 For **mapplots**, only (latitude, longitude) pairs in [geographic projection](https://en.wikipedia.org/wiki/Geographic_coordinate_system#Latitude_and_longitude) (WGS84) can be plotted on a map. The basic API has the following 2 base parameters:
 
@@ -703,7 +714,7 @@ df_mapplot.plot_bokeh.map(
 
 ## Geoplots
 
-**Pandas Bokeh** also allows for interactive plotting of Maps using [GeoPandas](http://geopandas.org/) by providing a **geopandas.GeoDataFrame.plot_bokeh()** method.  It allows to plot the following geodata on a map :
+**Pandas-Bokeh** also allows for interactive plotting of Maps using [GeoPandas](http://geopandas.org/) by providing a **geopandas.GeoDataFrame.plot_bokeh()** method.  It allows to plot the following geodata on a map :
 
 * Points/MultiPoints
 * Lines/MultiLines
@@ -745,7 +756,7 @@ Many keyword arguments like *xlabel, ylabel, xlim, ylim, title, colormap, hovert
 * **tile_attribution**: String (also HTML accepted) for showing attribution for tile source in the lower right corner
 * **tile_alpha**: Sets the alpha value of the background tile between [0, 1].  *Default: 1*
 
-One of the most common usage of map plots are [choropleth maps](https://en.wikipedia.org/wiki/Choropleth_map), where the color of a the objects is determined by the property of the object itself. There are 3 ways of drawing choropleth maps using **Pandas Bokeh**, which are described below.
+One of the most common usage of map plots are [choropleth maps](https://en.wikipedia.org/wiki/Choropleth_map), where the color of a the objects is determined by the property of the object itself. There are 3 ways of drawing choropleth maps using **Pandas-Bokeh**, which are described below.
 
 ### Categories
 This is the simplest way. Just provide the **category** keyword for the selection of the property column:
@@ -805,7 +816,7 @@ Here, we also used an OSM tile server with watercolor style via **tile_provider_
 
 ### Sliders
 
-Another option for interactive *choropleth* maps is the **slider** implementation of *Pandas Bokeh*. The possible keyword arguments are here:
+Another option for interactive *choropleth* maps is the **slider** implementation of *Pandas-Bokeh*. The possible keyword arguments are here:
 
 * **slider**: By passing a *list of column names* of the GeoDataFrame, a slider can be used to . This dropdown menu can be used to select the choropleth layer by the user.
 * **slider_range**: Pass a range (or numpy.arange) of numbers object to relate the sliders values with the *slider* columns. By passing range(0,10), the slider will have values [0, 1, 2, ..., 9], when passing numpy.arange(3,5,0.5), the slider will have values [3, 3.5, 4, 4.5]. *Default: range(0, len(slider))*
@@ -842,7 +853,7 @@ df_states.plot_bokeh(
 
 ### Plot multiple geolayers
 
-If you wish to display multiple geolayers, you can pass the *Bokeh figure of a Pandas Bokeh plot* via the **figure** keyword to the next **plot_bokeh()** call:
+If you wish to display multiple geolayers, you can pass the *Bokeh figure of a Pandas-Bokeh plot* via the **figure** keyword to the next **plot_bokeh()** call:
 ```python
 import geopandas as gpd
 import pandas_bokeh
@@ -889,7 +900,7 @@ df_cities.plot_bokeh(
 
 ### Point & Line plots:
 
-Below, you can see an example that use **Pandas Bokeh** to plot point data on a map. The plot shows all cities with a population larger than 1.000.000. For point plots, you can select the **marker** as keyword argument (since it is passed to [bokeh.plotting.figure.scatter](http://bokeh.pydata.org/en/latest/docs/reference/plotting.html#bokeh.plotting.figure.Figure.scatter)). [Here](https://bokeh.pydata.org/en/latest/docs/gallery/markers.html) an overview of all available marker types:
+Below, you can see an example that use **Pandas-Bokeh** to plot point data on a map. The plot shows all cities with a population larger than 1.000.000. For point plots, you can select the **marker** as keyword argument (since it is passed to [bokeh.plotting.figure.scatter](http://bokeh.pydata.org/en/latest/docs/reference/plotting.html#bokeh.plotting.figure.Figure.scatter)). [Here](https://bokeh.pydata.org/en/latest/docs/gallery/markers.html) an overview of all available marker types:
 ```python
 gdf = gpd.read_file(r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/docs/Testdata/populated%20places/ne_10m_populated_places_simple_bigcities.geojson")
 gdf["size"] = gdf.pop_max / 400000
@@ -907,7 +918,7 @@ gdf.plot_bokeh(
 ```
 ![Pointmap](docs/Images/Pointmap.gif)
 
-In a similar way, also GeoDataFrames with (multi)line shapes can be drawn using **Pandas Bokeh**.
+In a similar way, also GeoDataFrames with (multi)line shapes can be drawn using **Pandas-Bokeh**.
 
 <br>
 
@@ -989,7 +1000,7 @@ cos = np.cos(x)
 tan = np.tan(x)
 df = pd.DataFrame({"x": x, "sin(x)": sin, "cos(x)": cos, "tan(x)": tan})
 
-#Make Bokeh plot from DataFrame using Pandas Bokeh. Do not show the plot, but export
+#Make Bokeh plot from DataFrame using Pandas-Bokeh. Do not show the plot, but export
 #it to an embeddable HTML string:
 html_plot = df.plot_bokeh(
     kind="line",
@@ -1104,7 +1115,7 @@ pandas_bokeh.plot_grid([[p_scientific, p_non_scientific]], plot_width = 450)
 
 ### Dashboard Layouts
 
-As shown in the [Scatterplot Example](#scatterplot_picture), combining plots with  plots or other HTML elements is straighforward in **Pandas Bokeh** due to the layout capabilities of [Bokeh](https://bokeh.pydata.org/en/latest/docs/user_guide/layout.html). The easiest way to generate a dashboard layout is using the **pandas_bokeh.plot_grid** method (which is an extension of [bokeh.layouts.gridplot](https://bokeh.pydata.org/en/latest/docs/reference/layouts.html#bokeh.layouts.gridplot)):
+As shown in the [Scatterplot Example](#scatterplot_picture), combining plots with  plots or other HTML elements is straighforward in **Pandas-Bokeh** due to the layout capabilities of [Bokeh](https://bokeh.pydata.org/en/latest/docs/user_guide/layout.html). The easiest way to generate a dashboard layout is using the **pandas_bokeh.plot_grid** method (which is an extension of [bokeh.layouts.gridplot](https://bokeh.pydata.org/en/latest/docs/reference/layouts.html#bokeh.layouts.gridplot)):
 
 ```python
 import pandas as pd
@@ -1223,7 +1234,7 @@ In this early version, the following plot types are supported:
 
 In the near future many more will be implemented as horizontal barplot, boxplots,pie-charts, etc.
 
-**Pandas Bokeh** is a high-level API for *Bokeh*. Nevertheless there are many options for customizing the plots, for example:
+**Pandas-Bokeh** is a high-level API for *Bokeh*. Nevertheless there are many options for customizing the plots, for example:
 
 * **figsize**: Choose width & height of the plot
 * **title**: Sets title of the plot
@@ -1240,7 +1251,7 @@ Plots like scatterplot or histogram also have many more additional customization
 
 **Changes:**
 
-* Fixed Error when importing **Pandas Bokeh** in Python 2.7 
+* Fixed Error when importing **Pandas-Bokeh** in Python 2.7 
 * Small refactoring and *Black* code formatting
 
 ## 0.1
@@ -1253,7 +1264,7 @@ Plots like scatterplot or histogram also have many more additional customization
 * Added panning/zooming keyword options
 * Toolbar now visible per default
 * Kwargs names are checked in columns of DataFrame/Series and kept if there is a match, such that additional keyword arguments can be used to specify for example line_width or alpha value of plots
-* Improved Functionalities (row, column) for **Pandas Bokeh** Layouts
+* Improved Functionalities (row, column) for **Pandas-Bokeh** Layouts
 * Added <hovertool_string> for providing an [HTML string to the hovertool](https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#custom-tooltip)
 * Many additional customization arguments
 
@@ -1281,7 +1292,7 @@ Plots like scatterplot or histogram also have many more additional customization
 
 ## 0.1.1
 
-* Refactoring of mapplot API (calls GeoPandas API of Pandas Bokeh), such that all options of GeoPandas.GeoDataFrame.plot_bokeh are available.
+* Refactoring of mapplot API (calls GeoPandas API of Pandas-Bokeh), such that all options of GeoPandas.GeoDataFrame.plot_bokeh are available.
 * Allow passing a Pandas_Bokeh figure to overlay geoplots (not fully supported for category/dropdown/slider yet)
 * Bug Fix for new **Pandas 0.24** release
 * Implementation of first tests 
@@ -1303,3 +1314,9 @@ Plots like scatterplot or histogram also have many more additional customization
 * Support for multipolygons & holes in Geoplots
 * Bugfixes
 * conda support
+
+## 0.4
+
+* Rangetool support
+* Autoscaling support using the **sizing_mode** keyword
+* Bugfixes 

@@ -30,7 +30,7 @@ With **Pandas Bokeh**, creating stunning, interactive, HTML-based visualization 
 df.plot_bokeh()
 ```
 
-In release **0.3**, the following plot types are supported:
+In release **0.4**, the following plot types are supported:
 
 * line
 * step

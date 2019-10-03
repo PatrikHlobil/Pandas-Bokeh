@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import math
 import numbers
 import re
 import warnings
@@ -11,12 +12,14 @@ import numpy as np
 import pandas as pd
 from bokeh.core.properties import value as _value
 from bokeh.events import Tap
+from bokeh.layouts import column
 from bokeh.models import (CategoricalColorMapper, ColorBar, ColumnDataSource,
                           DatetimeTickFormatter, FuncTickFormatter, HoverTool,
-                          LinearColorMapper, LogColorMapper, WheelZoomTool)
+                          LinearColorMapper, LogColorMapper, RangeTool,
+                          WheelZoomTool)
 from bokeh.models.callbacks import CustomJS
 from bokeh.models.glyphs import Text
-from bokeh.models.ranges import FactorRange
+from bokeh.models.ranges import FactorRange, Range1d
 from bokeh.models.tickers import FixedTicker
 from bokeh.palettes import Inferno256, all_palettes
 from bokeh.plotting import figure
@@ -30,13 +33,14 @@ from .geoplot import geoplot
 def check_type(data):
     """Checks type of provided data array."""
 
-    if isinstance(data[0], numbers.Number):
+    first_value = np.array(data)[0]
+
+    if isinstance(first_value, numbers.Number):
         return "numeric"
-    elif isinstance(data[0], (np.datetime64, datetime.datetime, datetime.date)):
+    elif isinstance(first_value, (np.datetime64, datetime.datetime, datetime.date)):
         return "datetime"
     else:
         return "object"
-
 
 def get_colormap(colormap, N_cols):
 
@@ -141,7 +145,9 @@ def plot(
     toolbar_location="right",
     hovertool=True,
     hovertool_string=None,
+    rangetool=False,
     vertical_xlabel=False,
+    x_axis_location="below",
     webgl=True,
     reuse_plot=None, # This keyword is not used by Pandas-Bokeh, but pandas plotting API adds it for series object calls
     **kwargs
@@ -206,6 +212,35 @@ def plot(
             **kwargs
         )
 
+    # Check plot kind input:
+    allowed_kinds = [
+        "line",
+        "step",
+        "point",
+        "scatter",
+        "bar",
+        "barh",
+        "hist",
+        "area",
+        "pie",
+        "map",
+    ]
+
+    rangetool_allowed_kinds = [
+        "line",
+        "step"
+    ]
+
+    if kind not in allowed_kinds:
+        allowed_kinds = "', '".join(allowed_kinds)
+        raise ValueError("Allowed plot kinds are '%s'." % allowed_kinds)
+
+    if rangetool and kind not in rangetool_allowed_kinds:
+        allowed_rangetool_kinds = "', '".join(rangetool_allowed_kinds)
+        raise ValueError("For using the rangetool, the allowed plot kinds are '%s'." % allowed_rangetool_kinds)
+
+    if rangetool:
+        x_axis_location = "above"
 
     # Get and check options for base figure:
     figure_options = {
@@ -215,8 +250,12 @@ def plot(
         "plot_width": 600,
         "plot_height": 400,
         "output_backend": "webgl",
-        "sizing_mode": sizing_mode
+        "sizing_mode": sizing_mode,
+        "x_axis_location": x_axis_location
     }
+    # Initializing rangetool plot variable:
+    p_rangetool = None
+
     if not figsize is None:
         width, height = figsize
         figure_options["plot_width"] = width
@@ -249,23 +288,6 @@ def plot(
         number_format = ""
     else:
         number_format = "{%s}" % number_format
-
-    # Check plot kind input:
-    allowed_kinds = [
-        "line",
-        "step",
-        "point",
-        "scatter",
-        "bar",
-        "barh",
-        "hist",
-        "area",
-        "pie",
-        "map",
-    ]
-    if kind not in allowed_kinds:
-        allowed_kinds = "', '".join(allowed_kinds)
-        raise ValueError("Allowed plot kinds are '%s'." % allowed_kinds)
 
     # Check hovertool_string and define additional columns to keep in source:
     additional_columns = []
@@ -461,7 +483,7 @@ def plot(
 
     # Add Glyphs to Plot:
     if kind == "line":
-        p = lineplot(
+        p, p_rangetool = lineplot(
             p,
             source,
             data_cols,
@@ -473,11 +495,12 @@ def plot(
             plot_data_points_size,
             hovertool_string,
             number_format,
+            rangetool,
             **kwargs
         )
 
     if kind == "step":
-        p = stepplot(
+        p, p_rangetool = stepplot(
             p,
             source,
             data_cols,
@@ -489,6 +512,7 @@ def plot(
             plot_data_points_size,
             hovertool_string,
             number_format,
+            rangetool,
             **kwargs
         )
 
@@ -905,7 +929,11 @@ def plot(
 
     # Display plot if wanted
     if show_figure:
-        return show(p)
+         # Display range tool if wanted, otherwise display without
+        if isintance(p_rangetool, bokeh.figure):
+            show(column(p, p_rangetool))
+        else:
+            show(p)
 
     # Return as (embeddable) HTML if wanted:
     if return_html:
@@ -928,18 +956,19 @@ def _base_lineplot(
     plot_data_points_size,
     hovertool_string,
     number_format,
+    rangetool,
     **kwargs
 ):
     """Adds lineplot to figure p for each data_col."""
 
-    if "marker" in kwargs:
-        marker = kwargs["marker"]
-        del kwargs["marker"]
-    else:
-        marker = "circle"
-
-    # Add line (and optional scatter glyphs) to figure:
+    p_rangetool = None
+     # Add line (and optional scatter glyphs) to figure:
     linetype = getattr(p, linetype.lower())
+    marker = kwargs.pop("marker", "circle")
+
+    if rangetool:
+        p_rangetool = _initialize_rangetool(p, x_axis_type, source)
+
     for name, color in zip(data_cols, colormap):
         glyph = linetype(
             x="__x__values",
@@ -979,7 +1008,17 @@ def _base_lineplot(
                 my_hover.tooltips = hovertool_string
             p.add_tools(my_hover)
 
-    return p
+        if rangetool:           
+
+            p_rangetool.line(
+                "__x__values",
+                name,
+                source=source,
+                color=color
+            )
+
+    return p, p_rangetool
+
 
 
 def lineplot(
@@ -994,6 +1033,7 @@ def lineplot(
     plot_data_points_size,
     hovertool_string,
     number_format,
+    rangetool,
     **kwargs
 ):
     return _base_lineplot(
@@ -1009,6 +1049,7 @@ def lineplot(
         plot_data_points_size=plot_data_points_size,
         hovertool_string=hovertool_string,
         number_format=number_format,
+        rangetool=rangetool,
         **kwargs
     )
 
@@ -1025,6 +1066,7 @@ def stepplot(
     plot_data_points_size,
     hovertool_string,
     number_format,
+    rangetool,
     **kwargs
 ):
     return _base_lineplot(
@@ -1040,6 +1082,7 @@ def stepplot(
         plot_data_points_size=plot_data_points_size,
         hovertool_string=hovertool_string,
         number_format=number_format,
+        rangetool=rangetool,
         **kwargs
     )
 
@@ -2367,3 +2410,48 @@ class FramePlotMethods(BasePlotMethods):
 
         """
         return self(kind="map", x=x, y=y, **kwds)
+
+def _initialize_rangetool(p, x_axis_type, source):
+    """
+    Initializes the range tool chart and slider.
+    
+    Parameters
+    ----------
+    p : Bokeh.plotting.figure
+        Bokeh plot that the figure tool is going to supplement.
+    x_axis_type : str
+        Type of the xaxis (ex. datetime)
+    source : Bokeh.models.sources
+        Data
+
+    Returns
+    -------
+        Bokeh.plotting.figure
+    """
+
+    max_y_range = 0
+    # Initialize range tool plot
+    p_rangetool = figure(
+        title="Drag the box to change the range above.",
+        plot_height=130,
+        plot_width=p.plot_width,
+        y_range=p.y_range,
+        x_axis_type=x_axis_type,
+        y_axis_type=None,
+        tools="",
+        toolbar_location=None,
+    )
+
+    # Need to explicitly set the initial range of the plot for the range tool.
+    start_index = int(0.75 * len(source['__x__values']))
+    p.x_range = Range1d(source['__x__values'][start_index], source['__x__values'][-1])
+
+    range_tool = RangeTool(x_range=p.x_range)
+    range_tool.overlay.fill_color = "navy"
+    range_tool.overlay.fill_alpha = 0.2
+
+    p_rangetool.ygrid.grid_line_color = None
+    p_rangetool.add_tools(range_tool)
+    p_rangetool.toolbar.active_multi = range_tool
+
+    return p_rangetool
