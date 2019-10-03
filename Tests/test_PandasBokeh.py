@@ -8,7 +8,7 @@ import pytest
 
 DIRECTORY = os.path.dirname(__file__)
 TEST_SETS_DIRECTORY = os.path.join(
-    os.path.dirname(DIRECTORY), "Documentation", "Testdata"
+    os.path.dirname(DIRECTORY), "docs", "Testdata"
 )
 
 os.makedirs(os.path.join(DIRECTORY, "Plots"), exist_ok=True)

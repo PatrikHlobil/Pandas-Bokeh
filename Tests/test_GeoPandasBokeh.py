@@ -9,7 +9,7 @@ import pandas_bokeh
 
 directory = os.path.dirname(__file__)
 test_sets_directory = os.path.join(
-    os.path.dirname(directory), "Documentation", "Testdata"
+    os.path.dirname(directory), "docs", "Testdata"
 )
 os.makedirs(os.path.join(directory, "Plots"), exist_ok=True)
 

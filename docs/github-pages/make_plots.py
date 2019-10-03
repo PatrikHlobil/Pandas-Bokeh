@@ -90,7 +90,7 @@ def plot_Startimage() -> tuple:
 
     # Scatterplot:
     df = pd.read_csv(
-        r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata/iris/iris.csv"
+        r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/docs/Testdata/iris/iris.csv"
     )
     p_scatter = df.plot_bokeh(
         kind="scatter",

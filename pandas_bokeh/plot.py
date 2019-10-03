@@ -2352,7 +2352,7 @@ class FramePlotMethods(BasePlotMethods):
             :context: close-figs
 
             >>> df_mapplot = pd.read_csv(r"https://raw.githubusercontent.com\
-            ... /PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata\
+            ... /PatrikHlobil/Pandas-Bokeh/master/docs/Testdata\
             ... /populated%20places/populated_places.csv")
             >>> df_mapplot["size"] = df_mapplot["pop_max"] / 1000000
             >>> df_mapplot.plot_bokeh.map(
