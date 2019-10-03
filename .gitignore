@@ -16,4 +16,5 @@ build/
 .coverage
 .idea
 conda/
+markdown*/
 !index.html
