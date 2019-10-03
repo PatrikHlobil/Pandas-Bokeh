@@ -1316,7 +1316,7 @@ Plots like scatterplot or histogram also have many more additional customization
 * Bugfixes
 * conda support
 
-## 0.4</td>      <td>
+## 0.4
 
 * Rangetool support
 * Autoscaling support using the **sizing_mode** keyword
