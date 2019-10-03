@@ -32,8 +32,12 @@ plots = make_plots()
 
 # Replace pictures with HTML plots:
 for plotname, plot in plots.items():
-    readme = re.sub(r"!\[{plotname}\]\(.+\)".format(plotname=plotname), plot, readme)
-
+    print(f"Replace image {plotname}")
+    if re.search(r"!\[{plotname}\]\(.+\)".format(plotname=plotname), readme):
+        to_replace = re.search(r"!\[{plotname}\]\(.+\)".format(plotname=plotname), readme).group()
+        readme = readme.replace(to_replace, f'<div align="center">\n\n{plot}\n\n</div>')
+    else:
+        raise KeyError(f"No image with name '{plotname}' has been found in the README file '{readme_file}'.")
 
 with open(readme_file, "w") as f:
     f.write(readme)

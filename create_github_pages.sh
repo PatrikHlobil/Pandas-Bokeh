@@ -1,3 +1,5 @@
+set -e
+
 # Clone markdown to HTML Repo:
 rm -rf markdown-to-html-github-style
 git clone https://github.com/KrauseFx/markdown-to-html-github-style.git

@@ -1,5 +1,6 @@
 import inspect
 import os
+import re
 from shutil import rmtree
 from typing import Callable
 
@@ -7,8 +8,6 @@ import numpy as np
 import pandas as pd
 
 import pandas_bokeh
-
-SUPPRESS_OUTPUT = {"return_html": True, "show_figure": False}
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 PLOT_DIR = os.path.join(BASE_DIR, "plots")
@@ -42,14 +41,18 @@ def df_parabula_cube() -> pd.DataFrame:
 
 def plot_ApplevsGoogle_1() -> tuple:
 
-    df = df_stocks()
-    plot = df.plot_bokeh(kind="line", **SUPPRESS_OUTPUT)
-
     plotname = inspect.stack()[0][3][5:]
-    return plotname, plot
+    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
+
+    df = df_stocks()
+    plot = df.plot_bokeh(kind="line")
+
 
 
 def plot_Startimage() -> tuple:
+
+    plotname = inspect.stack()[0][3][5:]
+    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
 
     # Barplot:
     data = {
@@ -120,14 +123,15 @@ def plot_Startimage() -> tuple:
 
     # Make Dashboard with Grid Layout:
     plot = pandas_bokeh.plot_grid(
-        [[p_line, p_bar], [p_scatter, p_hist]], plot_width=450, return_html=True
+        [[p_line, p_bar], [p_scatter, p_hist]], plot_width=450
     )
 
-    plotname = inspect.stack()[0][3][5:]
-    return plotname, plot
 
 
 def plot_ApplevsGoogle_2() -> tuple:
+
+    plotname = inspect.stack()[0][3][5:]
+    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
 
     df = df_stocks()
     plot = df.plot_bokeh(
@@ -143,14 +147,13 @@ def plot_ApplevsGoogle_2() -> tuple:
         hovertool_string=r"<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/170px-Apple_logo_black.svg.png' height='42' alt='@imgs' width='42' style='float: left; margin: 0px 15px 15px 0px;' border='2' ></img> Apple \n\n<h4> Stock Price: </h4> @{Apple}",
         panning=False,
         zooming=False,
-        **SUPPRESS_OUTPUT,
     )
-
-    plotname = inspect.stack()[0][3][5:]
-    return plotname, plot
 
 
 def plot_ApplevsGoogle_3() -> tuple:
+
+    plotname = inspect.stack()[0][3][5:]
+    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
 
     df = df_stocks()
     plot = df.plot_bokeh(
@@ -165,14 +168,13 @@ def plot_ApplevsGoogle_3() -> tuple:
         plot_data_points=True,
         plot_data_points_size=10,
         marker="asterisk",
-        **SUPPRESS_OUTPUT,
     )
-
-    plotname = inspect.stack()[0][3][5:]
-    return plotname, plot
 
 
 def plot_Pointplot() -> tuple:
+
+    plotname = inspect.stack()[0][3][5:]
+    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
 
     df = df_parabula_cube()
     plot = df.plot_bokeh.point(
@@ -182,20 +184,26 @@ def plot_Pointplot() -> tuple:
         colormap=["#009933", "#ff3399"],
         title="Pointplot (Parabula vs. Cube)",
         marker="x",
-        **SUPPRESS_OUTPUT,
     )
 
-    plotname = inspect.stack()[0][3][5:]
-    return plotname, plot
+def extract_bokeh_html_from_file(plotname: str) -> str:
 
+    with open(os.path.join(PLOT_DIR, f"{plotname}.html")) as f:
+        s = f.read()
+        header_content = re.search(r"<head>(.+)</head>", s, re.DOTALL).groups(1)[0]
+        body = re.search(r"<body>(.+)</body>", s, re.DOTALL).groups(1)[0]
+        bokeh_html = header_content + body
+
+    return bokeh_html
 
 def make_plots() -> dict:
 
     plots = {}
     for func in _return_plot_functions():
-        print(f"Create plot {func.__name__[5:]}")
-        plotname, plot = func()
-        plots[plotname] = plot
+        plotname = func.__name__[5:]
+        print(f"Create plot {plotname}")
+        func()
+        plots[plotname] = extract_bokeh_html_from_file(plotname)
 
     return plots
 
@@ -206,6 +214,7 @@ def _return_plot_functions() -> Callable:
     for key, value in globals().items():
         if callable(value) and value.__module__ == __name__ and key.startswith("plot_"):
             functions.append(value)
+        
 
     return functions
 
