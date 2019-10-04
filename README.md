@@ -343,12 +343,9 @@ In the example below, we use the building *grid layout* support of **Pandas-Boke
 
 ```python
 #Load Iris Dataset from Scikit Learn:
-from sklearn.datasets import load_iris
-iris = load_iris()
-df = pd.DataFrame(iris["data"])
-df.columns = iris["feature_names"]
-df["species"] = iris["target"]
-df["species"] = df["species"].map(dict(zip(range(3), iris["target_names"])))
+df = pd.read_csv(
+        r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/docs/Testdata/iris/iris.csv"
+    )
 df = df.sample(frac=1)
 
 #Create Div with DataFrame:
@@ -373,14 +370,14 @@ pandas_bokeh.plot_grid([[div_df, p_scatter]], plot_width=400, plot_height=350)
 A possible optional keyword parameters that can be passed to [bokeh.plotting.figure.scatter](https://bokeh.pydata.org/en/latest/docs/reference/plotting.html#bokeh.plotting.figure.Figure.scatter) is **size**. Below, we use the *sepal length* of the Iris data as reference for the size:
 ```python
 #Change one value to clearly see the effect of the size keyword
-df.loc[13, "sepal length (cm)"] = 15     
+df.loc[13, "sepal length (cm)"] = 15
 
 #Make scatterplot:
 p_scatter = df.plot_bokeh.scatter(
     x="petal length (cm)",
     y="sepal width (cm)",
     category="species",
-    title="Iris DataSet Visualization",
+    title="Iris DataSet Visualization with Size Keyword",
     size="sepal length (cm)")
 ```
 

@@ -11,6 +11,7 @@ import pandas_bokeh
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 PLOT_DIR = os.path.join(BASE_DIR, "plots")
+TEST_SETS_DIRECTORY = os.path.join(os.path.dirname(BASE_DIR), "Testdata")
 
 rmtree(PLOT_DIR, ignore_errors=True)
 os.makedirs(PLOT_DIR, exist_ok=True)
@@ -38,18 +39,17 @@ def df_parabula_cube() -> pd.DataFrame:
 
     return df
 
+def df_iris():
 
-def plot_ApplevsGoogle_1() -> tuple:
+    # Load Iris Dataset:
+    df_iris = pd.read_csv(os.path.join(TEST_SETS_DIRECTORY, "iris", "iris.csv"))
 
-    plotname = inspect.stack()[0][3][5:]
-    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
-
-    df = df_stocks()
-    plot = df.plot_bokeh(kind="line")
+    return df_iris
 
 
 
-def plot_Startimage() -> tuple:
+
+def plot_Startimage():
 
     plotname = inspect.stack()[0][3][5:]
     pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
@@ -89,9 +89,7 @@ def plot_Startimage() -> tuple:
     )
 
     # Scatterplot:
-    df = pd.read_csv(
-        r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/docs/Testdata/iris/iris.csv"
-    )
+    df = df_iris()
     p_scatter = df.plot_bokeh(
         kind="scatter",
         x="petal length (cm)",
@@ -126,9 +124,16 @@ def plot_Startimage() -> tuple:
         [[p_line, p_bar], [p_scatter, p_hist]], plot_width=450
     )
 
+def plot_ApplevsGoogle_1():
+
+    plotname = inspect.stack()[0][3][5:]
+    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
+
+    df = df_stocks()
+    plot = df.plot_bokeh(kind="line")
 
 
-def plot_ApplevsGoogle_2() -> tuple:
+def plot_ApplevsGoogle_2():
 
     plotname = inspect.stack()[0][3][5:]
     pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
@@ -150,7 +155,7 @@ def plot_ApplevsGoogle_2() -> tuple:
     )
 
 
-def plot_ApplevsGoogle_3() -> tuple:
+def plot_ApplevsGoogle_3():
 
     plotname = inspect.stack()[0][3][5:]
     pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
@@ -171,7 +176,7 @@ def plot_ApplevsGoogle_3() -> tuple:
     )
 
 
-def plot_Pointplot() -> tuple:
+def plot_Pointplot():
 
     plotname = inspect.stack()[0][3][5:]
     pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
@@ -186,6 +191,65 @@ def plot_Pointplot() -> tuple:
         marker="x",
     )
 
+
+def plot_Stepplot():
+
+    plotname = inspect.stack()[0][3][5:]
+    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
+
+    df = df_parabula_cube()
+    plot = df.plot_bokeh.step(
+        x="x",
+        xticks=range(-1, 1),
+        colormap=["#009933", "#ff3399"],
+        title="Pointplot (Parabula vs. Cube)",
+        mode="after",
+        figsize=(800, 300),
+    )
+
+
+def plot_Scatterplot():
+
+    plotname = inspect.stack()[0][3][5:]
+    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
+
+    df = df_iris()
+    df = df.sample(frac=1)
+
+    #Create Div with DataFrame:
+    from bokeh.models import Div
+    div_df = Div(text=df.head(10).to_html(index=False), width=550)
+
+    #Create Scatterplot:
+    p_scatter = df.plot_bokeh.scatter(
+        x="petal length (cm)",
+        y="sepal width (cm)",
+        category="species",
+        title="Iris DataSet Visualization",
+        show_figure=False)
+
+    #Combine Div and Scatterplot via grid layout:
+    pandas_bokeh.plot_grid([[div_df, p_scatter]], plot_width=400, plot_height=350)
+
+def plot_Scatterplot2():
+
+    plotname = inspect.stack()[0][3][5:]
+    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
+
+    df = df_iris()
+    df = df.sample(frac=1)
+
+    #Change one value to clearly see the effect of the size keyword
+    df.loc[13, "sepal length (cm)"] = 15
+
+    #Make scatterplot:
+    p_scatter = df.plot_bokeh.scatter(
+        x="petal length (cm)",
+        y="sepal width (cm)",
+        category="species",
+        title="Iris DataSet Visualization with Size Keyword",
+        size="sepal length (cm)")
+
 def extract_bokeh_html_from_file(plotname: str) -> str:
 
     with open(os.path.join(PLOT_DIR, f"{plotname}.html")) as f:
@@ -195,6 +259,7 @@ def extract_bokeh_html_from_file(plotname: str) -> str:
         bokeh_html = header_content + body
 
     return bokeh_html
+
 
 def make_plots() -> dict:
 
@@ -214,7 +279,6 @@ def _return_plot_functions() -> Callable:
     for key, value in globals().items():
         if callable(value) and value.__module__ == __name__ and key.startswith("plot_"):
             functions.append(value)
-        
 
     return functions
 
