@@ -29,3 +29,5 @@ with open(os.path.join(CUR_DIR, "template.html")) as f:
 
 with open(os.path.join(PARENT_DIR, "index.html"), "w") as f:
     f.write(template.format(body=body))
+
+from bokeh.resources import EMPTY
