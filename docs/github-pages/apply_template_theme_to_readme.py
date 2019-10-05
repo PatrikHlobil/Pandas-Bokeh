@@ -19,15 +19,10 @@ parser.add_argument(
 readme_file = parser.parse_args().readme_file
 
 with open(readme_file) as f:
-    html = f.read()
-
-body = re.search(r"<body>(.+)<\/body>", html, re.DOTALL).group(1)
-body = re.sub(r"<style.+<\/style>", "", body, flags=re.DOTALL)
+    body = f.read()
 
 with open(os.path.join(CUR_DIR, "template.html")) as f:
     template = f.read()
 
 with open(os.path.join(PARENT_DIR, "index.html"), "w") as f:
     f.write(template.format(body=body))
-
-from bokeh.resources import EMPTY

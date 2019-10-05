@@ -339,29 +339,36 @@ A basic **scatterplot** can be created using the *kind="scatter"* option. For **
 
 Note, that the **pandas.DataFrame.plot_bokeh()** method return per default a Bokeh figure, which can be embedded in Dashboard layouts with other figures and **Bokeh** objects (for more details about (sub)plot layouts and embedding the resulting Bokeh plots as HTML click [here](#Layouts)).
 
-In the example below, we use the building *grid layout* support of **Pandas-Bokeh** to display both the DataFrame (embedded in a *Div*) and the resulting **scatterplot**:
+In the example below, we use the building *grid layout* support of **Pandas-Bokeh** to display both the DataFrame (using a *Bokeh DataTable*) and the resulting **scatterplot**:
 
 ```python
-#Load Iris Dataset from Scikit Learn:
+# Load Iris Dataset:
 df = pd.read_csv(
-        r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/docs/Testdata/iris/iris.csv"
-    )
+    r"https://raw.githubusercontent.com/PatrikHlobil/Pandas-Bokeh/master/docs/Testdata/iris/iris.csv"
+)
 df = df.sample(frac=1)
 
-#Create Div with DataFrame:
-from bokeh.models import Div
-div_df = Div(text=df.head(10).to_html(index=False), width=550)
+# Create Bokeh-Table with DataFrame:
+from bokeh.models.widgets import DataTable, TableColumn
+from bokeh.models import ColumnDataSource
 
-#Create Scatterplot:
+data_table = DataTable(
+    columns=[TableColumn(field=Ci, title=Ci) for Ci in df.columns],
+    source=ColumnDataSource(df),
+    height=300,
+)
+
+# Create Scatterplot:
 p_scatter = df.plot_bokeh.scatter(
     x="petal length (cm)",
     y="sepal width (cm)",
     category="species",
     title="Iris DataSet Visualization",
-    show_figure=False)
+    show_figure=False,
+)
 
-#Combine Div and Scatterplot via grid layout:
-pandas_bokeh.plot_grid([[div_df, p_scatter]], plot_width=400, plot_height=350)
+# Combine Table and Scatterplot via grid layout:
+pandas_bokeh.plot_grid([[data_table, p_scatter]], plot_width=400, plot_height=350)
 ```
 <p id="scatterplot_picture"> </p>
 

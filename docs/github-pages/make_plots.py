@@ -216,9 +216,14 @@ def plot_Scatterplot():
     df = df_iris()
     df = df.sample(frac=1)
 
-    #Create Div with DataFrame:
-    from bokeh.models import Div
-    div_df = Div(text=df.head(10).to_html(index=False), width=550)
+    #Create Bokeh-Table with DataFrame:
+    from bokeh.models.widgets import DataTable, TableColumn
+    from bokeh.models import ColumnDataSource
+
+    data_table = DataTable(
+        columns=[TableColumn(field=Ci, title=Ci) for Ci in df.columns],
+        source=ColumnDataSource(df.head(10)),
+    )
 
     #Create Scatterplot:
     p_scatter = df.plot_bokeh.scatter(
@@ -229,7 +234,7 @@ def plot_Scatterplot():
         show_figure=False)
 
     #Combine Div and Scatterplot via grid layout:
-    pandas_bokeh.plot_grid([[div_df, p_scatter]], plot_width=400, plot_height=350)
+    pandas_bokeh.plot_grid([[data_table, p_scatter]], plot_width=400, plot_height=350)
 
 def plot_Scatterplot2():
 

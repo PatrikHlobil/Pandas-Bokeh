@@ -266,11 +266,19 @@ def test_pointplot():
 def test_scatterplot(df_iris):
     "Test for scatterplot"
 
-    # Create Div with DataFrame:
-    from bokeh.models import Div
+    #Create Bokeh-Table with DataFrame:
+    from bokeh.models.widgets import DataTable, TableColumn
+    from bokeh.models import ColumnDataSource
 
-    div_df = Div(text=df_iris.head(10).to_html(index=False), width=550)
-    div_df_accessor = Div(text=df_iris.head(10).to_html(index=False), width=550)
+    data_table = DataTable(
+        columns=[TableColumn(field=Ci, title=Ci) for Ci in df_iris.columns],
+        source=ColumnDataSource(df_iris.head(10)),
+    )
+
+    data_table_accessor = DataTable(
+        columns=[TableColumn(field=Ci, title=Ci) for Ci in df_iris.columns],
+        source=ColumnDataSource(df_iris.head(10)),
+    )
 
     # Create Scatterplot:
     arguments = dict(
@@ -289,7 +297,7 @@ def test_scatterplot(df_iris):
 
     # Combine Div and Scatterplot via grid layout:
     output = pandas_bokeh.plot_grid(
-        [[div_df, p_scatter], [div_df_accessor, p_scatter_accessor]],
+        [[data_table, p_scatter], [data_table_accessor, p_scatter_accessor]],
         show_plot=False,
         return_html=True,
     )
