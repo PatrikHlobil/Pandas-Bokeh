@@ -125,7 +125,7 @@ def convert_geoDataFrame_to_patches(gdf, geometry_column_name="geometry"):
 
     import geopandas as gpd
 
-    gdf_new = gpd.GeoDataFrame(columns=gdf.columns)
+    gdf_new = []
 
     def extract(row, geometry):
         x, y = geometry.exterior.xy
@@ -143,11 +143,13 @@ def convert_geoDataFrame_to_patches(gdf, geometry_column_name="geometry"):
     for i, row in gdf.iterrows():
         geometry = row[geometry_column_name]
         if geometry.type == "Polygon":
-            gdf_new = gdf_new.append(extract(row, geometry), ignore_index=True)
+            gdf_new.append(extract(row, geometry))
 
         if geometry.type == "MultiPolygon":
             for polygon in geometry:
-                gdf_new = gdf_new.append(extract(row, polygon), ignore_index=True)
+                gdf_new.append(extract(row, polygon))
+
+    gdf_new = gpd.GeoDataFrame(gdf_new)
 
     gdf_new = gdf_new.drop(columns=["geometry"])
     return gdf_new
