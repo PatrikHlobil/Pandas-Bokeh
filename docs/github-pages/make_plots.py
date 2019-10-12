@@ -39,6 +39,7 @@ def df_parabula_cube() -> pd.DataFrame:
 
     return df
 
+
 def df_iris():
 
     # Load Iris Dataset:
@@ -47,6 +48,28 @@ def df_iris():
     return df_iris
 
 
+def df_fruits():
+
+    data = {
+        "fruits": ["Apples", "Pears", "Nectarines", "Plums", "Grapes", "Strawberries"],
+        "2015": [2, 1, 4, 3, 2, 4],
+        "2016": [5, 3, 3, 2, 4, 6],
+        "2017": [3, 2, 4, 4, 5, 3],
+    }
+
+    return pd.DataFrame(data).set_index("fruits")
+
+
+def df_hist():
+
+    return pd.DataFrame(
+        {
+            "a": np.random.randn(1000) + 1,
+            "b": np.random.randn(1000),
+            "c": np.random.randn(1000) - 1,
+        },
+        columns=["a", "b", "c"],
+    )
 
 
 def plot_Startimage():
@@ -124,6 +147,7 @@ def plot_Startimage():
         [[p_line, p_bar], [p_scatter, p_hist]], plot_width=450
     )
 
+
 def plot_ApplevsGoogle_1():
 
     plotname = inspect.stack()[0][3][5:]
@@ -176,6 +200,18 @@ def plot_ApplevsGoogle_3():
     )
 
 
+def plot_rangetool():
+
+    plotname = inspect.stack()[0][3][5:]
+    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
+
+    ts = pd.Series(np.random.randn(1000), index=pd.date_range("1/1/2000", periods=1000))
+    df = pd.DataFrame(np.random.randn(1000, 4), index=ts.index, columns=list("ABCD"))
+    df = df.cumsum()
+
+    df.plot_bokeh(rangetool=True)
+
+
 def plot_Pointplot():
 
     plotname = inspect.stack()[0][3][5:]
@@ -216,7 +252,7 @@ def plot_Scatterplot():
     df = df_iris()
     df = df.sample(frac=1)
 
-    #Create Bokeh-Table with DataFrame:
+    # Create Bokeh-Table with DataFrame:
     from bokeh.models.widgets import DataTable, TableColumn
     from bokeh.models import ColumnDataSource
 
@@ -225,35 +261,141 @@ def plot_Scatterplot():
         source=ColumnDataSource(df.head(10)),
     )
 
-    #Create Scatterplot:
+    # Create Scatterplot:
     p_scatter = df.plot_bokeh.scatter(
         x="petal length (cm)",
         y="sepal width (cm)",
         category="species",
         title="Iris DataSet Visualization",
-        show_figure=False)
+        show_figure=False,
+    )
 
-    #Combine Div and Scatterplot via grid layout:
+    # Combine Div and Scatterplot via grid layout:
     pandas_bokeh.plot_grid([[data_table, p_scatter]], plot_width=400, plot_height=350)
 
-def plot_Scatterplot2():
+
+def plot_Barplot():
 
     plotname = inspect.stack()[0][3][5:]
     pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
 
-    df = df_iris()
-    df = df.sample(frac=1)
+    df = df_fruits()
 
-    #Change one value to clearly see the effect of the size keyword
-    df.loc[13, "sepal length (cm)"] = 15
+    df.plot_bokeh.bar(
+        ylabel="Price per Unit [€]", title="Fruit prices per Year", alpha=0.6
+    )
 
-    #Make scatterplot:
-    p_scatter = df.plot_bokeh.scatter(
-        x="petal length (cm)",
-        y="sepal width (cm)",
-        category="species",
-        title="Iris DataSet Visualization with Size Keyword",
-        size="sepal length (cm)")
+
+def plot_Barplot2():
+
+    plotname = inspect.stack()[0][3][5:]
+    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
+
+    df = df_fruits()
+
+    df.plot_bokeh.bar(
+        ylabel="Price per Unit [€]",
+        title="Fruit prices per Year",
+        stacked=True,
+        alpha=0.6,
+    )
+
+
+def plot_Barplot3():
+
+    plotname = inspect.stack()[0][3][5:]
+    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
+
+    df = df_fruits()
+
+    p_bar = df.plot_bokeh.bar(
+        ylabel="Price per Unit [€]",
+        title="Fruit prices per Year",
+        alpha=0.6,
+        show_figure=False,
+    )
+
+    p_stacked_bar = df.plot_bokeh.bar(
+        ylabel="Price per Unit [€]",
+        title="Fruit prices per Year",
+        stacked=True,
+        alpha=0.6,
+        show_figure=False,
+    )
+
+    # Reset index, such that "fruits" is now a column of the DataFrame:
+    df.reset_index(inplace=True)
+
+    # Create horizontal bar (via kind keyword):
+    p_hbar = df.plot_bokeh(
+        kind="barh",
+        x="fruits",
+        xlabel="Price per Unit [€]",
+        title="Fruit prices per Year",
+        alpha=0.6,
+        legend="bottom_right",
+        show_figure=False,
+    )
+
+    # Create stacked horizontal bar (via barh accessor):
+    p_stacked_hbar = df.plot_bokeh.barh(
+        x="fruits",
+        stacked=True,
+        xlabel="Price per Unit [€]",
+        title="Fruit prices per Year",
+        alpha=0.6,
+        legend="bottom_right",
+        show_figure=False,
+    )
+
+    pandas_bokeh.plot_grid(
+        [[p_bar, p_stacked_bar], [p_hbar, p_stacked_hbar]], plot_width=450
+    )
+
+
+def plot_Histogram():
+
+    plotname = inspect.stack()[0][3][5:]
+    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
+
+    df = df_hist()
+
+    # Top-on-Top Histogram (Default):
+    p1 = df.plot_bokeh.hist(
+        bins=np.linspace(-5, 5, 41),
+        vertical_xlabel=True,
+        hovertool=False,
+        title="Normal distributions (Top-on-Top)",
+        line_color="black",
+        show_figure=False,
+    )
+
+    # Side-by-Side Histogram (multiple bars share bin side-by-side) also accessible via
+    # kind="hist":
+    p2 = df.plot_bokeh(
+        kind="hist",
+        bins=np.linspace(-5, 5, 41),
+        histogram_type="sidebyside",
+        vertical_xlabel=True,
+        hovertool=False,
+        title="Normal distributions (Side-by-Side)",
+        line_color="black",
+        show_figure=False,
+    )
+
+    # Stacked histogram:
+    p3 = df.plot_bokeh.hist(
+        bins=np.linspace(-5, 5, 41),
+        histogram_type="stacked",
+        vertical_xlabel=True,
+        hovertool=False,
+        title="Normal distributions (Stacked)",
+        line_color="black",
+        show_figure=False,
+    )
+
+    pandas_bokeh.plot_grid([[p1], [p2], [p3]])
+
 
 def extract_bokeh_html_from_file(plotname: str) -> str:
 

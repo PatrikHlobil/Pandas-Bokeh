@@ -39,5 +39,9 @@ for plotname, plot in plots.items():
     else:
         raise KeyError(f"No image with name '{plotname}' has been found in the README file '{readme_file}'.")
 
+# Replace path to remaining pictures:
+readme = readme.replace(r"![](docs/Images/Pandas-Bokeh-Logo.png)", "")
+readme = readme.replace(r"docs/Images/", "Images/")
+
 with open(readme_file, "w") as f:
     f.write(readme)
