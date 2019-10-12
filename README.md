@@ -103,17 +103,19 @@ or calling the [grid layout functionality](#dashboard_layouts):
 ### Plot types
 
 Supported plottypes are at the moment:
-* Pandas &  Pyspark DataFrames
-  * [lineplot](#lineplot)
-  * [pointplot](#pointplot)
-  * [stepplot](#stepplot)
-  * [scatterplot](#scatterplot)
-  * [barplot](#barplot)
-  * [histogram](#histogram)
-  *  [areaplot](#areaplot)
-  * [pieplot](#pieplot)
-  * [mapplot](#mapplot)
 
+* Pandas &  Pyspark DataFrames
+    * [lineplot](#lineplot)
+    * [pointplot](#pointplot)
+    * [stepplot](#stepplot)
+    * [scatterplot](#scatterplot)
+    * [barplot](#barplot)
+    * [histogram](#histogram)
+    * [areaplot](#areaplot)
+    * [pieplot](#pieplot)
+    * [mapplot](#mapplot)
+
+<br>
 
 * [Geoplots (Point, Line, Polygon) with **GeoPandas**](#geoplots)
 
@@ -262,7 +264,7 @@ df = df.cumsum()
 df.plot_bokeh(rangetool=True)
 ```
 
-![rangetool](Documentation/Images/rangetool.gif)
+![rangetool](docs/Images/rangetool.gif)
 
 <br>
 
@@ -388,7 +390,9 @@ p_scatter = df.plot_bokeh.scatter(
     size="sepal length (cm)")
 ```
 
+
 ![Scatterplot2](docs/Images/Scatterplot2.png)
+
 
 In this example you can see, that the additional dimension *sepal length* cannot be used to clearly differentiate between the *virginica* and *versicolor* species.
 
