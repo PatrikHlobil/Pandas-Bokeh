@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e 
 rm -rf conda
 mkdir conda
 pushd conda

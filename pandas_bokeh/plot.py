@@ -8,6 +8,7 @@ import re
 import warnings
 from copy import deepcopy
 
+import bokeh
 import numpy as np
 import pandas as pd
 from bokeh.core.properties import value as _value
@@ -295,11 +296,11 @@ def plot(
         if not isinstance(hovertool_string, str):
             raise ValueError("<hovertool_string> can only be None or a string.")
         # Search for hovertool_string columns in DataFrame:
-        for s in re.findall("@[^\s\{]+", hovertool_string):
+        for s in re.findall(r"@[^\s\{]+", hovertool_string):
             s = s[1:]
             if s in df.columns:
                 additional_columns.append(s)
-        for s in re.findall("@\{.+\}", hovertool_string):
+        for s in re.findall(r"@\{.+\}", hovertool_string):
             s = s[2:-1]
             if s in df.columns:
                 additional_columns.append(s)
@@ -1642,10 +1643,15 @@ def pieplot(
         outer_radius = float(i + 0.9) / len(data_cols)
         source["inner_radius"] = [inner_radius] * len(source["__x__values"])
         source["outer_radius"] = [outer_radius] * len(source["__x__values"])
-        if i == 0:
-            legend = "__x__values"
+
+        if bokeh.__version__ < "1.4":
+            legend_parameter_name = "legend"
         else:
-            legend = False
+            legend_parameter_name = "legend_label"
+        if i == 0:
+            kwargs[legend_parameter_name] = "__x__values"
+        else:
+            kwargs.pop(legend_parameter_name, None)
 
         if "line_color" not in kwargs:
             kwargs["line_color"] = "white"
@@ -1658,7 +1664,6 @@ def pieplot(
             start_angle=cumsum(col + "_angle", include_zero=True),
             end_angle=cumsum(col + "_angle"),
             fill_color="color",
-            legend=legend,
             source=source,
             **kwargs
         )
