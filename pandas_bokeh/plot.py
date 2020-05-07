@@ -67,10 +67,7 @@ def get_colormap(colormap, N_cols):
                 colormap = colormap * int(N_cols / len(colormap) + 1)
                 colormap = colormap[:N_cols]
         else:
-            raise ValueError(
-                "Could not find <colormap> with name %s. The following predefined colormaps are supported (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): %s"
-                % (colormap, list(all_palettes.keys()))
-            )
+            raise ValueError(f"Could not find <colormap> with name {colormap}. The following predefined colormaps are supported (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): {list(all_palettes.keys())}")
     elif isinstance(colormap, (list, tuple)):
         colormap = colormap * int(N_cols / len(colormap) + 1)
         colormap = colormap[:N_cols]
@@ -234,11 +231,11 @@ def plot(
 
     if kind not in allowed_kinds:
         allowed_kinds = "', '".join(allowed_kinds)
-        raise ValueError("Allowed plot kinds are '%s'." % allowed_kinds)
+        raise ValueError(f"Allowed plot kinds are '{allowed_kinds}'.")
 
     if rangetool and kind not in rangetool_allowed_kinds:
         allowed_rangetool_kinds = "', '".join(rangetool_allowed_kinds)
-        raise ValueError("For using the rangetool, the allowed plot kinds are '%s'." % allowed_rangetool_kinds)
+        raise ValueError(f"For using the rangetool, the allowed plot kinds are '{allowed_rangetool_kinds}'.")
 
     if rangetool:
         x_axis_location = "above"
@@ -402,10 +399,7 @@ def plot(
     data_cols = []
     for i, col in enumerate(cols):
         if col not in df.columns:
-            raise Exception(
-                "Could not find '%s' in the columns of the provided DataFrame/Series. Please provide for the <y> parameter either a column name of the DataFrame/Series or an array of the same length."
-                % col
-            )
+            raise Exception(f"Could not find '{col}' in the columns of the provided DataFrame/Series. Please provide for the <y> parameter either a column name of the DataFrame/Series or an array of the same length.")
         if np.issubdtype(df[col].dtype, np.number):
             data_cols.append(col)
     if len(data_cols) == 0:
@@ -421,10 +415,7 @@ def plot(
             data_cols.remove(delete_in_y)
     N_cols = len(data_cols)
     if len(data_cols) == 0:
-        raise Exception(
-            "The only numeric column is the column %s that is already used on the x-axis."
-            % delete_in_y
-        )
+        raise Exception(f"The only numeric column is the column {delete_in_y} that is already used on the x-axis.")
 
     # Autodetect y-label if no y-label is provided by user and only one y-column exists:
     if N_cols == 1:
@@ -719,10 +710,7 @@ def plot(
 
         # Check for stacked keyword:
         if stacked and histogram_type not in [None, "stacked"]:
-            warnings.warn(
-                "<histogram_type> was set to '%s', but was overriden by <stacked>=True parameter."
-                % histogram_type
-            )
+            warnings.warn(f"<histogram_type> was set to '{histogram_type}', but was overriden by <stacked>=True parameter.")
             histogram_type = "stacked"
         elif stacked and histogram_type is None:
             histogram_type = "stacked"
@@ -771,21 +759,13 @@ def plot(
                 values_not_nan = values[not_nan]
                 weights_not_nan = weights[not_nan]
                 if sum(not_nan) < len(not_nan):
-                    warnings.warn(
-                        "There are NaN values in column '%s' or in the <weights> column. For the histogram, these rows have been neglected."
-                        % col,
-                        Warning,
-                    )
+                    warnings.warn(f"There are NaN values in column '{col}' or in the <weights> column. For the histogram, these rows have been neglected.", Warning)
             else:
                 not_nan = ~np.isnan(values)
                 values_not_nan = values[not_nan]
                 weights_not_nan = None
                 if sum(not_nan) < len(not_nan):
-                    warnings.warn(
-                        "There are NaN values in column '%s'. For the histogram, these rows have been neglected."
-                        % col,
-                        Warning,
-                    )
+                    warnings.warn(f"There are NaN values in column '{col}'. For the histogram, these rows have been neglected.", Warning)
 
             average = np.average(values_not_nan, weights=weights_not_nan)
             averages.append(average)
@@ -1212,10 +1192,7 @@ def scatterplot(
                     max_key = max(colormap.keys())
                     colormap = colormap[max_key]
                 else:
-                    raise ValueError(
-                        "Could not find <colormap> with name %s. The following predefined colormaps are supported (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): %s"
-                        % (colormap, list(all_palettes.keys()))
-                    )
+                    raise ValueError(f"Could not find <colormap> with name {colormap}. The following predefined colormaps are supported (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): {list(all_palettes.keys())}")
             elif isinstance(colormap, (list, tuple)):
                 pass
             else:
@@ -1461,10 +1438,7 @@ def histogram(
         if hovertool:
             my_hover = HoverTool(mode="vline", renderers=[g1])
             if hovertool_string is None:
-                my_hover.tooltips = (
-                    """<h3> %s: </h3> <h4>bin=@bins</h4> <h4>value=@top </h4>"""
-                    % (name)
-                )
+                my_hover.tooltips = (f"<h3> {name}: </h3> <h4>bin=@bins</h4> <h4>value=@top </h4>")
             else:
                 warnings.warn(
                     "For histograms, <hovertool_string> is not a supported keyword argument."
