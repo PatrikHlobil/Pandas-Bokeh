@@ -14,10 +14,7 @@ from .base import embedded_html
 
 from bokeh.colors import RGB
 import bokeh
-from bokeh.models import (
-        TickFormatter,
-        NumeralTickFormatter
-    )
+from bokeh.models import TickFormatter, NumeralTickFormatter
 
 blue_colormap = [RGB(255 - i, 255 - i, 255) for i in range(256)]
 
@@ -123,12 +120,12 @@ def _get_figure(col):
 def convert_geoDataFrame_to_patches(gdf, geometry_column_name="geometry"):
     """Creates from a geoDataFrame with Polygons and Multipolygons a Pandas DataFrame with x any y columns specifying the geometry of the Polygons"""
 
-    import geopandas as gpd
-
     df_new = []
 
-    def extract(row, geometry):
+    def add_x_and_y_columns(row, geometry):
+        row = row.copy()
         x, y = geometry.exterior.xy
+
         # Convert to int for web mercador projection to save space:
         row["__x__"] = [[[int(_) for _ in x]]]
         row["__y__"] = [[[int(_) for _ in y]]]
@@ -143,11 +140,11 @@ def convert_geoDataFrame_to_patches(gdf, geometry_column_name="geometry"):
     for i, row in gdf.iterrows():
         geometry = row[geometry_column_name]
         if geometry.type == "Polygon":
-            df_new.append(extract(row, geometry))
+            df_new.append(add_x_and_y_columns(row, geometry))
 
         if geometry.type == "MultiPolygon":
             for polygon in geometry:
-                df_new.append(extract(row, polygon))
+                df_new.append(add_x_and_y_columns(row, polygon))
 
     df_new = pd.DataFrame(df_new)
 
@@ -163,7 +160,8 @@ def get_tick_formatter(formatter_arg):
         return NumeralTickFormatter(format=formatter_arg)
     else:
         raise ValueError(
-            "<colorbar_tick_format> parameter only accepts a string or a objects of bokeh.models.formatters.")
+            "<colorbar_tick_format> parameter only accepts a string or a objects of bokeh.models.formatters."
+        )
 
 
 def geoplot(
@@ -478,7 +476,6 @@ def geoplot(
     for t in p.tools:
         if type(t) == WheelZoomTool:
             t.zoom_on_axis = False
-
 
     # Hide legend if wanted:
     legend_input = legend
