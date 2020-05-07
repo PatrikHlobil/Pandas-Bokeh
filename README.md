@@ -1339,4 +1339,5 @@ Plots like scatterplot or histogram also have many more additional customization
 
 ## 0.4.3
 
-* Bugfixes
+* Bugfixes (#55-Multipolygon plotting error)
+* Improvements with sizing & zooming (#61)
