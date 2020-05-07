@@ -1,11 +1,7 @@
 import numbers
 import sys
 
-if sys.version_info >= (3, 0):
-    from collections import OrderedDict
-    from collections.abc import Iterable, Hashable
-else:
-    from collections import OrderedDict, Iterable, Hashable
+from collections import OrderedDict, Iterable, Hashable
 
 import numpy as np
 import pandas as pd
