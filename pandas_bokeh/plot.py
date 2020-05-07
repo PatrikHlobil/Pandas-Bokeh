@@ -2,50 +2,47 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import math
 import numbers
+import re
 import warnings
 from copy import deepcopy
-import re
 
 from bokeh.plotting import figure as _figure
-import pandas as pd
+import bokeh
 import numpy as np
-from bokeh.models import (
-    HoverTool,
-    ColumnDataSource,
-    DatetimeTickFormatter,
-    LinearColorMapper,
-    LogColorMapper,
-    CategoricalColorMapper,
-    ColorBar,
-    FuncTickFormatter,
-    WheelZoomTool,
-)
-from bokeh.models.tickers import FixedTicker
-from bokeh.palettes import all_palettes, Inferno256
-from bokeh.models.ranges import FactorRange
-from bokeh.transform import dodge, cumsum
+import pandas as pd
 from bokeh.core.properties import value as _value
-from bokeh.models.glyphs import Text
-from bokeh.models.callbacks import CustomJS
 from bokeh.events import Tap
-
+from bokeh.layouts import column
+from bokeh.models import (CategoricalColorMapper, ColorBar, ColumnDataSource,
+                          DatetimeTickFormatter, FuncTickFormatter, HoverTool,
+                          LinearColorMapper, LogColorMapper, RangeTool,
+                          WheelZoomTool)
+from bokeh.models.callbacks import CustomJS
+from bokeh.models.glyphs import Text
+from bokeh.models.ranges import FactorRange, Range1d
+from bokeh.models.tickers import FixedTicker
+from bokeh.palettes import Inferno256, all_palettes
+from bokeh.plotting import figure
+from bokeh.transform import cumsum, dodge
 from pandas.core.base import PandasObject
 
-from .base import show, embedded_html
+from .base import embedded_html, show
 from .geoplot import geoplot
 
 
 def check_type(data):
     """Checks type of provided data array."""
 
-    if isinstance(data[0], numbers.Number):
+    first_value = np.array(data)[0]
+
+    if isinstance(first_value, numbers.Number):
         return "numeric"
-    elif isinstance(data[0], (np.datetime64, datetime.datetime, datetime.date)):
+    elif isinstance(first_value, (np.datetime64, datetime.datetime, datetime.date)):
         return "datetime"
     else:
         return "object"
-
 
 def get_colormap(colormap, N_cols):
 
@@ -147,11 +144,15 @@ def plot(
     return_html=False,
     panning=True,
     zooming=True,
+    sizing_mode="fixed",
     toolbar_location="right",
     hovertool=True,
     hovertool_string=None,
+    rangetool=False,
     vertical_xlabel=False,
+    x_axis_location="below",
     webgl=True,
+    reuse_plot=None, # This keyword is not used by Pandas-Bokeh, but pandas plotting API adds it for series object calls
     **kwargs
 ):
     """Method for creating a interactive with 'Bokeh' as plotting backend. Available
@@ -178,6 +179,9 @@ def plot(
     For more information about the individual plot kind implementations, have a
     look at the underlying method accessors (like df.plot_bokeh.line) or visit
     https://github.com/PatrikHlobil/Pandas-Bokeh. 
+
+    If `sizing_mode` is not fixed (default), it will overide the set plot width or height
+    depending on which axis it is scaled on.
     
     """
 
@@ -211,6 +215,35 @@ def plot(
             **kwargs
         )
 
+    # Check plot kind input:
+    allowed_kinds = [
+        "line",
+        "step",
+        "point",
+        "scatter",
+        "bar",
+        "barh",
+        "hist",
+        "area",
+        "pie",
+        "map",
+    ]
+
+    rangetool_allowed_kinds = [
+        "line",
+        "step"
+    ]
+
+    if kind not in allowed_kinds:
+        allowed_kinds = "', '".join(allowed_kinds)
+        raise ValueError("Allowed plot kinds are '%s'." % allowed_kinds)
+
+    if rangetool and kind not in rangetool_allowed_kinds:
+        allowed_rangetool_kinds = "', '".join(rangetool_allowed_kinds)
+        raise ValueError("For using the rangetool, the allowed plot kinds are '%s'." % allowed_rangetool_kinds)
+
+    if rangetool:
+        x_axis_location = "above"
 
     # Get and check options for base figure:
     figure_options = {
@@ -220,7 +253,12 @@ def plot(
         "plot_width": 600,
         "plot_height": 400,
         "output_backend": "webgl",
+        "sizing_mode": sizing_mode,
+        "x_axis_location": x_axis_location
     }
+    # Initializing rangetool plot variable:
+    p_rangetool = None
+
     if not figsize is None:
         width, height = figsize
         figure_options["plot_width"] = width
@@ -254,34 +292,17 @@ def plot(
     else:
         number_format = "{%s}" % number_format
 
-    # Check plot kind input:
-    allowed_kinds = [
-        "line",
-        "step",
-        "point",
-        "scatter",
-        "bar",
-        "barh",
-        "hist",
-        "area",
-        "pie",
-        "map",
-    ]
-    if kind not in allowed_kinds:
-        allowed_kinds = "', '".join(allowed_kinds)
-        raise ValueError("Allowed plot kinds are '%s'." % allowed_kinds)
-
     # Check hovertool_string and define additional columns to keep in source:
     additional_columns = []
     if hovertool_string is not None:
         if not isinstance(hovertool_string, str):
             raise ValueError("<hovertool_string> can only be None or a string.")
         # Search for hovertool_string columns in DataFrame:
-        for s in re.findall("@[^\s\{]+", hovertool_string):
+        for s in re.findall(r"@[^\s\{]+", hovertool_string):
             s = s[1:]
             if s in df.columns:
                 additional_columns.append(s)
-        for s in re.findall("@\{.+\}", hovertool_string):
+        for s in re.findall(r"@\{.+\}", hovertool_string):
             s = s[2:-1]
             if s in df.columns:
                 additional_columns.append(s)
@@ -469,7 +490,7 @@ def plot(
 
     # Add Glyphs to Plot:
     if kind == "line":
-        p = lineplot(
+        p, p_rangetool = lineplot(
             p,
             source,
             data_cols,
@@ -481,11 +502,12 @@ def plot(
             plot_data_points_size,
             hovertool_string,
             number_format,
+            rangetool,
             **kwargs
         )
 
     if kind == "step":
-        p = stepplot(
+        p, p_rangetool = stepplot(
             p,
             source,
             data_cols,
@@ -497,6 +519,7 @@ def plot(
             plot_data_points_size,
             hovertool_string,
             number_format,
+            rangetool,
             **kwargs
         )
 
@@ -916,6 +939,10 @@ def plot(
             """Keyword parameter <disable_scientific_axes> only accepts "xy", True, "x", "y" or None."""
         )
 
+    # If rangetool is used, add it to layout:
+    if p_rangetool is not None:
+        p = column(p, p_rangetool)
+        
     # Display plot if wanted
     if show_figure:
         show(p)
@@ -941,18 +968,19 @@ def _base_lineplot(
     plot_data_points_size,
     hovertool_string,
     number_format,
+    rangetool,
     **kwargs
 ):
     """Adds lineplot to figure p for each data_col."""
 
-    if "marker" in kwargs:
-        marker = kwargs["marker"]
-        del kwargs["marker"]
-    else:
-        marker = "circle"
-
-    # Add line (and optional scatter glyphs) to figure:
+    p_rangetool = None
+     # Add line (and optional scatter glyphs) to figure:
     linetype = getattr(p, linetype.lower())
+    marker = kwargs.pop("marker", "circle")
+
+    if rangetool:
+        p_rangetool = _initialize_rangetool(p, x_axis_type, source)
+
     for name, color in zip(data_cols, colormap):
         glyph = linetype(
             x="__x__values",
@@ -992,7 +1020,17 @@ def _base_lineplot(
                 my_hover.tooltips = hovertool_string
             p.add_tools(my_hover)
 
-    return p
+        if rangetool:           
+
+            p_rangetool.line(
+                "__x__values",
+                name,
+                source=source,
+                color=color
+            )
+
+    return p, p_rangetool
+
 
 
 def lineplot(
@@ -1007,6 +1045,7 @@ def lineplot(
     plot_data_points_size,
     hovertool_string,
     number_format,
+    rangetool,
     **kwargs
 ):
     return _base_lineplot(
@@ -1022,6 +1061,7 @@ def lineplot(
         plot_data_points_size=plot_data_points_size,
         hovertool_string=hovertool_string,
         number_format=number_format,
+        rangetool=rangetool,
         **kwargs
     )
 
@@ -1038,6 +1078,7 @@ def stepplot(
     plot_data_points_size,
     hovertool_string,
     number_format,
+    rangetool,
     **kwargs
 ):
     return _base_lineplot(
@@ -1053,6 +1094,7 @@ def stepplot(
         plot_data_points_size=plot_data_points_size,
         hovertool_string=hovertool_string,
         number_format=number_format,
+        rangetool=rangetool,
         **kwargs
     )
 
@@ -1612,10 +1654,15 @@ def pieplot(
         outer_radius = float(i + 0.9) / len(data_cols)
         source["inner_radius"] = [inner_radius] * len(source["__x__values"])
         source["outer_radius"] = [outer_radius] * len(source["__x__values"])
-        if i == 0:
-            legend = "__x__values"
+
+        if bokeh.__version__ < "1.4":
+            legend_parameter_name = "legend"
         else:
-            legend = False
+            legend_parameter_name = "legend_label"
+        if i == 0:
+            kwargs[legend_parameter_name] = "__x__values"
+        else:
+            kwargs.pop(legend_parameter_name, None)
 
         if "line_color" not in kwargs:
             kwargs["line_color"] = "white"
@@ -1628,7 +1675,6 @@ def pieplot(
             start_angle=cumsum(col + "_angle", include_zero=True),
             end_angle=cumsum(col + "_angle"),
             fill_color="color",
-            legend=legend,
             source=source,
             **kwargs
         )
@@ -1749,10 +1795,7 @@ class FramePlotMethods(BasePlotMethods):
     @property
     def df(self):
 
-        if pd.__version__ >= "0.24":
-            dataframe = self._parent
-        else:
-            dataframe = self._data
+        dataframe = self._parent
 
         # Convert PySpark Dataframe to Pandas Dataframe:
         if hasattr(dataframe, "toPandas"):
@@ -2368,7 +2411,7 @@ class FramePlotMethods(BasePlotMethods):
             :context: close-figs
 
             >>> df_mapplot = pd.read_csv(r"https://raw.githubusercontent.com\
-            ... /PatrikHlobil/Pandas-Bokeh/master/Documentation/Testdata\
+            ... /PatrikHlobil/Pandas-Bokeh/master/docs/Testdata\
             ... /populated%20places/populated_places.csv")
             >>> df_mapplot["size"] = df_mapplot["pop_max"] / 1000000
             >>> df_mapplot.plot_bokeh.map(
@@ -2384,3 +2427,47 @@ class FramePlotMethods(BasePlotMethods):
         """
         return self(kind="map", x=x, y=y, **kwds)
 
+def _initialize_rangetool(p, x_axis_type, source):
+    """
+    Initializes the range tool chart and slider.
+    
+    Parameters
+    ----------
+    p : Bokeh.plotting.figure
+        Bokeh plot that the figure tool is going to supplement.
+    x_axis_type : str
+        Type of the xaxis (ex. datetime)
+    source : Bokeh.models.sources
+        Data
+
+    Returns
+    -------
+        Bokeh.plotting.figure
+    """
+
+    max_y_range = 0
+    # Initialize range tool plot
+    p_rangetool = figure(
+        title="Drag the box to change the range above.",
+        plot_height=130,
+        plot_width=p.plot_width,
+        y_range=p.y_range,
+        x_axis_type=x_axis_type,
+        y_axis_type=None,
+        tools="",
+        toolbar_location=None,
+    )
+
+    # Need to explicitly set the initial range of the plot for the range tool.
+    start_index = int(0.75 * len(source['__x__values']))
+    p.x_range = Range1d(source['__x__values'][start_index], source['__x__values'][-1])
+
+    range_tool = RangeTool(x_range=p.x_range)
+    range_tool.overlay.fill_color = "navy"
+    range_tool.overlay.fill_alpha = 0.2
+
+    p_rangetool.ygrid.grid_line_color = None
+    p_rangetool.add_tools(range_tool)
+    p_rangetool.toolbar.active_multi = range_tool
+
+    return p_rangetool

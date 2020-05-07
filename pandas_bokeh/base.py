@@ -7,6 +7,8 @@ from bokeh.embed import components
 from bokeh.resources import CDN
 
 OUTPUT_TYPE = "file"
+SUPPRESS_OUTPUT = False
+
 
 def plot_grid(children, show_plot=True, return_html=False, **kwargs):
     """Create a grid of plots rendered on separate canvases and shows the layout. 
@@ -60,7 +62,7 @@ def plot_grid(children, show_plot=True, return_html=False, **kwargs):
 
 def output_notebook(notebook_type="auto", **kwargs):
     """Set the output of Bokeh to the current notebook.
-
+suppress_output
     Parameters:
     ----------------------------------------------------------------
     notebook_type (string, default: "auto) - Either "jupyter", "zeppelin" or "auto"	
@@ -90,7 +92,7 @@ def output_notebook(notebook_type="auto", **kwargs):
     if notebook_type == "jupyter":
         bokeh.plotting.output_notebook(**kwargs)
     else:
-        #Preload JS resources:
+        # Preload JS resources:
         print(u"%html\n\n" + get_bokeh_resources())
 
 
@@ -128,13 +130,20 @@ def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
     bokeh.plotting.output_file(filename, title=title, mode=mode, root_dir=root_dir)
 
 
-def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888"):
-    
+def show(
+    obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888"
+):
+
+    global SUPPRESS_OUTPUT
+    if SUPPRESS_OUTPUT:
+        return obj
+
     if OUTPUT_TYPE != "zeppelin":
         bokeh.plotting.show(obj, browser, new, notebook_handle, notebook_url)
     else:
         html_embedded = embedded_html(obj, resources=None)
         print(u"%html\n\n" + html_embedded)
+
 
 show.__doc__ = bokeh.plotting.show.__doc__
 
@@ -157,9 +166,10 @@ def embedded_html(fig, resources="CDN"):
 
     # Add plot script and div
     script, div = components(fig)
-    html_embedded += "\n\n" + script + "\n\n" + div
+    html_embedded += "\n\n" + div + "\n\n" + script
 
     return html_embedded
+
 
 def get_bokeh_resources():
     "Returns string with all JS & CSS resources needed for Bokeh for HTML output"
@@ -168,18 +178,11 @@ def get_bokeh_resources():
     js_css_resources = ""
     for css in CDN.css_files:
         js_css_resources += (
-            """<link
-        href="%s"
-        rel="stylesheet" type="text/css">
-    """
+            """<link href="%s" rel="stylesheet" type="text/css">\n"""
             % css
         )
 
     for js in CDN.js_files:
-        js_css_resources += (
-            """<script src="%s"></script>
-    """
-            % js
-        )
+        js_css_resources += """<script src="%s"></script>\n""" % js
 
     return js_css_resources

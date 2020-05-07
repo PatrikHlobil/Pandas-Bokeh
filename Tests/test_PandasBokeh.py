@@ -1,13 +1,15 @@
 import json
-import pytest
-import pandas as pd
-import numpy as np
-import pandas_bokeh
 import os
+
+import numpy as np
+import pandas as pd
+import pytest
+
+import pandas_bokeh
 
 DIRECTORY = os.path.dirname(__file__)
 TEST_SETS_DIRECTORY = os.path.join(
-    os.path.dirname(DIRECTORY), "Documentation", "Testdata"
+    os.path.dirname(DIRECTORY), "docs", "Testdata"
 )
 
 os.makedirs(os.path.join(DIRECTORY, "Plots"), exist_ok=True)
@@ -126,6 +128,17 @@ def test_basic_lineplot(df_stock):
     output = pandas_bokeh.row([p_basic_lineplot, p_basic_lineplot_accessor])
     with open(os.path.join(DIRECTORY, "Plots", "Basic_lineplot.html"), "w") as f:
         f.write(pandas_bokeh.embedded_html(output))
+
+    assert True
+
+def test_basic_lineplot_rangetool(df_stock):
+    """Test for basic lineplot above with a rangetool extension"""
+
+    p_basic_lineplot_accessor_pandas_backend = df_stock.plot.line(show_figure=False, rangetool=True)
+
+    # Output plot as HTML:
+    pandas_bokeh.output_file(os.path.join(DIRECTORY, "Plots", "Basic_lineplot_rangetool.html"))
+    pandas_bokeh.save(p_basic_lineplot_accessor_pandas_backend)
 
     assert True
 
@@ -253,11 +266,19 @@ def test_pointplot():
 def test_scatterplot(df_iris):
     "Test for scatterplot"
 
-    # Create Div with DataFrame:
-    from bokeh.models import Div
+    #Create Bokeh-Table with DataFrame:
+    from bokeh.models.widgets import DataTable, TableColumn
+    from bokeh.models import ColumnDataSource
 
-    div_df = Div(text=df_iris.head(10).to_html(index=False), width=550)
-    div_df_accessor = Div(text=df_iris.head(10).to_html(index=False), width=550)
+    data_table = DataTable(
+        columns=[TableColumn(field=Ci, title=Ci) for Ci in df_iris.columns],
+        source=ColumnDataSource(df_iris.head(10)),
+    )
+
+    data_table_accessor = DataTable(
+        columns=[TableColumn(field=Ci, title=Ci) for Ci in df_iris.columns],
+        source=ColumnDataSource(df_iris.head(10)),
+    )
 
     # Create Scatterplot:
     arguments = dict(
@@ -276,7 +297,7 @@ def test_scatterplot(df_iris):
 
     # Combine Div and Scatterplot via grid layout:
     output = pandas_bokeh.plot_grid(
-        [[div_df, p_scatter], [div_df_accessor, p_scatter_accessor]],
+        [[data_table, p_scatter], [data_table_accessor, p_scatter_accessor]],
         show_plot=False,
         return_html=True,
     )
@@ -714,3 +735,16 @@ def test_mapplot(df_mapplot):
 
     pandas_bokeh.output_file(os.path.join(DIRECTORY, "Plots", "Mapplot.html"))
     pandas_bokeh.save(layout)
+
+def test_autosizing(df_fruits):
+    """
+    Autoscaling test
+    """
+
+    kwargs = dict(figsize=(500, 200), sizing_mode="scale_width", show_figure=False)
+
+    p_autoscale = df_fruits.plot_bokeh(kind="bar", **kwargs)
+    pandas_bokeh.output_file(os.path.join(DIRECTORY, "Plots", "AutoScale.html"))
+    pandas_bokeh.save(p_autoscale)
+
+    assert True

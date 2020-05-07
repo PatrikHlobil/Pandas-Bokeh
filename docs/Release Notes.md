@@ -83,4 +83,21 @@ Changes:
 * Bugfixes
 * Implementation of **number_format** keyword for line, scatterplots
 
+## 0.3
 
+* Official Pandas backend switch support for pandas >= 0.25
+* Add **stepplot**
+* Add support for colormap ticker formatting in Geoplots
+* Support for multipolygons & holes in Geoplots
+* Bugfixes
+
+
+## 0.4
+
+* Rangetool support
+* Autoscaling support using the **sizing_mode** keyword
+* Bugfixes 
+
+## 0.4.1
+
+* speedup when plotting GeoDataFrames

@@ -1,5 +1,7 @@
 # Basic .gitattributes for a python repo.
 
+*.ipynb linguist-documentation
+
 # Source files
 # ============
 *.pxd		text diff=python

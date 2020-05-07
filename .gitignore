@@ -15,3 +15,7 @@ build/
 .coverage*
 .coverage
 .idea
+conda/
+github-pages-tmp/
+!index.html
+!template.html

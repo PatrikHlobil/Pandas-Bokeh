@@ -17,3 +17,12 @@
 [gjeusel](https://github.com/gjeusel)
 
  * Pull request [#27](https://github.com/PatrikHlobil/Pandas-Bokeh/pull/27): *Add step plot*
+
+[ashton-sidhu](https://github.com/ashton-sidhu)
+
+ * Pull request[#41](https://github.com/PatrikHlobil/Pandas-Bokeh/pull/41) *Add autoscaling*
+ * Pull request[#42](https://github.com/PatrikHlobil/Pandas-Bokeh/pull/42) *Add rangetool*
+
+[lamourj](https://github.com/lamourj)
+
+ * Pull request[#49](https://github.com/PatrikHlobil/Pandas-Bokeh/pull/49) * Speedup GeoDaraframe Plotting*
