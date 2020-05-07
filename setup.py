@@ -78,7 +78,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/PatrikHlobil/Pandas-Bokeh",
     packages=setuptools.find_packages(),
-    install_requires=["bokeh >=0.13", "pandas >=0.22.0"],
+    install_requires=["bokeh>=0.13", "pandas>=0.22.0"],
     classifiers=[
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
