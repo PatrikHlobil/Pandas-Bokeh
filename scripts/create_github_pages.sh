@@ -1,4 +1,9 @@
+#!/bin/bash
 set -e
+
+# Set working directory to script directory parent: 
+cd "$(dirname "$0")"
+cd ..
 
 # Clone markdown to HTML Repo:
 rm -rf github-pages-tmp
@@ -15,6 +20,8 @@ python -m markdown -x fenced_code github-pages-tmp/README.md -f github-pages-tmp
 
 # Add Bootstrap template theme:
 python docs/github-pages/apply_template_theme_to_readme.py --readme_file github-pages-tmp/README.html
+
+rm -rf 
 
 
 
