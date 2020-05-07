@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
+import warnings
+
 from .base import output_notebook, output_file, plot_grid, show, embedded_html
 from .plot import plot, FramePlotMethods
 from .geoplot import geoplot
@@ -8,7 +11,7 @@ from .geoplot import geoplot
 from bokeh.layouts import column, row, layout
 from bokeh.io import save
 
-import warnings
+
 
 __version__ = "0.4.3"
 
@@ -78,10 +81,11 @@ except ImportError:
 
 
 # Define Bokeh-plot method for PySpark DataFrames:
-try:
-    import pyspark
+if sys.version_info[1] < 8:    # TODO: pyspark currently does not support Python 3.8!
+    try:
+        import pyspark
 
-    plot_bokeh = CachedAccessor("plot_bokeh", FramePlotMethods)
-    pyspark.sql.dataframe.DataFrame.plot_bokeh = plot_bokeh
-except ImportError:
-    pass
+        plot_bokeh = CachedAccessor("plot_bokeh", FramePlotMethods)
+        pyspark.sql.dataframe.DataFrame.plot_bokeh = plot_bokeh
+    except ImportError:
+        pass
