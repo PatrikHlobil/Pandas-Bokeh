@@ -1,11 +1,7 @@
 import numbers
 import sys
 
-if sys.version_info >= (3, 0):
-    from collections import OrderedDict
-    from collections.abc import Iterable, Hashable
-else:
-    from collections import OrderedDict, Iterable, Hashable
+from collections import OrderedDict, Iterable, Hashable
 
 import numpy as np
 import pandas as pd
@@ -14,10 +10,7 @@ from .base import embedded_html
 
 from bokeh.colors import RGB
 import bokeh
-from bokeh.models import (
-        TickFormatter,
-        NumeralTickFormatter
-    )
+from bokeh.models import TickFormatter, NumeralTickFormatter
 
 blue_colormap = [RGB(255 - i, 255 - i, 255) for i in range(256)]
 
@@ -93,15 +86,11 @@ def _add_backgroundtile(
 
     elif not tile_provider is None:
         if not isinstance(tile_provider, str):
-            raise ValueError(
-                "<tile_provider> only accepts the values: %s" % TILE_PROVIDERS
-            )
+            raise ValueError(f"<tile_provider> only accepts the values: {TILE_PROVIDERS}")
         elif _get_background_tile(tile_provider) != False:
             t = p.add_tile(_get_background_tile(tile_provider))
         else:
-            raise ValueError(
-                "<tile_provider> only accepts the values: %s" % TILE_PROVIDERS
-            )
+            raise ValueError(f"<tile_provider> only accepts the values: {TILE_PROVIDERS}")
         t.alpha = tile_alpha
 
     return p
@@ -123,12 +112,12 @@ def _get_figure(col):
 def convert_geoDataFrame_to_patches(gdf, geometry_column_name="geometry"):
     """Creates from a geoDataFrame with Polygons and Multipolygons a Pandas DataFrame with x any y columns specifying the geometry of the Polygons"""
 
-    import geopandas as gpd
-
     df_new = []
 
-    def extract(row, geometry):
+    def add_x_and_y_columns(row, geometry):
+        row = row.copy()
         x, y = geometry.exterior.xy
+
         # Convert to int for web mercador projection to save space:
         row["__x__"] = [[[int(_) for _ in x]]]
         row["__y__"] = [[[int(_) for _ in y]]]
@@ -143,11 +132,11 @@ def convert_geoDataFrame_to_patches(gdf, geometry_column_name="geometry"):
     for i, row in gdf.iterrows():
         geometry = row[geometry_column_name]
         if geometry.type == "Polygon":
-            df_new.append(extract(row, geometry))
+            df_new.append(add_x_and_y_columns(row, geometry))
 
         if geometry.type == "MultiPolygon":
             for polygon in geometry:
-                df_new.append(extract(row, polygon))
+                df_new.append(add_x_and_y_columns(row, polygon))
 
     df_new = pd.DataFrame(df_new)
 
@@ -163,7 +152,8 @@ def get_tick_formatter(formatter_arg):
         return NumeralTickFormatter(format=formatter_arg)
     else:
         raise ValueError(
-            "<colorbar_tick_format> parameter only accepts a string or a objects of bokeh.models.formatters.")
+            "<colorbar_tick_format> parameter only accepts a string or a objects of bokeh.models.formatters."
+        )
 
 
 def geoplot(
@@ -242,10 +232,7 @@ def geoplot(
         if "Polygon" in str(gdf.geom_type.unique()):
             layertypes.append("Polygon")
         if len(layertypes) > 1:
-            raise Exception(
-                "Can only plot GeoDataFrames/Series with single type of geometry (either Point, Line or Polygon). Provided is a GeoDataFrame/Series with types: %s"
-                % layertypes
-            )
+            raise Exception(f"Can only plot GeoDataFrames/Series with single type of geometry (either Point, Line or Polygon). Provided is a GeoDataFrame/Series with types: {layertypes}")
     else:
         layertypes = ["Point"]
 
@@ -307,10 +294,7 @@ def geoplot(
     elif category in gdf.columns:
         pass
     else:
-        raise ValueError(
-            "Could not find column '%s' in GeoDataFrame. For <category>, please provide an existing single column of the GeoDataFrame."
-            % category
-        )
+        raise ValueError(f"Could not find column '{category}' in GeoDataFrame. For <category>, please provide an existing single column of the GeoDataFrame.")
 
     # Check for dropdown (multiple choropleth plots via dropdown selection):
     if dropdown is None:
@@ -322,9 +306,7 @@ def geoplot(
     else:
         for col in dropdown:
             if col not in gdf.columns:
-                raise ValueError(
-                    "Could not find column '%s' for <dropdown> in GeoDataFrame. " % col
-                )
+                raise ValueError(f"Could not find column '{col}' for <dropdown> in GeoDataFrame. ")
 
     # Check for slider (multiple choropleth plots via slider selection):
     if slider is None:
@@ -336,9 +318,7 @@ def geoplot(
     else:
         for col in slider:
             if col not in gdf.columns:
-                raise ValueError(
-                    "Could not find column '%s' for <slider> in GeoDataFrame. " % col
-                )
+                raise ValueError(f"Could not find column '{col}' for <slider> in GeoDataFrame. ")
 
         if not slider_range is None:
             if not isinstance(slider_range, Iterable):
@@ -372,24 +352,15 @@ def geoplot(
             if len(colormap) > 1:
                 pass
             else:
-                raise ValueError(
-                    "<colormap> only accepts a list/tuple of at least two colors or the name of one of the following predefined colormaps (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): %s"
-                    % (list(all_palettes.keys()))
-                )
+                raise ValueError(f"<colormap> only accepts a list/tuple of at least two colors or the name of one of the following predefined colormaps (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): {list(all_palettes.keys())}")
         elif isinstance(colormap, str):
             if colormap in all_palettes:
                 colormap = all_palettes[colormap]
                 colormap = colormap[max(colormap.keys())]
             else:
-                raise ValueError(
-                    "Could not find <colormap> with name %s. The following predefined colormaps are supported (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): %s"
-                    % (colormap, list(all_palettes.keys()))
-                )
+                raise ValueError(f"Could not find <colormap> with name {colormap}. The following predefined colormaps are supported (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): {list(all_palettes.keys())}")
         else:
-            raise ValueError(
-                "<colormap> only accepts a list/tuple of at least two colors or the name of one of the following predefined colormaps (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): %s"
-                % (list(all_palettes.keys()))
-            )
+            raise ValueError(f"<colormap> only accepts a list/tuple of at least two colors or the name of one of the following predefined colormaps (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): {list(all_palettes.keys())}")
     else:
         if isinstance(color, str):
             colormap = [color]
@@ -479,7 +450,6 @@ def geoplot(
         if type(t) == WheelZoomTool:
             t.zoom_on_axis = False
 
-
     # Hide legend if wanted:
     legend_input = legend
     if isinstance(legend, str):
@@ -494,10 +464,7 @@ def geoplot(
     elif not category is None:
         # Check if category column is numerical:
         if not issubclass(gdf[category].dtype.type, np.number):
-            raise NotImplementedError(
-                "<category> plot only yet implemented for numerical columns. Column '%s' is not numerical."
-                % category
-            )
+            raise NotImplementedError(f"<category> plot only yet implemented for numerical columns. Column '{category}' is not numerical.")
 
         field = category
         colormapper_options = {"palette": colormap}
@@ -524,10 +491,7 @@ def geoplot(
         # Check if all columns in dropdown selection are numerical:
         for col in dropdown:
             if not issubclass(gdf[col].dtype.type, np.number):
-                raise NotImplementedError(
-                    "<dropdown> plot only yet implemented for numerical columns. Column '%s' is not numerical."
-                    % col
-                )
+                raise NotImplementedError(f"<dropdown> plot only yet implemented for numerical columns. Column '{col}' is not numerical.")
 
         field = dropdown[0]
         colormapper_options = {"palette": colormap}
@@ -553,10 +517,7 @@ def geoplot(
         # Check if all columns in dropdown selection are numerical:
         for col in slider:
             if not issubclass(gdf[col].dtype.type, np.number):
-                raise NotImplementedError(
-                    "<slider> plot only yet implemented for numerical columns. Column '%s' is not numerical."
-                    % col
-                )
+                raise NotImplementedError(f"<slider> plot only yet implemented for numerical columns. Column '{col}' is not numerical.")
 
         field = slider[0]
         colormapper_options = {"palette": colormap}
@@ -616,10 +577,7 @@ def geoplot(
         else:
             for col in hovertool_columns:
                 if col not in gdf.columns:
-                    raise ValueError(
-                        "Could not find columns '%s' in GeoDataFrame. <hovertool_columns> has to be a list of columns of the GeoDataFrame or the string 'all'."
-                        % col
-                    )
+                    raise ValueError(f"Could not find columns '{col}' in GeoDataFrame. <hovertool_columns> has to be a list of columns of the GeoDataFrame or the string 'all'.")
     else:
         if category is None:
             hovertool_columns = []

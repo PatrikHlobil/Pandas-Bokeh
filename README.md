@@ -33,11 +33,11 @@ or *conda*:
 
     conda install -c patrikhlobil pandas-bokeh       (unfortunately, only version 0.3 is available right now -> please install via pip if possible)
 
-With the current release 0.4, **Pandas-Bokeh** officially supports **Python 3.5** and newer. It will probably still work for older Python versions, but is not tested against these.
+With the current release 0.4.3, **Pandas-Bokeh** officially supports **Python 3.6** and newer. It will probably still work for older Python versions, but is not tested against these.
 
 <br>
 
-The current release is **0.4**. For more details, see [Release Notes](#releasenotes).
+The current release is **0.4.3**. For more details, see [Release Notes](#releasenotes).
 
 <br>
 
@@ -1328,3 +1328,15 @@ Plots like scatterplot or histogram also have many more additional customization
 * Rangetool support
 * Autoscaling support using the **sizing_mode** keyword
 * Bugfixes 
+
+## 0.4.1
+
+* speedup when plotting GeoDataFrames
+
+## 0.4.2
+
+* Bugfixes
+
+## 0.4.3
+
+* Bugfixes

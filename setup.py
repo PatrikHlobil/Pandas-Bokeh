@@ -1,6 +1,9 @@
 import setuptools
 
-long_description = """# Pandas Bokeh
+import pandas_bokeh
+version = pandas_bokeh.__version__
+
+long_description = f"""# Pandas Bokeh
 
 **Pandas Bokeh** provides a [Bokeh](https://bokeh.pydata.org/en/latest/) plotting backend for [Pandas](https://pandas.pydata.org/) and [GeoPandas](http://geopandas.org/), similar to the already existing [Visualization](https://pandas.pydata.org/pandas-docs/stable/visualization.html) feature of Pandas. Importing the library adds a complementary plotting method ***plot_bokeh()*** on **DataFrames** and **Series**. It also has native plotting backend support for Pandas >= 0.25.
 
@@ -30,7 +33,7 @@ With **Pandas Bokeh**, creating stunning, interactive, HTML-based visualization 
 df.plot_bokeh()
 ```
 
-In release **0.4**, the following plot types are supported:
+In release **{version}**, the following plot types are supported:
 
 * line
 * step
@@ -63,8 +66,7 @@ Each plot type like scatterplot or histogram further has many more additional cu
 
 """
 
-import pandas_bokeh
-version = pandas_bokeh.__version__
+
 
 setuptools.setup(
     name="pandas-bokeh",
@@ -76,16 +78,16 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/PatrikHlobil/Pandas-Bokeh",
     packages=setuptools.find_packages(),
-    install_requires=["bokeh >=0.13", "pandas >=0.22.0"],
+    install_requires=["bokeh>=0.13", "pandas>=0.22.0"],
     classifiers=[
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Visualization'
     ],
-    python_requires=">=3.5"
+    python_requires=">=3.6"
 )
