@@ -1,0 +1,39 @@
+package:
+  name: "pandas-bokeh"
+  version: "release_version"
+
+source:
+  git_rev: "release_version"
+  git_url: "https://github.com/PatrikHlobil/Pandas-Bokeh.git"
+
+build:
+  number: 0
+  script: "{{ PYTHON }} -m pip install . -vv"
+
+requirements:
+  host:
+    - bokeh >=1.0.0
+    - pandas >=0.23.0
+    - pip
+    - python
+  run:
+    - bokeh >=1.0.0
+    - pandas >=0.23.0
+    - python
+
+test:
+  imports:
+    - pandas_bokeh
+
+about:
+  home: "https://github.com/PatrikHlobil/Pandas-Bokeh"
+  license: MIT
+  license_family: MIT
+  license_file: 
+  summary: "Bokeh plotting backend for Pandas, GeoPandas & Pyspark"
+  doc_url: 
+  dev_url: 
+
+extra:
+  recipe-maintainers:
+    - PatrikHlobil

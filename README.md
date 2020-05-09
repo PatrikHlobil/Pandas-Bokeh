@@ -31,7 +31,7 @@ You can install **Pandas-Bokeh** from [PyPI](https://pypi.org/project/pandas-bok
 
 or *conda*:
 
-    conda install -c patrikhlobil pandas-bokeh       (unfortunately, only version 0.3 is available right now -> please install via pip if possible)
+    conda install -c patrikhlobil pandas-bokeh
 
 With the current release 0.4.3, **Pandas-Bokeh** officially supports **Python 3.6** and newer. It will probably still work for older Python versions, but is not tested against these.
 
