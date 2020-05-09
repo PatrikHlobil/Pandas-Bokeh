@@ -109,8 +109,9 @@ def _get_figure(col):
             return _get_figure(children)
 
 
-def convert_geoDataFrame_to_patches(gdf, geometry_column_name="geometry"):
-    """Creates from a geoDataFrame with Polygons and Multipolygons a Pandas DataFrame with x any y columns specifying the geometry of the Polygons"""
+def convert_geoDataFrame_to_patches(gdf, geometry_column):
+    """Creates from a geoDataFrame with Polygons and Multipolygons a Pandas DataFrame 
+    with x any y columns specifying the geometry of the Polygons."""
 
     df_new = []
 
@@ -130,7 +131,7 @@ def convert_geoDataFrame_to_patches(gdf, geometry_column_name="geometry"):
         return row
 
     for i, row in gdf.iterrows():
-        geometry = row[geometry_column_name]
+        geometry = row[geometry_column]
         if geometry.type == "Polygon":
             df_new.append(add_x_and_y_columns(row, geometry))
 
@@ -140,7 +141,7 @@ def convert_geoDataFrame_to_patches(gdf, geometry_column_name="geometry"):
 
     df_new = pd.DataFrame(df_new)
 
-    df_new = df_new.drop(columns=["geometry"])
+    df_new = df_new.drop(columns=[geometry_column])
     return df_new
 
 
@@ -158,6 +159,7 @@ def get_tick_formatter(formatter_arg):
 
 def geoplot(
     gdf_in,
+    geometry_column="geometry",
     figure=None,
     figsize=None,
     title="",
@@ -262,7 +264,7 @@ def geoplot(
         # Simplify shapes if wanted:
         if isinstance(simplify_shapes, numbers.Number):
             if layertypes[0] in ["Line", "Polygon"]:
-                gdf["geometry"] = gdf["geometry"].simplify(simplify_shapes)
+                gdf[geometry_column] = gdf[geometry_column].simplify(simplify_shapes)
         elif not simplify_shapes is None:
             raise ValueError(
                 "<simplify_shapes> parameter only accepts numbers or None."
@@ -559,7 +561,7 @@ def geoplot(
         if not isinstance(hovertool_columns, (list, tuple)):
             if hovertool_columns == "all":
                 hovertool_columns = list(
-                    filter(lambda col: col != "geometry", gdf.columns)
+                    filter(lambda col: col != geometry_column, gdf.columns)
                 )
             else:
                 raise ValueError(
@@ -589,7 +591,7 @@ def geoplot(
         gdf["Geometry"] = 0
         additional_columns = ["x", "y"]
     else:
-        additional_columns = ["geometry"]
+        additional_columns = [geometry_column]
     for kwarg, value in kwargs.items():
         if isinstance(value, Hashable):
             if value in gdf.columns:
@@ -633,7 +635,7 @@ def geoplot(
 
         # Creates from a geoDataFrame with Polygons and Multipolygons a Pandas DataFrame
         # with x any y columns specifying the geometry of the Polygons:
-        geo_source = ColumnDataSource(convert_geoDataFrame_to_patches(gdf))
+        geo_source = ColumnDataSource(convert_geoDataFrame_to_patches(gdf, geometry_column))
 
         # Plot polygons:
         glyph = p.multi_polygons(
