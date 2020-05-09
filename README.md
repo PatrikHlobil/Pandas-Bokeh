@@ -755,6 +755,7 @@ df_states.plot_bokeh(simplify_shapes=10000)
 We also passed the optional parameter **simplify_shapes** (~meter) to improve plotting performance (for a reference see [shapely.object.simplify](https://shapely.readthedocs.io/en/stable/manual.html#object.simplify)). The above geolayer thus has an accuracy of about 10km.
 
 Many keyword arguments like *xlabel, ylabel, xlim, ylim, title, colormap, hovertool, zooming, panning, ...* for costumizing the plot are also available for the geoplotting API and can be uses as in the examples shown above. There are however also many other options especially for plotting geodata:
+* **geometry_column**: Specify the column that stores the geometry-information (default: "geometry")
 * **hovertool_columns**: Specify column names, for which values should be shown in hovertool
 * **hovertool_string**: If specified, this string will be used for the hovertool (@{column} will be replaced by the value of the column for the element the mouse hovers over, see also [Bokeh documentation](https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#custom-tooltip))
 * **colormap_uselog**: If set *True*, the colormapper is using a logscale. *Default: False*
@@ -1341,3 +1342,7 @@ Plots like scatterplot or histogram also have many more additional customization
 
 * Bugfixes (#55-Multipolygon plotting error)
 * Improvements with sizing & zooming (#61)
+
+## 0.5 (in development):
+
+* Implementation of **geometry_column**-parameter for geoplots
