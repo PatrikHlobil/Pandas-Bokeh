@@ -1,7 +1,8 @@
 import numbers
 import sys
 
-from collections import OrderedDict, Iterable, Hashable
+from collections import OrderedDict
+from collections.abc import Iterable, Hashable
 
 import numpy as np
 import pandas as pd
