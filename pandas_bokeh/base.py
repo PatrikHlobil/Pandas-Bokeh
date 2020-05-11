@@ -178,8 +178,7 @@ def get_bokeh_resources():
     js_css_resources = ""
     for css in CDN.css_files:
         js_css_resources += (
-            """<link href="%s" rel="stylesheet" type="text/css">\n"""
-            % css
+            """<link href="%s" rel="stylesheet" type="text/css">\n""" % css
         )
 
     for js in CDN.js_files:

@@ -191,6 +191,7 @@ There are various optional parameters to tune the plots, for example:
 * **toolbar_location**: Specify the position of the toolbar location (None, "above", "below", "left" or "right"). Default: *"right"*
 * **zooming**: Enables/Disables zooming. Default: *True*
 * **panning**: Enables/Disables panning. Default: *True*
+* **fontsize_label/fontsize_ticks/fontsize_title**: Set fontsize of labels, ticks or title (int or string of form "15pt")
 * **rangetool** Enables a range tool scroller. Default *False*
 
 
@@ -308,7 +309,10 @@ df.plot_bokeh.step(
     xticks=range(-1, 1),
     colormap=["#009933", "#ff3399"],
     title="Pointplot (Parabula vs. Cube)",
-    figsize=(800,300)
+    figsize=(800,300),
+    fontsize_title=30,
+    fontsize_label=25,
+    fontsize_ticks=15,
     )
 
 df.plot_bokeh.step(
@@ -1345,4 +1349,7 @@ Plots like scatterplot or histogram also have many more additional customization
 
 ## 0.5 (in development):
 
-* Implementation of **geometry_column**-parameter for geoplots
+* Implementation of **geometry_column**-parameter for geoplots (#)
+* Fix of deprecation warnings for Bokeh >= 2.0 and future minimum requirement Bokeh>=2.0 (#51-BokehDeprecationWarnings with Bokeh v1.4.0, #59-Bokeh 2.0 is imminent)
+* Fix of Problem with Datetime Hovertool columns with Bokeh>=2.0 (#60-Hovertool datetime shows as percentage.)
+* Added fontsize settings for Labels, Title and Ticks

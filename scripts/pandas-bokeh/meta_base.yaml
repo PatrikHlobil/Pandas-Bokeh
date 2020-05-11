@@ -12,12 +12,12 @@ build:
 
 requirements:
   host:
-    - bokeh >=1.0.0
+    - bokeh >=2.0.0
     - pandas >=0.23.0
     - pip
     - python
   run:
-    - bokeh >=1.0.0
+    - bokeh >=2.0.0
     - pandas >=0.23.0
     - python
 
