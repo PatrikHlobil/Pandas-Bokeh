@@ -8,9 +8,7 @@ import pytest
 import pandas_bokeh
 
 DIRECTORY = os.path.dirname(__file__)
-TEST_SETS_DIRECTORY = os.path.join(
-    os.path.dirname(DIRECTORY), "docs", "Testdata"
-)
+TEST_SETS_DIRECTORY = os.path.join(os.path.dirname(DIRECTORY), "docs", "Testdata")
 
 os.makedirs(os.path.join(DIRECTORY, "Plots"), exist_ok=True)
 
@@ -121,7 +119,13 @@ def test_basic_lineplot(df_stock):
     p_basic_lineplot = df_stock.plot_bokeh(kind="line", show_figure=False)
     p_basic_lineplot_accessor = df_stock.plot_bokeh.line(show_figure=False)
 
-    p_basic_lineplot_pandas_backend = df_stock.plot(kind="line", show_figure=False)
+    p_basic_lineplot_pandas_backend = df_stock.plot(
+        kind="line",
+        fontsize_title=30,
+        fontsize_label=25,
+        fontsize_ticks=15,
+        show_figure=False,
+    )
     p_basic_lineplot_accessor_pandas_backend = df_stock.plot.line(show_figure=False)
 
     # Output plot as HTML:
@@ -131,13 +135,18 @@ def test_basic_lineplot(df_stock):
 
     assert True
 
+
 def test_basic_lineplot_rangetool(df_stock):
     """Test for basic lineplot above with a rangetool extension"""
 
-    p_basic_lineplot_accessor_pandas_backend = df_stock.plot.line(show_figure=False, rangetool=True)
+    p_basic_lineplot_accessor_pandas_backend = df_stock.plot.line(
+        show_figure=False, rangetool=True
+    )
 
     # Output plot as HTML:
-    pandas_bokeh.output_file(os.path.join(DIRECTORY, "Plots", "Basic_lineplot_rangetool.html"))
+    pandas_bokeh.output_file(
+        os.path.join(DIRECTORY, "Plots", "Basic_lineplot_rangetool.html")
+    )
     pandas_bokeh.save(p_basic_lineplot_accessor_pandas_backend)
 
     assert True
@@ -266,7 +275,7 @@ def test_pointplot():
 def test_scatterplot(df_iris):
     "Test for scatterplot"
 
-    #Create Bokeh-Table with DataFrame:
+    # Create Bokeh-Table with DataFrame:
     from bokeh.models.widgets import DataTable, TableColumn
     from bokeh.models import ColumnDataSource
 
@@ -735,6 +744,7 @@ def test_mapplot(df_mapplot):
 
     pandas_bokeh.output_file(os.path.join(DIRECTORY, "Plots", "Mapplot.html"))
     pandas_bokeh.save(layout)
+
 
 def test_autosizing(df_fruits):
     """
