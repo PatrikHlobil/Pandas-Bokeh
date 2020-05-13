@@ -35,7 +35,7 @@ from bokeh.plotting import figure
 from bokeh.transform import cumsum, dodge
 from pandas.core.base import PandasObject
 
-from .base import embedded_html, show
+from .base import embedded_html, show, set_fontsizes_of_figure
 from .geoplot import geoplot
 
 
@@ -50,13 +50,6 @@ def check_type(data):
         return "datetime"
     else:
         return "object"
-
-
-def _set_fontsize(figure, fontsize, where):
-    if isinstance(fontsize, int) and fontsize > 0:
-        fontsize = f"{fontsize}pt"
-    setattr(figure.xaxis, where, fontsize)
-    setattr(figure.yaxis, where, fontsize)
 
 
 def get_colormap(colormap, N_cols):
@@ -141,6 +134,7 @@ def plot(
     fontsize_title=None,
     fontsize_label=None,
     fontsize_ticks=None,
+    fontsize_legend=None,
     color=None,
     colormap=None,
     category=None,
@@ -901,23 +895,6 @@ def plot(
     if not legend:
         p.legend.visible = False
 
-    # Set fontsizes:
-    if fontsize_title:
-        if isinstance(fontsize_title, int) and fontsize_title > 0:
-            fontsize_title = f"{fontsize_title}pt"
-        p.title.text_font_size = fontsize_title
-
-    if fontsize_label:
-        _set_fontsize(
-            figure=p, fontsize=fontsize_label, where="axis_label_text_font_size"
-        )
-
-    if fontsize_ticks:
-        _set_fontsize(
-            figure=p, fontsize=fontsize_ticks, where="major_label_text_font_size"
-        )
-
-
     # Modify legend position:
     else:
         if legend is True:
@@ -938,6 +915,16 @@ def plot(
             raise ValueError(
                 "Legend can only be True/False or one of 'top_left', 'top_center', 'top_right', 'center_left', 'center', 'center_right', 'bottom_left', 'bottom_center', 'bottom_right'"
             )
+
+    # Set fontsizes:
+    set_fontsizes_of_figure(
+        figure=p,
+        fontsize_title=fontsize_title,
+        fontsize_label=fontsize_label,
+        fontsize_ticks=fontsize_ticks,
+        fontsize_legend=fontsize_legend,
+    )
+
 
     # Scientific formatting for axes:
     if disable_scientific_axes is None:

@@ -124,9 +124,16 @@ def test_basic_lineplot(df_stock):
         fontsize_title=30,
         fontsize_label=25,
         fontsize_ticks=15,
+        fontsize_legend=40,
         show_figure=False,
     )
-    p_basic_lineplot_accessor_pandas_backend = df_stock.plot.line(show_figure=False)
+    p_basic_lineplot_accessor_pandas_backend = df_stock.plot.line(
+        fontsize_title=30,
+        fontsize_label=25,
+        fontsize_ticks=15,
+        fontsize_legend=40,
+        show_figure=False,
+    )
 
     # Output plot as HTML:
     output = pandas_bokeh.row([p_basic_lineplot, p_basic_lineplot_accessor])

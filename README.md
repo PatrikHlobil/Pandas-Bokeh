@@ -191,7 +191,7 @@ There are various optional parameters to tune the plots, for example:
 * **toolbar_location**: Specify the position of the toolbar location (None, "above", "below", "left" or "right"). Default: *"right"*
 * **zooming**: Enables/Disables zooming. Default: *True*
 * **panning**: Enables/Disables panning. Default: *True*
-* **fontsize_label/fontsize_ticks/fontsize_title**: Set fontsize of labels, ticks or title (int or string of form "15pt")
+* **fontsize_label/fontsize_ticks/fontsize_title/fontsize_legend**: Set fontsize of labels, ticks, title or legend (int or string of form "15pt")
 * **rangetool** Enables a range tool scroller. Default *False*
 
 
@@ -297,7 +297,6 @@ df.plot_bokeh.point(
 With a similar API as the line- & pointplots, one can generate a stepplot. Additional keyword arguments for this plot type are passes to [bokeh.plotting.figure.step](bokeh.plotting.figure.scatter), e.g. **mode** (before, after, center), see the following example 
 
 ```python
-
 import numpy as np
 
 x = np.arange(-3, 3, 1)
@@ -313,6 +312,7 @@ df.plot_bokeh.step(
     fontsize_title=30,
     fontsize_label=25,
     fontsize_ticks=15,
+    fontsize_legend=5,
     )
 
 df.plot_bokeh.step(
