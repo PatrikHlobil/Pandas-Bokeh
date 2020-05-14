@@ -396,10 +396,6 @@ def geoplot(
     if xlim is not None:
         if isinstance(xlim, (tuple, list)):
             if len(xlim) == 2:
-                from pyproj import Proj, transform
-
-                inProj = Proj(init="epsg:4326")
-                outProj = Proj(init="epsg:3857")
                 xmin, xmax = xlim
                 for _ in [xmin, xmax]:
                     if not -180 < _ <= 180:
@@ -408,8 +404,11 @@ def geoplot(
                         )
                 if not xmin < xmax:
                     raise ValueError("xmin has to be smaller than xmax.")
-                xmin = transform(inProj, outProj, xmin, 0)[0]
-                xmax = transform(inProj, outProj, xmax, 0)[0]
+
+                from pyproj import Transformer
+                transformer = Transformer.from_crs("epsg:4326", "epsg:3857")
+                xmin = transformer.transform(0, xmin)[0]
+                xmax = transformer.transform(0, xmax)[0]
                 figure_options["x_range"] = (xmin, xmax)
             else:
                 raise ValueError(
@@ -422,20 +421,19 @@ def geoplot(
     if ylim is not None:
         if isinstance(ylim, (tuple, list)):
             if len(ylim) == 2:
-                from pyproj import Proj, transform
-
-                inProj = Proj(init="epsg:4326")
-                outProj = Proj(init="epsg:3857")
                 ymin, ymax = ylim
                 for _ in [ymin, ymax]:
-                    if not -g0 < _ <= 90:
+                    if not -90 < _ <= 90:
                         raise ValueError(
                             "Limits for y-axis (=Latitude) have to be between -90 and 90."
                         )
                 if not ymin < ymax:
                     raise ValueError("ymin has to be smaller than ymax.")
-                ymin = transform(inProj, outProj, 0, ymin)[1]
-                ymax = transform(inProj, outProj, 0, ymax)[1]
+
+                from pyproj import Transformer
+                transformer = Transformer.from_crs("epsg:4326", "epsg:3857")
+                ymin = transformer.transform(ymin,0)[1]
+                ymax = transformer.transform(ymax,0)[1]
                 figure_options["y_range"] = (ymin, ymax)
             else:
                 raise ValueError(
