@@ -768,6 +768,7 @@ def geoplot(
 
                 //Change selection of field for Colormapper for choropleth plot:
                 var slider_value = slider_widget.value;
+                var i;
                 for(i=0; i<value2name.data["Names"].length; i++)
                     {
                     if (value2name.data["Values"][i] == slider_value)
