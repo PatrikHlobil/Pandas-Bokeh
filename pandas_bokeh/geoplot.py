@@ -266,7 +266,7 @@ def geoplot(
 
     if type(gdf) != pd.DataFrame:
         # Convert GeoDataFrame to Web Mercator Projection:
-        gdf.to_crs({"init": "epsg:3857"}, inplace=True)
+        gdf.to_crs(epsg=3857, inplace=True)
 
         # Simplify shapes if wanted:
         if isinstance(simplify_shapes, numbers.Number):
