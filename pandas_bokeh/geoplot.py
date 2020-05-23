@@ -217,7 +217,7 @@ def geoplot(
         ColorBar,
         BasicTicker,
         LogTicker,
-        Dropdown,
+        Select,
         Slider,
         ColumnDataSource,
     )
@@ -701,8 +701,8 @@ def geoplot(
     # Add Dropdown Widget:
     if not dropdown is None:
         # Define Dropdown widget:
-        dropdown_widget = Dropdown(
-            label="Select Choropleth Layer", menu=list(zip(dropdown, dropdown))
+        dropdown_widget = Select(
+            title="Select Choropleth Layer", options=list(zip(dropdown, dropdown))
         )
 
         # Define Callback for Dropdown widget:
