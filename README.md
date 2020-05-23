@@ -1349,7 +1349,8 @@ Plots like scatterplot or histogram also have many more additional customization
 
 ## 0.5 (in development):
 
-* Implementation of **geometry_column**-parameter for geoplots (#)
+* Implementation of **geometry_column**-parameter for geoplots (#14 Plotting LineString)
 * Fix of deprecation warnings for Bokeh >= 2.0 and future minimum requirement Bokeh>=2.0 (#51-BokehDeprecationWarnings with Bokeh v1.4.0, #59-Bokeh 2.0 is imminent)
 * Fix of Problem with Datetime Hovertool columns with Bokeh>=2.0 (#60-Hovertool datetime shows as percentage.)
+* Fix broken Dropdown and Slider for Geoplots (#68 Not compatible with Bokeh 2.x)
 * Added fontsize settings for Labels, Title and Ticks
