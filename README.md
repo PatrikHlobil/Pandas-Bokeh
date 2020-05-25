@@ -33,11 +33,11 @@ or *conda*:
 
     conda install -c patrikhlobil pandas-bokeh
 
-With the current release 0.4.3, **Pandas-Bokeh** officially supports **Python 3.6** and newer. It will probably still work for older Python versions, but is not tested against these.
+With the current release 0.5, **Pandas-Bokeh** officially supports **Python 3.6** and newer. It will probably still work for older Python versions, but is not tested against these.
 
 <br>
 
-The current release is **0.4.3**. For more details, see [Release Notes](#releasenotes).
+The current release is **0.5**. For more details, see [Release Notes](#releasenotes).
 
 <br>
 
