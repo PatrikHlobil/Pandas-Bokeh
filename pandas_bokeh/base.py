@@ -10,6 +10,43 @@ OUTPUT_TYPE = "file"
 SUPPRESS_OUTPUT = False
 
 
+def _set_fontsize(figure, fontsize, where):
+    "Set fontsize on x- and y-axis"
+    if isinstance(fontsize, int) and fontsize > 0:
+        fontsize = f"{fontsize}pt"
+    setattr(figure.xaxis, where, fontsize)
+    setattr(figure.yaxis, where, fontsize)
+
+def set_fontsizes_of_figure(
+        figure,
+        fontsize_title,
+        fontsize_label,
+        fontsize_ticks,
+        fontsize_legend,
+    ):
+    "Set various fontsizes of figure"
+    
+    if fontsize_title:
+        if isinstance(fontsize_title, int) and fontsize_title > 0:
+            fontsize_title = f"{fontsize_title}pt"
+        figure.title.text_font_size = fontsize_title
+
+    if fontsize_label:
+        _set_fontsize(
+            figure=figure, fontsize=fontsize_label, where="axis_label_text_font_size"
+        )
+
+    if fontsize_ticks:
+        _set_fontsize(
+            figure=figure, fontsize=fontsize_ticks, where="major_label_text_font_size"
+        )
+
+    if fontsize_legend:
+        if isinstance(fontsize_legend, int) and fontsize_legend > 0:
+            fontsize_legend = f"{fontsize_legend}pt"
+        figure.legend.label_text_font_size = fontsize_legend
+
+
 def plot_grid(children, show_plot=True, return_html=False, **kwargs):
     """Create a grid of plots rendered on separate canvases and shows the layout. 
     plot_grid is designed to layout a set of plots. 
@@ -178,8 +215,7 @@ def get_bokeh_resources():
     js_css_resources = ""
     for css in CDN.css_files:
         js_css_resources += (
-            """<link href="%s" rel="stylesheet" type="text/css">\n"""
-            % css
+            """<link href="%s" rel="stylesheet" type="text/css">\n""" % css
         )
 
     for js in CDN.js_files:
