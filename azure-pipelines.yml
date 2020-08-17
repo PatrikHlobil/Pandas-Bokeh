@@ -27,7 +27,7 @@ steps:
 - script: sudo apt-get install openjdk-8-jre icedtea-8-plugin
   displayName: 'Install OpenJDK8'
 
-- script: pip install -r Tests/requirements_test.txt
+- script: pip install pypandoc && pip install -r Tests/requirements_test.txt
   displayName: 'Install Python Libaries'
 
 - script: python setup.py sdist && pip install dist/pandas-bokeh-*

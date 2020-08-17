@@ -12,7 +12,7 @@ from bokeh.layouts import column, row, layout
 from bokeh.io import save
 
 
-__version__ = "0.5"
+__version__ = "0.5.1"
 
 
 # Register plot_bokeh accessor for Pandas DataFrames and Series:

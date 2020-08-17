@@ -35,7 +35,7 @@ from bokeh.plotting import figure
 from bokeh.transform import cumsum, dodge
 from pandas.core.base import PandasObject
 
-from .base import embedded_html, show, set_fontsizes_of_figure
+from .base import embedded_html, set_fontsizes_of_figure, show
 from .geoplot import geoplot
 
 
@@ -925,7 +925,6 @@ def plot(
         fontsize_legend=fontsize_legend,
     )
 
-
     # Scientific formatting for axes:
     if disable_scientific_axes is None:
         pass
@@ -1649,12 +1648,10 @@ def pieplot(
         source["inner_radius"] = [inner_radius] * len(source["__x__values"])
         source["outer_radius"] = [outer_radius] * len(source["__x__values"])
 
-        if bokeh.__version__ < "1.4":
-            legend_parameter_name = "legend"
-        else:
-            legend_parameter_name = "legend_label"
+        legend_parameter_name = "legend_field"
         if i == 0:
-            kwargs[legend_parameter_name] = "__x__values"
+            kwargs[legend_parameter_name] = "__x__values_original"
+            print(kwargs[legend_parameter_name])
         else:
             kwargs.pop(legend_parameter_name, None)
 
