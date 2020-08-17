@@ -1,17 +1,16 @@
 import numbers
 import sys
-
 from collections import OrderedDict
-from collections.abc import Iterable, Hashable
+from collections.abc import Hashable, Iterable
 
+import bokeh
 import numpy as np
 import pandas as pd
+from bokeh.colors import RGB
+from bokeh.models import NumeralTickFormatter, TickFormatter
+from bokeh.tile_providers import get_provider
 
 from .base import embedded_html
-
-from bokeh.colors import RGB
-import bokeh
-from bokeh.models import TickFormatter, NumeralTickFormatter
 
 blue_colormap = [RGB(255 - i, 255 - i, 255) for i in range(256)]
 
@@ -33,32 +32,7 @@ def _get_background_tile(provider_name):
     if provider_name not in TILE_PROVIDERS:
         return False
 
-    if bokeh.__version__ >= "1.1":
-        from bokeh.tile_providers import get_provider
-
-        return get_provider(provider_name)
-    else:
-        from bokeh.tile_providers import (
-            CARTODBPOSITRON,
-            CARTODBPOSITRON_RETINA,
-            STAMEN_TERRAIN,
-            STAMEN_TERRAIN_RETINA,
-            STAMEN_TONER,
-            STAMEN_TONER_BACKGROUND,
-            STAMEN_TONER_LABELS,
-        )
-
-        tile_dict = {
-            "CARTODBPOSITRON": CARTODBPOSITRON,
-            "CARTODBPOSITRON_RETINA": CARTODBPOSITRON_RETINA,
-            "STAMEN_TERRAIN": STAMEN_TERRAIN,
-            "STAMEN_TERRAIN_RETINA": STAMEN_TERRAIN_RETINA,
-            "STAMEN_TONER": STAMEN_TONER,
-            "STAMEN_TONER_BACKGROUND": STAMEN_TONER_BACKGROUND,
-            "STAMEN_TONER_LABELS": STAMEN_TONER_LABELS,
-        }
-
-        return tile_dict[provider_name]
+    return get_provider(provider_name)
 
 
 def _add_backgroundtile(
@@ -406,6 +380,7 @@ def geoplot(
                     raise ValueError("xmin has to be smaller than xmax.")
 
                 from pyproj import Transformer
+
                 transformer = Transformer.from_crs("epsg:4326", "epsg:3857")
                 xmin = transformer.transform(0, xmin)[0]
                 xmax = transformer.transform(0, xmax)[0]
@@ -431,9 +406,10 @@ def geoplot(
                     raise ValueError("ymin has to be smaller than ymax.")
 
                 from pyproj import Transformer
+
                 transformer = Transformer.from_crs("epsg:4326", "epsg:3857")
-                ymin = transformer.transform(ymin,0)[1]
-                ymax = transformer.transform(ymax,0)[1]
+                ymin = transformer.transform(ymin, 0)[1]
+                ymax = transformer.transform(ymax, 0)[1]
                 figure_options["y_range"] = (ymin, ymax)
             else:
                 raise ValueError(
