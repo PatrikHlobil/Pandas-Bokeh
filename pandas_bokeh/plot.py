@@ -236,6 +236,7 @@ def plot(
         "area",
         "pie",
         "map",
+        "rect",
     ]
 
     rangetool_allowed_kinds = ["line", "step"]
@@ -843,6 +844,22 @@ def plot(
         p = pieplot(
             source,
             data_cols,
+            colormap,
+            hovertool,
+            hovertool_string,
+            figure_options,
+            xlabelname,
+            **kwargs,
+        )
+
+    if kind == "rect":
+
+        p = rectplot(
+            p,
+            source,
+            data_cols,
+            category,
+            category_values,
             colormap,
             hovertool,
             hovertool_string,
