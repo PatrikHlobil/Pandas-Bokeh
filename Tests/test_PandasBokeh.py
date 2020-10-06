@@ -799,7 +799,7 @@ def test_rectplot(df_unemployment):
     p_rect_accessor = df_unemployment.plot_bokeh.rect(**kwargs)
 
     p_rect_pandas_backend = df_unemployment.plot(kind="rect", **kwargs)
-    p_rect_accessor_pandas_backend = df_unemployment.plot.map(**kwargs)
+    p_rect_accessor_pandas_backend = df_unemployment.plot.rect(**kwargs)
 
     layout = pandas_bokeh.plot_grid(
         [[p_rect, p_rect_accessor]], plot_width=450, plot_height=300, show_plot=False
