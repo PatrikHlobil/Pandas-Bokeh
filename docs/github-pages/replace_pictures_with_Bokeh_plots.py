@@ -34,10 +34,14 @@ plots = make_plots()
 for plotname, plot in plots.items():
     print(f"Replace image {plotname}")
     if re.search(r"!\[{plotname}\]\(.+\)".format(plotname=plotname), readme):
-        to_replace = re.search(r"!\[{plotname}\]\(.+\)".format(plotname=plotname), readme).group()
+        to_replace = re.search(
+            r"!\[{plotname}\]\(.+\)".format(plotname=plotname), readme
+        ).group()
         readme = readme.replace(to_replace, f'<div align="center">\n\n{plot}\n\n</div>')
     else:
-        raise KeyError(f"No image with name '{plotname}' has been found in the README file '{readme_file}'.")
+        raise KeyError(
+            f"No image with name '{plotname}' has been found in the README file '{readme_file}'."
+        )
 
 # Replace path to remaining pictures:
 readme = readme.replace(r"![](docs/Images/Pandas-Bokeh-Logo.png)", "")

@@ -1,6 +1,7 @@
 import setuptools
 
 import pandas_bokeh
+
 version = pandas_bokeh.__version__
 
 long_description = f"""# Pandas Bokeh
@@ -67,7 +68,6 @@ Each plot type like scatterplot or histogram further has many more additional cu
 """
 
 
-
 setuptools.setup(
     name="pandas-bokeh",
     version=version,
@@ -85,9 +85,9 @@ setuptools.setup(
         "Programming Language :: Python :: 3.8",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        'Intended Audience :: Science/Research',
-        'Topic :: Scientific/Engineering',
-        'Topic :: Scientific/Engineering :: Visualization'
+        "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Scientific/Engineering :: Visualization",
     ],
-    python_requires=">=3.6"
+    python_requires=">=3.6",
 )

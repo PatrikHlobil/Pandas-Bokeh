@@ -180,18 +180,18 @@ def plot(
     --------
     >>> df.plot_bokeh.line()
     >>> df.plot_bokeh.scatter(x='x',y='y')
-    
+
     These plotting methods can also be accessed by calling the accessor as a
     method with the ``kind`` argument (except of "map" plot):
     ``df.plot_bokeh(kind='line')`` is equivalent to ``df.plot_bokeh.line()``
 
     For more information about the individual plot kind implementations, have a
     look at the underlying method accessors (like df.plot_bokeh.line) or visit
-    https://github.com/PatrikHlobil/Pandas-Bokeh. 
+    https://github.com/PatrikHlobil/Pandas-Bokeh.
 
     If `sizing_mode` is not fixed (default), it will overide the set plot width or height
     depending on which axis it is scaled on.
-    
+
     """
 
     # Make a local copy of the DataFrame:
@@ -1818,7 +1818,7 @@ class FramePlotMethods(BasePlotMethods):
 
         Returns
         -------
-        
+
         Bokeh.plotting.figure or Bokeh.layouts.row
 
         Examples
@@ -1869,7 +1869,7 @@ class FramePlotMethods(BasePlotMethods):
 
         Returns
         -------
-        
+
         Bokeh.plotting.figure or Bokeh.layouts.row
 
         Examples
@@ -1920,7 +1920,7 @@ class FramePlotMethods(BasePlotMethods):
 
         Returns
         -------
-        
+
         Bokeh.plotting.figure or Bokeh.layouts.row
 
         Examples
@@ -2294,9 +2294,9 @@ class FramePlotMethods(BasePlotMethods):
             The column name or column position to be used as vertical
             coordinates for each point.
 
-        category : str or object 
+        category : str or object
             A column name whose values will be used to color the
-            marker points according to a colormap. 
+            marker points according to a colormap.
 
         **kwds
             Keyword arguments to pass on to :meth:`pandas.DataFrame.plot_bokeh`.
@@ -2422,7 +2422,7 @@ class FramePlotMethods(BasePlotMethods):
 def _initialize_rangetool(p, x_axis_type, source):
     """
     Initializes the range tool chart and slider.
-    
+
     Parameters
     ----------
     p : Bokeh.plotting.figure

@@ -7,7 +7,7 @@ import os
 import pytest
 
 # only run tests for Python <= 3.7 due to pyspark support:
-if sys.version_info[1] < 8: 
+if sys.version_info[1] < 8:
 
     directory = os.path.dirname(__file__)
     os.makedirs(os.path.join(directory, "Plots"), exist_ok=True)
@@ -16,10 +16,10 @@ if sys.version_info[1] < 8:
     def spark():
         # Start PySpark
         from pyspark.sql import SparkSession
+
         spark = SparkSession.builder.getOrCreate()
         yield spark
         spark.stop()
-
 
     def test_basic_lineplot_pyspark(spark):
         """Test for basic lineplot with Pyspark"""
@@ -27,8 +27,10 @@ if sys.version_info[1] < 8:
         # Create basic lineplot:
         np.random.seed(42)
         df = pd.DataFrame(
-            {"Google": np.random.randn(1000) + 0.2, 
-            "Apple": np.random.randn(1000) + 0.17},
+            {
+                "Google": np.random.randn(1000) + 0.2,
+                "Apple": np.random.randn(1000) + 0.17,
+            },
             index=pd.date_range("1/1/2000", periods=1000),
         )
         df.index.name = "Date"
@@ -40,7 +42,9 @@ if sys.version_info[1] < 8:
 
         # Output plot as HTML:
         output = pandas_bokeh.row([p_basic_lineplot, p_basic_lineplot_accessor])
-        with open(os.path.join(directory, "Plots", "Basic_lineplot_PySpark.html"), "w") as f:
+        with open(
+            os.path.join(directory, "Plots", "Basic_lineplot_PySpark.html"), "w"
+        ) as f:
             f.write(pandas_bokeh.embedded_html(output))
 
         assert True

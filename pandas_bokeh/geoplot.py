@@ -26,7 +26,7 @@ TILE_PROVIDERS = [
 
 
 def _get_background_tile(provider_name):
-    """Returns a Bokeh WTMS Tile Provider Source from <provider_name>. If 
+    """Returns a Bokeh WTMS Tile Provider Source from <provider_name>. If
     <provider_name is not valid, it returns False."""
 
     if provider_name not in TILE_PROVIDERS:
@@ -38,8 +38,8 @@ def _get_background_tile(provider_name):
 def _add_backgroundtile(
     p, tile_provider, tile_provider_url, tile_attribution, tile_alpha
 ):
-    """Add a background tile to the plot. Either uses predefined Tiles from Bokeh 
-    (parameter: tile_provider) or user passed a tile_provider_url of the form 
+    """Add a background tile to the plot. Either uses predefined Tiles from Bokeh
+    (parameter: tile_provider) or user passed a tile_provider_url of the form
     '<url>/{Z}/{X}/{Y}*.png' or '<url>/{Z}/{Y}/{X}*.png'."""
 
     from bokeh.models import WMTSTileSource
@@ -89,7 +89,7 @@ def _get_figure(col):
 
 
 def convert_geoDataFrame_to_patches(gdf, geometry_column):
-    """Creates from a geoDataFrame with Polygons and Multipolygons a Pandas DataFrame 
+    """Creates from a geoDataFrame with Polygons and Multipolygons a Pandas DataFrame
     with x any y columns specifying the geometry of the Polygons."""
 
     df_new = []
