@@ -3,11 +3,7 @@
 
 name: Python package
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -28,7 +24,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install openjdk-8-jre icedtea-8-plugin
         python -m pip install --upgrade pip
-        python -m pip install pytest black
+        python -m pip install black pypandoc
         pip install -r Tests/requirements_test.txt
     - name: Check formatting with black
       run: |
