@@ -32,4 +32,5 @@ jobs:
         black --check .
     - name: Test with pytest
       run: |
+        pip install .
         pytest --color=yes -s -x -vv --cov-report term-missing --cov=pandas_bokeh Tests/
