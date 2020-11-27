@@ -17,15 +17,16 @@ def _set_fontsize(figure, fontsize, where):
     setattr(figure.xaxis, where, fontsize)
     setattr(figure.yaxis, where, fontsize)
 
+
 def set_fontsizes_of_figure(
-        figure,
-        fontsize_title,
-        fontsize_label,
-        fontsize_ticks,
-        fontsize_legend,
-    ):
+    figure,
+    fontsize_title,
+    fontsize_label,
+    fontsize_ticks,
+    fontsize_legend,
+):
     "Set various fontsizes of figure"
-    
+
     if fontsize_title:
         if isinstance(fontsize_title, int) and fontsize_title > 0:
             fontsize_title = f"{fontsize_title}pt"
@@ -48,11 +49,11 @@ def set_fontsizes_of_figure(
 
 
 def plot_grid(children, show_plot=True, return_html=False, **kwargs):
-    """Create a grid of plots rendered on separate canvases and shows the layout. 
-    plot_grid is designed to layout a set of plots. 
+    """Create a grid of plots rendered on separate canvases and shows the layout.
+    plot_grid is designed to layout a set of plots.
 
     ---------------------------------------------------------------
-    Parameters:     
+    Parameters:
 
     -children (list of lists of Plot) – An array
         of plots to display in a grid, given as a list of lists of Plot objects. To
@@ -62,28 +63,28 @@ def plot_grid(children, show_plot=True, return_html=False, **kwargs):
     - sizing_mode ("fixed", "stretch_both", "scale_width", "scale_height",
         "scale_both") – How will the items in the layout resize to fill the available
         space. Default is "fixed". For more information on the different modes see
-        sizing_mode description on LayoutDOM. 
+        sizing_mode description on LayoutDOM.
     - toolbar_location (above, below, left,
         right) – Where the toolbar will be located, with respect to the grid. Default is
-        above. If set to None, no toolbar will be attached to the grid. 
-    -ncols (int, optional) – Specify the number of columns you would like in your grid. 
-        You must only pass an un-nested list of plots (as opposed to a list of lists of 
-        plots) when using ncols. 
+        above. If set to None, no toolbar will be attached to the grid.
+    -ncols (int, optional) – Specify the number of columns you would like in your grid.
+        You must only pass an un-nested list of plots (as opposed to a list of lists of
+        plots) when using ncols.
     - plot_width (int, optional) – The width you would like all your
-        plots to be 
+        plots to be
     - plot_height (int, optional) – The height you would like all your
-        plots to be. 
+        plots to be.
     - toolbar_options (dict, optional) – A dictionary of options that
         will be used to construct the grid’s toolbar (an instance of ToolbarBox). If
-        none is supplied, ToolbarBox’s defaults will be used. 
-    - merge_tools (True, False) – Combine tools from all child plots into a single 
-        toolbar. 
+        none is supplied, ToolbarBox’s defaults will be used.
+    - merge_tools (True, False) – Combine tools from all child plots into a single
+        toolbar.
 
-    -------------------------------------------------------------------        
-    Returns: 
+    -------------------------------------------------------------------
+    Returns:
 
         A row or column containing the grid toolbar and the grid of plots
-        (depending on whether the toolbar is left/right or above/below). 
+        (depending on whether the toolbar is left/right or above/below).
         The grid is always a Column of Rows of plots."""
 
     layout = gridplot(children=children, **kwargs)
@@ -99,18 +100,18 @@ def plot_grid(children, show_plot=True, return_html=False, **kwargs):
 
 def output_notebook(notebook_type="auto", **kwargs):
     """Set the output of Bokeh to the current notebook.
-suppress_output
+
     Parameters:
     ----------------------------------------------------------------
-    notebook_type (string, default: "auto) - Either "jupyter", "zeppelin" or "auto"	
+    notebook_type (string, default: "auto) - Either "jupyter", "zeppelin" or "auto"
     resources (Resource, optional) – How and where to load BokehJS from (default: CDN)
     verbose (bool, optional) – whether to display detailed BokehJS banner (default: False)
     hide_banner (bool, optional) – whether to hide the Bokeh banner (default: False)
-    load_timeout (int, optional) – Timeout in milliseconds when plots assume load 
+    load_timeout (int, optional) – Timeout in milliseconds when plots assume load
                                    timed out (default: 5000)
 
     Returns:
-    ----------------------------------------------------------------	
+    ----------------------------------------------------------------
     None"""
 
     if notebook_type == "auto":
@@ -130,7 +131,7 @@ suppress_output
         bokeh.plotting.output_notebook(**kwargs)
     else:
         # Preload JS resources:
-        print(u"%html\n\n" + get_bokeh_resources())
+        print("%html\n\n" + get_bokeh_resources())
 
 
 def detect_notebook_server():
@@ -146,18 +147,18 @@ def detect_notebook_server():
 def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
     """Set the output of Bokeh to the the provided filename.
 
-    Parameters:	
+    Parameters:
     ----------------------------------------------------------------
     filename (str) – a filename for saving the HTML document
     title (str, optional) – a title for the HTML document (default: “Bokeh Plot”)
-    mode (str, optional) – how to include BokehJS (default: 'cdn') One of: 'inline', 
-                          'cdn', 'relative(-dev)' or 'absolute(-dev)'. See 
+    mode (str, optional) – how to include BokehJS (default: 'cdn') One of: 'inline',
+                          'cdn', 'relative(-dev)' or 'absolute(-dev)'. See
                           bokeh.resources.Resources for more details.
-    root_dir (str, optional) – root directory to use for ‘absolute’ resources. 
-                              (default: None) This value is ignored for other 
+    root_dir (str, optional) – root directory to use for ‘absolute’ resources.
+                              (default: None) This value is ignored for other
                               resource types, e.g. INLINE or CDN.
 
-    Returns:	
+    Returns:
     ----------------------------------------------------------------
     None"""
     global OUTPUT_TYPE
@@ -179,14 +180,14 @@ def show(
         bokeh.plotting.show(obj, browser, new, notebook_handle, notebook_url)
     else:
         html_embedded = embedded_html(obj, resources=None)
-        print(u"%html\n\n" + html_embedded)
+        print("%html\n\n" + html_embedded)
 
 
 show.__doc__ = bokeh.plotting.show.__doc__
 
 
 def embedded_html(fig, resources="CDN"):
-    """Returns an html string that contains all neccessary CSS&JS files, 
+    """Returns an html string that contains all neccessary CSS&JS files,
     together with the div containing the Bokeh plot. As input, a figure fig
     is expected."""
 
