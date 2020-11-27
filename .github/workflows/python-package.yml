@@ -25,6 +25,8 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
+        sudo apt-get update
+        sudo apt-get install openjdk-8-jre icedtea-8-plugin
         python -m pip install --upgrade pip
         python -m pip install pytest black
         pip install -r Tests/requirements_test.txt
@@ -34,4 +36,4 @@ jobs:
         black --check .
     - name: Test with pytest
       run: |
-        pytest Tests/
+        pytest --color=yes -s -x -vv --cov-report term-missing --cov=pandas_bokeh Tests/
