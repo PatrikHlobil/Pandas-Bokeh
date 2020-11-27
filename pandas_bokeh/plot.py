@@ -1207,7 +1207,7 @@ def scatterplot(
         # Make numerical categorical scatterplot:
         if check_type(category_values) == "numeric":
 
-            kwargs["legend"] = category + " "
+            kwargs["legend_label"] = category + " "
 
             # Define colormapper for numerical scatterplot:
             if colormap == None:
