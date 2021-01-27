@@ -1328,3 +1328,14 @@ Plots like scatterplot or histogram also have many more additional customization
 * Rangetool support
 * Autoscaling support using the **sizing_mode** keyword
 * Bugfixes 
+
+## 0.4.1
+
+* speedup when plotting GeoDataFrames
+
+## 0.5 
+
+## 0.5.3
+
+* keep aspect ratio for map-plots
+* add support for Bokeh 2.3

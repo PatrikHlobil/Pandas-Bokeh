@@ -14,10 +14,7 @@ from .base import embedded_html
 
 from bokeh.colors import RGB
 import bokeh
-from bokeh.models import (
-        TickFormatter,
-        NumeralTickFormatter
-    )
+from bokeh.models import TickFormatter, NumeralTickFormatter
 
 blue_colormap = [RGB(255 - i, 255 - i, 255) for i in range(256)]
 
@@ -163,7 +160,8 @@ def get_tick_formatter(formatter_arg):
         return NumeralTickFormatter(format=formatter_arg)
     else:
         raise ValueError(
-            "<colorbar_tick_format> parameter only accepts a string or a objects of bokeh.models.formatters.")
+            "<colorbar_tick_format> parameter only accepts a string or a objects of bokeh.models.formatters."
+        )
 
 
 def geoplot(
@@ -217,6 +215,7 @@ def geoplot(
         LinearColorMapper,
         GeoJSONDataSource,
         WheelZoomTool,
+        BoxZoomTool,
         ColorBar,
         BasicTicker,
         LogTicker,
@@ -260,6 +259,7 @@ def geoplot(
         "active_scroll": "wheel_zoom",
         "x_axis_type": "mercator",
         "y_axis_type": "mercator",
+        "match_aspect": True,
     }
     if not figsize is None:
         width, height = figsize
@@ -457,6 +457,16 @@ def geoplot(
     # Create Figure to draw:
     old_layout = None
     if figure is None:
+        figure_options["x_axis_label"] = (
+            figure_options["x_axis_label"]
+            if figure_options["x_axis_label"] is not None
+            else "Longitute"
+        )
+        figure_options["y_axis_label"] = (
+            figure_options["y_axis_label"]
+            if figure_options["y_axis_label"] is not None
+            else "Latitude"
+        )
         p = bokeh.plotting.figure(**figure_options)
 
         # Add Tile Source as Background:
@@ -474,11 +484,13 @@ def geoplot(
             "Parameter <figure> has to be of type bokeh.plotting.figure or bokeh.layouts.column."
         )
 
-    # Get ridd of zoom on axes:
     for t in p.tools:
-        if type(t) == WheelZoomTool:
+        # Get ridd of zoom on axes:
+        if isinstance(t, WheelZoomTool):
             t.zoom_on_axis = False
-
+        # Make sure that box zoom matches aspect:
+        if isinstance(t, BoxZoomTool):
+            t.match_aspect = True
 
     # Hide legend if wanted:
     legend_input = legend
