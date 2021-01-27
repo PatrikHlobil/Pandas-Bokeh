@@ -175,6 +175,7 @@ def plot(
     * area
     * pie
     * map
+    * rect
 
     Examples
     --------
@@ -236,6 +237,7 @@ def plot(
         "area",
         "pie",
         "map",
+        "rect",
     ]
 
     rangetool_allowed_kinds = ["line", "step"]
@@ -396,29 +398,33 @@ def plot(
             x = _times_to_string(x)
         else:
             x = [str(el) for el in x]
-        if kind != "hist":
+        if kind != "hist" and not kind == "rect":
             x_labels_dict = dict(zip(range(len(x)), x))
             x = list(range(len(x)))
         if "x_axis_type" in figure_options:
             del figure_options["x_axis_type"]
 
-    # Determine data cols to plot (only plot numeric data):
-    if y is None:
-        cols = df.columns
-    elif not isinstance(y, (list, tuple)):
-        cols = [y]
-    else:
-        cols = y
-    data_cols = []
-    for i, col in enumerate(cols):
-        if col not in df.columns:
-            raise Exception(
-                f"Could not find '{col}' in the columns of the provided DataFrame/Series. Please provide for the <y> parameter either a column name of the DataFrame/Series or an array of the same length."
-            )
-        if np.issubdtype(df[col].dtype, np.number):
-            data_cols.append(col)
-    if len(data_cols) == 0:
-        raise Exception("No numeric data columns found for plotting.")
+    def determine_data_cols():
+        """Determine data cols to plot (only plot numeric data)"""
+        if y is None:
+            cols = df.columns
+        elif not isinstance(y, (list, tuple)):
+            cols = [y]
+        else:
+            cols = y
+        data_cols = []
+        for i, col in enumerate(cols):
+            if col not in df.columns:
+                raise Exception(
+                    f"Could not find '{col}' in the columns of the provided DataFrame/Series. Please provide for the <y> parameter either a column name of the DataFrame/Series or an array of the same length."
+                )
+            if np.issubdtype(df[col].dtype, np.number) or kind in ["rect"]:
+                data_cols.append(col)
+        if len(data_cols) == 0:
+            raise Exception("No numeric data columns found for plotting.")
+        return cols, data_cols
+
+    cols, data_cols = determine_data_cols()
 
     # Convert y-column names into string representation:
     df.rename(columns={col: str(col) for col in data_cols}, inplace=True)
@@ -484,11 +490,22 @@ def plot(
             source[add_col] = df[add_col].values
 
     # Define colormap
-    if kind not in ["scatter", "pie"]:
+    if kind not in ["scatter", "pie", "rect"]:
         colormap = get_colormap(colormap, N_cols)
 
     if not color is None:
         colormap = get_colormap([color], N_cols)
+
+    def get_category_values(df, category):
+        """Get values for categorical colormap"""
+        category_values = None
+        if category in df.columns:
+            category_values = df[category].values
+        elif category is not None:
+            raise Exception(
+                "<category> parameter has to be either None or the name of a single column of the DataFrame"
+            )
+        return category_values
 
     # Add Glyphs to Plot:
     if kind == "line":
@@ -559,14 +576,7 @@ def plot(
             if add_param in kwargs:
                 del kwargs[add_param]
 
-        # Get values for categorical colormap:
-        category_values = None
-        if category in df.columns:
-            category_values = df[category].values
-        elif not category is None:
-            raise Exception(
-                "<category> parameter has to be either None or the name of a single column of the DataFrame"
-            )
+        category_values = get_category_values(df, category)
 
         scatterplot(
             p,
@@ -848,6 +858,41 @@ def plot(
             hovertool_string,
             figure_options,
             xlabelname,
+            **kwargs,
+        )
+
+    if kind == "rect":
+
+        category_values = get_category_values(df, category)
+
+        def get_y_label_name():
+            """Get y-labelname"""
+            return data_cols[0]
+
+        y_column = get_y_label_name()
+
+        if "y_axis_label" not in figure_options:
+            p.yaxis.axis_label = y_column
+
+        # Get values for y-axis:
+        y = df[y_column].values
+
+        p.yaxis.axis_label = get_y_label_name()
+
+        p = rectplot(
+            p,
+            df,
+            x,
+            x_old,
+            y,
+            category,
+            category_values,
+            colormap,
+            hovertool,
+            hovertool_string,
+            x_axis_type=figure_options["x_axis_type"],
+            xlabelname=xlabelname,
+            ylabelname=y_column,
             **kwargs,
         )
 
@@ -1340,6 +1385,201 @@ def scatterplot(
     else:
         # Draw glyph:
         glyph = p.scatter(
+            x="__x__values", y="y", source=source, legend_label="Hide/Show", **kwargs
+        )
+
+        # Add Hovertool:
+        if hovertool:
+            my_hover = HoverTool(renderers=[glyph])
+            if hovertool_string is None:
+                if x_axis_type == "datetime":
+                    my_hover.tooltips = [
+                        (xlabelname, "@__x__values_original{%F}"),
+                        (ylabelname, "@y"),
+                    ]
+                    my_hover.formatters = {"@__x__values_original": "datetime"}
+                else:
+                    my_hover.tooltips = [
+                        (xlabelname, "@__x__values_original"),
+                        (ylabelname, "@y"),
+                    ]
+            else:
+                my_hover.tooltips = hovertool_string
+            p.add_tools(my_hover)
+
+    return p
+
+
+def rectplot(
+    p,
+    df,
+    x,
+    x_old,
+    y,
+    category,
+    category_values,
+    colormap,
+    hovertool,
+    hovertool_string,
+    x_axis_type,
+    xlabelname,
+    ylabelname,
+    **kwargs,
+):
+    """Adds a rectplot to figure p."""
+
+    # Define source:
+    source = ColumnDataSource(
+        {
+            "__x__values": x,
+            "__x__values_original": x_old,
+            "y": y,
+        }
+    )
+    for kwarg, value in kwargs.items():
+        if value in df.columns:
+            source.data[value] = df[value].values
+
+    # Define Colormapper for categorical rectplot:
+    if category is not None:
+
+        category = str(category)
+        source.data[category] = category_values
+
+        # Make numerical categorical rectplot:
+        if check_type(category_values) == "numeric":
+
+            kwargs["legend"] = category + " "
+
+            # Define colormapper for numerical scatterplot:
+            if colormap == None:
+                colormap = Inferno256
+            elif isinstance(colormap, str):
+                if colormap in all_palettes:
+                    colormap = all_palettes[colormap]
+                    max_key = max(colormap.keys())
+                    colormap = colormap[max_key]
+                else:
+                    raise ValueError(
+                        f"Could not find <colormap> with name {colormap}. The following predefined colormaps are supported (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): {list(all_palettes.keys())}"
+                    )
+            elif isinstance(colormap, (list, tuple)):
+                pass
+            else:
+                raise ValueError(
+                    "<colormap> can onyl be None, a name of a colorpalette as string( see https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ) or a list/tuple of colors."
+                )
+
+            colormapper = LinearColorMapper(palette=colormap)
+
+            # Set fill-color to colormapper:
+            kwargs["fill_color"] = {"field": category, "transform": colormapper}
+
+            # Define Colorbar:
+            colorbar_options = {
+                "color_mapper": colormapper,
+                "label_standoff": 0,
+                "border_line_color": None,
+                "location": (0, 0),
+            }
+            colorbar = ColorBar(**colorbar_options)
+            p.add_layout(colorbar, "right")
+
+            # Draw glyph:
+            glyph = p.rect(x="__x__values", y="y", source=source, **kwargs)
+
+            # Add Hovertool
+            if hovertool:
+                my_hover = HoverTool(renderers=[glyph])
+                if hovertool_string is None:
+                    if x_axis_type == "datetime":
+                        my_hover.tooltips = [
+                            (xlabelname, "@__x__values_original{%F}"),
+                            (ylabelname, "@y"),
+                        ]
+                        my_hover.formatters = {"@__x__values_original": "datetime"}
+                    else:
+                        my_hover.tooltips = [
+                            (xlabelname, "@__x__values_original"),
+                            (ylabelname, "@y"),
+                        ]
+                    my_hover.tooltips.append((str(category), "@{%s}" % category))
+                else:
+                    my_hover.tooltips = hovertool_string
+                p.add_tools(my_hover)
+
+        # Make categorical rectplot:
+        elif check_type(category_values) == "object":
+
+            # Define colormapper for categorical rectplot:
+            labels, categories = pd.factorize(category_values)
+            colormap = get_colormap(colormap, len(categories))
+
+            # Draw each category as separate glyph:
+            x, y = source.data["__x__values"], source.data["y"]
+            for cat, color in zip(categories, colormap):
+
+                # Define reduced source for this categorx:
+                x_cat = x[category_values == cat]
+                x_old_cat = x_old[category_values == cat]
+                y_cat = y[category_values == cat]
+                cat_cat = category_values[category_values == cat]
+                source = ColumnDataSource(
+                    {
+                        "__x__values": x_cat,
+                        "__x__values_original": x_old_cat,
+                        "y": y_cat,
+                        "category": cat_cat,
+                    }
+                )
+                for kwarg, value in kwargs.items():
+                    if value in df.columns:
+                        source.data[value] = df[value].values[category_values == cat]
+
+                # Draw glyph:
+                glyph = p.rect(
+                    x="__x__values",
+                    y="y",
+                    legend_label=str(cat) + " ",
+                    source=source,
+                    color=color,
+                    **kwargs,
+                )
+
+                # Add Hovertool
+                if hovertool:
+                    my_hover = HoverTool(renderers=[glyph])
+                    if hovertool_string is None:
+                        if x_axis_type == "datetime":
+                            my_hover.tooltips = [
+                                (xlabelname, "@__x__values_original{%F}"),
+                                (ylabelname, "@y"),
+                            ]
+                            my_hover.formatters = {"@__x__values_original": "datetime"}
+                        else:
+                            my_hover.tooltips = [
+                                (xlabelname, "@__x__values_original"),
+                                (ylabelname, "@y"),
+                            ]
+                        my_hover.tooltips.append((str(category), "@category"))
+                    else:
+                        my_hover.tooltips = hovertool_string
+                    p.add_tools(my_hover)
+
+            if len(categories) > 5:
+                warnings.warn(
+                    "There are more than 5 categories in the rectplot. The legend might be crowded, to hide the axis you can pass 'legend=False' as an optional argument."
+                )
+
+        else:
+            raise ValueError(
+                "<category> is not supported with datetime objects. Consider casting the datetime objects to strings, which can be used as <category> values."
+            )
+
+    # Draw non-categorical plot:
+    else:
+        # Draw glyph:
+        glyph = p.rect(
             x="__x__values", y="y", source=source, legend_label="Hide/Show", **kwargs
         )
 
@@ -2417,6 +2657,59 @@ class FramePlotMethods(BasePlotMethods):
 
         """
         return self(kind="map", x=x, y=y, **kwds)
+
+
+    def rect(self, x, y, **kwds):
+        """
+        Rectangle plot.
+
+        The position of each rect is defined by the horizontal and vertical
+        dataframe columns.
+
+        Parameters
+        ----------
+        x : int or str
+            Column to use for the horizontal axis.
+            Either the location or the label of the columns to be used.
+            By default, it will use the DataFrame indices.
+        y : int, str
+            Column to use for the vertical axis.
+            Either the location or the label of the columns to be used.
+            By default, it will use the DataFrame indices.
+
+        **kwds
+            Keyword arguments to pass on to :meth:`pandas.DataFrame.plot_bokeh`.
+
+        Returns
+        -------
+        Bokeh.plotting.figure
+
+        See Also
+        --------
+        bokeh.plotting.figure.rect : rect plot.
+
+        Examples
+        --------
+        Let's see how to draw a rect plot using the bokeh example for unemployment
+        (see https://docs.bokeh.org/en/latest/docs/gallery/unemployment.html)
+
+        .. plot::
+            :context: close-figs
+
+            >>> from bokeh.sampledata.unemployment1948 import data
+            >>> data['Year'] = data['Year'].astype(str)
+            >>> data = data.set_index('Year')
+            >>> data.drop('Annual', axis=1, inplace=True)
+            >>> data.columns.name = 'Month'
+            >>> df = pd.DataFrame(data.stack(), columns=['rate']).reset_index()
+            >>> df.plot_bokeh.rect(
+            ...     x="Year",
+            ...     y="Month",
+            ...     figsize=(900, 600),
+            ...     title="US Unemployment")
+
+        """
+        return self(kind="rect", x=x, y=y, **kwds)
 
 
 def _initialize_rangetool(p, x_axis_type, source):

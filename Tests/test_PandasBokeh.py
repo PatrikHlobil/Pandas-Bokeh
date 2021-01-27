@@ -107,6 +107,21 @@ def df_mapplot():
     return df_mapplot
 
 
+@pytest.fixture(scope="function")
+def df_unemployment():
+    from bokeh.sampledata.unemployment1948 import data
+
+    data['Year'] = data['Year'].astype(str)
+    data = data.set_index('Year')
+    data.drop('Annual', axis=1, inplace=True)
+    data.columns.name = 'Month'
+
+    # reshape to 1D array or rates with a month and year for each row.
+    df = pd.DataFrame(data.stack(), columns=['rate']).reset_index()
+
+    return df
+
+
 ##############################################################################
 ##################################TESTS#######################################
 ##############################################################################
@@ -765,3 +780,30 @@ def test_autosizing(df_fruits):
     pandas_bokeh.save(p_autoscale)
 
     assert True
+
+
+def test_rectplot(df_unemployment):
+    "Rectplot test"
+
+    kwargs = dict(
+        x="Year",
+        y="Month",
+        width=1,
+        height=1,
+        category="rate",
+        line_color=None,
+        show_figure=False,
+    )
+
+    p_rect = df_unemployment.plot_bokeh(kind="rect", **kwargs)
+    p_rect_accessor = df_unemployment.plot_bokeh.rect(**kwargs)
+
+    p_rect_pandas_backend = df_unemployment.plot(kind="rect", **kwargs)
+    p_rect_accessor_pandas_backend = df_unemployment.plot.rect(**kwargs)
+
+    layout = pandas_bokeh.plot_grid(
+        [[p_rect, p_rect_accessor]], plot_width=450, plot_height=300, show_plot=False
+    )
+
+    pandas_bokeh.output_file(os.path.join(DIRECTORY, "Plots", "Rectplot.html"))
+    pandas_bokeh.save(layout)
