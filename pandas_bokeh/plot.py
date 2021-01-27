@@ -14,10 +14,18 @@ import pandas as pd
 from bokeh.core.properties import value as _value
 from bokeh.events import Tap
 from bokeh.layouts import column
-from bokeh.models import (CategoricalColorMapper, ColorBar, ColumnDataSource,
-                          DatetimeTickFormatter, FuncTickFormatter, HoverTool,
-                          LinearColorMapper, LogColorMapper, RangeTool,
-                          WheelZoomTool)
+from bokeh.models import (
+    CategoricalColorMapper,
+    ColorBar,
+    ColumnDataSource,
+    DatetimeTickFormatter,
+    FuncTickFormatter,
+    HoverTool,
+    LinearColorMapper,
+    LogColorMapper,
+    RangeTool,
+    WheelZoomTool,
+)
 from bokeh.models.callbacks import CustomJS
 from bokeh.models.glyphs import Text
 from bokeh.models.ranges import FactorRange, Range1d
@@ -27,7 +35,7 @@ from bokeh.plotting import figure
 from bokeh.transform import cumsum, dodge
 from pandas.core.base import PandasObject
 
-from .base import embedded_html, show
+from .base import embedded_html, set_fontsizes_of_figure, show
 from .geoplot import geoplot
 
 
@@ -42,6 +50,7 @@ def check_type(data):
         return "datetime"
     else:
         return "object"
+
 
 def get_colormap(colormap, N_cols):
 
@@ -68,8 +77,7 @@ def get_colormap(colormap, N_cols):
                 colormap = colormap[:N_cols]
         else:
             raise ValueError(
-                "Could not find <colormap> with name %s. The following predefined colormaps are supported (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): %s"
-                % (colormap, list(all_palettes.keys()))
+                f"Could not find <colormap> with name {colormap}. The following predefined colormaps are supported (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): {list(all_palettes.keys())}"
             )
     elif isinstance(colormap, (list, tuple)):
         colormap = colormap * int(N_cols / len(colormap) + 1)
@@ -123,7 +131,10 @@ def plot(
     yticks=None,
     xlim=None,
     ylim=None,
-    fontsize=None,  # TODO:
+    fontsize_title=None,
+    fontsize_label=None,
+    fontsize_ticks=None,
+    fontsize_legend=None,
     color=None,
     colormap=None,
     category=None,
@@ -150,8 +161,8 @@ def plot(
     vertical_xlabel=False,
     x_axis_location="below",
     webgl=True,
-    reuse_plot=None, # This keyword is not used by Pandas-Bokeh, but pandas plotting API adds it for series object calls
-    **kwargs
+    reuse_plot=None,  # This keyword is not used by Pandas-Bokeh, but pandas plotting API adds it for series object calls
+    **kwargs,
 ):
     """Method for creating a interactive with 'Bokeh' as plotting backend. Available
     plot kinds are:
@@ -169,18 +180,18 @@ def plot(
     --------
     >>> df.plot_bokeh.line()
     >>> df.plot_bokeh.scatter(x='x',y='y')
-    
+
     These plotting methods can also be accessed by calling the accessor as a
     method with the ``kind`` argument (except of "map" plot):
     ``df.plot_bokeh(kind='line')`` is equivalent to ``df.plot_bokeh.line()``
 
     For more information about the individual plot kind implementations, have a
     look at the underlying method accessors (like df.plot_bokeh.line) or visit
-    https://github.com/PatrikHlobil/Pandas-Bokeh. 
+    https://github.com/PatrikHlobil/Pandas-Bokeh.
 
     If `sizing_mode` is not fixed (default), it will overide the set plot width or height
     depending on which axis it is scaled on.
-    
+
     """
 
     # Make a local copy of the DataFrame:
@@ -210,7 +221,7 @@ def plot(
             hovertool=hovertool,
             hovertool_string=hovertool_string,
             webgl=webgl,
-            **kwargs
+            **kwargs,
         )
 
     # Check plot kind input:
@@ -227,18 +238,17 @@ def plot(
         "map",
     ]
 
-    rangetool_allowed_kinds = [
-        "line",
-        "step"
-    ]
+    rangetool_allowed_kinds = ["line", "step"]
 
     if kind not in allowed_kinds:
         allowed_kinds = "', '".join(allowed_kinds)
-        raise ValueError("Allowed plot kinds are '%s'." % allowed_kinds)
+        raise ValueError(f"Allowed plot kinds are '{allowed_kinds}'.")
 
     if rangetool and kind not in rangetool_allowed_kinds:
         allowed_rangetool_kinds = "', '".join(rangetool_allowed_kinds)
-        raise ValueError("For using the rangetool, the allowed plot kinds are '%s'." % allowed_rangetool_kinds)
+        raise ValueError(
+            f"For using the rangetool, the allowed plot kinds are '{allowed_rangetool_kinds}'."
+        )
 
     if rangetool:
         x_axis_location = "above"
@@ -252,7 +262,7 @@ def plot(
         "plot_height": 400,
         "output_backend": "webgl",
         "sizing_mode": sizing_mode,
-        "x_axis_location": x_axis_location
+        "x_axis_location": x_axis_location,
     }
     # Initializing rangetool plot variable:
     p_rangetool = None
@@ -403,8 +413,7 @@ def plot(
     for i, col in enumerate(cols):
         if col not in df.columns:
             raise Exception(
-                "Could not find '%s' in the columns of the provided DataFrame/Series. Please provide for the <y> parameter either a column name of the DataFrame/Series or an array of the same length."
-                % col
+                f"Could not find '{col}' in the columns of the provided DataFrame/Series. Please provide for the <y> parameter either a column name of the DataFrame/Series or an array of the same length."
             )
         if np.issubdtype(df[col].dtype, np.number):
             data_cols.append(col)
@@ -422,8 +431,7 @@ def plot(
     N_cols = len(data_cols)
     if len(data_cols) == 0:
         raise Exception(
-            "The only numeric column is the column %s that is already used on the x-axis."
-            % delete_in_y
+            f"The only numeric column is the column {delete_in_y} that is already used on the x-axis."
         )
 
     # Autodetect y-label if no y-label is provided by user and only one y-column exists:
@@ -497,7 +505,7 @@ def plot(
             hovertool_string,
             number_format,
             rangetool,
-            **kwargs
+            **kwargs,
         )
 
     if kind == "step":
@@ -514,7 +522,7 @@ def plot(
             hovertool_string,
             number_format,
             rangetool,
-            **kwargs
+            **kwargs,
         )
 
     if kind == "point":
@@ -528,7 +536,7 @@ def plot(
             xlabelname,
             figure_options["x_axis_type"],
             number_format,
-            **kwargs
+            **kwargs,
         )
 
     if kind == "scatter":
@@ -550,8 +558,6 @@ def plot(
         for add_param in ["s", "c"]:
             if add_param in kwargs:
                 del kwargs[add_param]
-
-        
 
         # Get values for categorical colormap:
         category_values = None
@@ -577,7 +583,7 @@ def plot(
             x_axis_type=figure_options["x_axis_type"],
             xlabelname=xlabelname,
             ylabelname=y_column,
-            **kwargs
+            **kwargs,
         )
 
     if kind == "bar" or kind == "barh":
@@ -640,8 +646,8 @@ def plot(
                         width=width,
                         source=source,
                         color=color,
-                        legend=" " + name,
-                        **kwargs
+                        legend_label=" " + name,
+                        **kwargs,
                     )
                     hovermode = "vline"
 
@@ -652,8 +658,8 @@ def plot(
                         height=width,
                         source=source,
                         color=color,
-                        legend=" " + name,
-                        **kwargs
+                        legend_label=" " + name,
+                        **kwargs,
                     )
                     hovermode = "hline"
 
@@ -678,8 +684,8 @@ def plot(
                     width=0.8,
                     source=source,
                     color=colormap,
-                    legend=legend_ref,
-                    **kwargs
+                    legend_label=data_cols,
+                    **kwargs,
                 )
                 hovermode = "vline"
 
@@ -690,8 +696,8 @@ def plot(
                     height=0.8,
                     source=source,
                     color=colormap,
-                    legend=legend_ref,
-                    **kwargs
+                    legend_label=data_cols,
+                    **kwargs,
                 )
                 hovermode = "hline"
 
@@ -720,8 +726,7 @@ def plot(
         # Check for stacked keyword:
         if stacked and histogram_type not in [None, "stacked"]:
             warnings.warn(
-                "<histogram_type> was set to '%s', but was overriden by <stacked>=True parameter."
-                % histogram_type
+                f"<histogram_type> was set to '{histogram_type}', but was overriden by <stacked>=True parameter."
             )
             histogram_type = "stacked"
         elif stacked and histogram_type is None:
@@ -772,8 +777,7 @@ def plot(
                 weights_not_nan = weights[not_nan]
                 if sum(not_nan) < len(not_nan):
                     warnings.warn(
-                        "There are NaN values in column '%s' or in the <weights> column. For the histogram, these rows have been neglected."
-                        % col,
+                        f"There are NaN values in column '{col}' or in the <weights> column. For the histogram, these rows have been neglected.",
                         Warning,
                     )
             else:
@@ -782,8 +786,7 @@ def plot(
                 weights_not_nan = None
                 if sum(not_nan) < len(not_nan):
                     warnings.warn(
-                        "There are NaN values in column '%s'. For the histogram, these rows have been neglected."
-                        % col,
+                        f"There are NaN values in column '{col}'. For the histogram, these rows have been neglected.",
                         Warning,
                     )
 
@@ -815,7 +818,7 @@ def plot(
             show_average,
             histogram_type,
             logy,
-            **kwargs
+            **kwargs,
         )
 
     if kind == "area":
@@ -831,7 +834,7 @@ def plot(
             figure_options["x_axis_type"],
             stacked,
             normed,
-            **kwargs
+            **kwargs,
         )
 
     if kind == "pie":
@@ -845,7 +848,7 @@ def plot(
             hovertool_string,
             figure_options,
             xlabelname,
-            **kwargs
+            **kwargs,
         )
 
     # Set xticks:
@@ -913,6 +916,15 @@ def plot(
                 "Legend can only be True/False or one of 'top_left', 'top_center', 'top_right', 'center_left', 'center', 'center_right', 'bottom_left', 'bottom_center', 'bottom_right'"
             )
 
+    # Set fontsizes:
+    set_fontsizes_of_figure(
+        figure=p,
+        fontsize_title=fontsize_title,
+        fontsize_label=fontsize_label,
+        fontsize_ticks=fontsize_ticks,
+        fontsize_legend=fontsize_legend,
+    )
+
     # Scientific formatting for axes:
     if disable_scientific_axes is None:
         pass
@@ -931,7 +943,7 @@ def plot(
     # If rangetool is used, add it to layout:
     if p_rangetool is not None:
         p = column(p, p_rangetool)
-        
+
     # Display plot if wanted
     if show_figure:
         show(p)
@@ -958,12 +970,12 @@ def _base_lineplot(
     hovertool_string,
     number_format,
     rangetool,
-    **kwargs
+    **kwargs,
 ):
     """Adds lineplot to figure p for each data_col."""
 
     p_rangetool = None
-     # Add line (and optional scatter glyphs) to figure:
+    # Add line (and optional scatter glyphs) to figure:
     linetype = getattr(p, linetype.lower())
     marker = kwargs.pop("marker", "circle")
 
@@ -974,17 +986,17 @@ def _base_lineplot(
         glyph = linetype(
             x="__x__values",
             y=name,
-            legend=" " + name,
+            legend_label=" " + name,
             source=source,
             color=color,
-            **kwargs
+            **kwargs,
         )
 
         if plot_data_points:
             p.scatter(
                 x="__x__values",
                 y=name,
-                legend=" " + name,
+                legend_label=" " + name,
                 source=source,
                 color=color,
                 marker=marker,
@@ -999,7 +1011,7 @@ def _base_lineplot(
                         (xlabelname, "@__x__values_original{%F}"),
                         (name, "@{%s}%s" % (name, number_format)),
                     ]
-                    my_hover.formatters = {"__x__values_original": "datetime"}
+                    my_hover.formatters = {"@__x__values_original": "datetime"}
                 else:
                     my_hover.tooltips = [
                         (xlabelname, "@__x__values_original"),
@@ -1009,17 +1021,11 @@ def _base_lineplot(
                 my_hover.tooltips = hovertool_string
             p.add_tools(my_hover)
 
-        if rangetool:           
+        if rangetool:
 
-            p_rangetool.line(
-                "__x__values",
-                name,
-                source=source,
-                color=color
-            )
+            p_rangetool.line("__x__values", name, source=source, color=color)
 
     return p, p_rangetool
-
 
 
 def lineplot(
@@ -1035,7 +1041,7 @@ def lineplot(
     hovertool_string,
     number_format,
     rangetool,
-    **kwargs
+    **kwargs,
 ):
     return _base_lineplot(
         linetype="line",
@@ -1051,7 +1057,7 @@ def lineplot(
         hovertool_string=hovertool_string,
         number_format=number_format,
         rangetool=rangetool,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -1068,7 +1074,7 @@ def stepplot(
     hovertool_string,
     number_format,
     rangetool,
-    **kwargs
+    **kwargs,
 ):
     return _base_lineplot(
         linetype="step",
@@ -1084,7 +1090,7 @@ def stepplot(
         hovertool_string=hovertool_string,
         number_format=number_format,
         rangetool=rangetool,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -1098,7 +1104,7 @@ def pointplot(
     xlabelname,
     x_axis_type,
     number_format,
-    **kwargs
+    **kwargs,
 ):
     """Adds pointplot to figure p for each data_col."""
 
@@ -1132,11 +1138,11 @@ def pointplot(
         glyph = p.scatter(
             x="__x__values",
             y=name,
-            legend=" " + name,
+            legend_label=" " + name,
             source=source,
             color=color,
             marker=marker,
-            **kwargs
+            **kwargs,
         )
         if hovertool:
             my_hover = HoverTool(mode="vline", renderers=[glyph])
@@ -1146,7 +1152,7 @@ def pointplot(
                         (xlabelname, "@__x__values_original{%F}"),
                         (name, "@{%s}%s" % (name, number_format)),
                     ]
-                    my_hover.formatters = {"__x__values_original": "datetime"}
+                    my_hover.formatters = {"@__x__values_original": "datetime"}
                 else:
                     my_hover.tooltips = [
                         (xlabelname, "@__x__values_original"),
@@ -1174,7 +1180,7 @@ def scatterplot(
     x_axis_type,
     xlabelname,
     ylabelname,
-    **kwargs
+    **kwargs,
 ):
     """Adds a scatterplot to figure p for each data_col."""
 
@@ -1201,7 +1207,7 @@ def scatterplot(
         # Make numerical categorical scatterplot:
         if check_type(category_values) == "numeric":
 
-            kwargs["legend"] = category + " "
+            kwargs["legend_label"] = category + " "
 
             # Define colormapper for numerical scatterplot:
             if colormap == None:
@@ -1213,8 +1219,7 @@ def scatterplot(
                     colormap = colormap[max_key]
                 else:
                     raise ValueError(
-                        "Could not find <colormap> with name %s. The following predefined colormaps are supported (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): %s"
-                        % (colormap, list(all_palettes.keys()))
+                        f"Could not find <colormap> with name {colormap}. The following predefined colormaps are supported (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): {list(all_palettes.keys())}"
                     )
             elif isinstance(colormap, (list, tuple)):
                 pass
@@ -1250,7 +1255,7 @@ def scatterplot(
                             (xlabelname, "@__x__values_original{%F}"),
                             (ylabelname, "@y"),
                         ]
-                        my_hover.formatters = {"__x__values_original": "datetime"}
+                        my_hover.formatters = {"@__x__values_original": "datetime"}
                     else:
                         my_hover.tooltips = [
                             (xlabelname, "@__x__values_original"),
@@ -1295,10 +1300,10 @@ def scatterplot(
                 glyph = p.scatter(
                     x="__x__values",
                     y="y",
-                    legend=str(cat) + " ",
+                    legend_label=str(cat) + " ",
                     source=source,
                     color=color,
-                    **kwargs
+                    **kwargs,
                 )
 
                 # Add Hovertool
@@ -1310,7 +1315,7 @@ def scatterplot(
                                 (xlabelname, "@__x__values_original{%F}"),
                                 (ylabelname, "@y"),
                             ]
-                            my_hover.formatters = {"__x__values_original": "datetime"}
+                            my_hover.formatters = {"@__x__values_original": "datetime"}
                         else:
                             my_hover.tooltips = [
                                 (xlabelname, "@__x__values_original"),
@@ -1335,7 +1340,7 @@ def scatterplot(
     else:
         # Draw glyph:
         glyph = p.scatter(
-            x="__x__values", y="y", source=source, legend="Hide/Show", **kwargs
+            x="__x__values", y="y", source=source, legend_label="Hide/Show", **kwargs
         )
 
         # Add Hovertool:
@@ -1347,7 +1352,7 @@ def scatterplot(
                         (xlabelname, "@__x__values_original{%F}"),
                         (ylabelname, "@y"),
                     ]
-                    my_hover.formatters = {"__x__values_original": "datetime"}
+                    my_hover.formatters = {"@__x__values_original": "datetime"}
                 else:
                     my_hover.tooltips = [
                         (xlabelname, "@__x__values_original"),
@@ -1376,7 +1381,7 @@ def histogram(
     show_average,
     histogram_type,
     logy,
-    **kwargs
+    **kwargs,
 ):
     "Adds histogram to figure p for each data_col."
 
@@ -1454,16 +1459,15 @@ def histogram(
             top="top",
             source=source,
             color=color,
-            legend=name,
-            **kwargs
+            legend_label=name,
+            **kwargs,
         )
 
         if hovertool:
             my_hover = HoverTool(mode="vline", renderers=[g1])
             if hovertool_string is None:
                 my_hover.tooltips = (
-                    """<h3> %s: </h3> <h4>bin=@bins</h4> <h4>value=@top </h4>"""
-                    % (name)
+                    f"<h3> {name}: </h3> <h4>bin=@bins</h4> <h4>value=@top </h4>"
                 )
             else:
                 warnings.warn(
@@ -1482,7 +1486,7 @@ def histogram(
                     angle=sign * np.pi / 2,
                     line_width=3,
                     color=color,
-                    legend="<%s> = %f" % (name, average),
+                    legend_label="<%s> = %f" % (name, average),
                 )
 
     p.xaxis.ticker = bins
@@ -1501,7 +1505,7 @@ def areaplot(
     x_axis_type,
     stacked,
     normed,
-    **kwargs
+    **kwargs,
 ):
     """Adds areaplot to figure p for each data_col."""
 
@@ -1553,10 +1557,10 @@ def areaplot(
         p.patch(
             x="__x__values",
             y=name,
-            legend=" " + name,
+            legend_label=" " + name,
             source=source,
             color=color,
-            **kwargs
+            **kwargs,
         )
 
         # Add hovertool:
@@ -1570,7 +1574,7 @@ def areaplot(
             glyph = p.line(
                 x="__x__values",
                 y=y,
-                legend=" " + name,
+                legend_label=" " + name,
                 source=line_source,
                 color=color,
                 alpha=0,
@@ -1583,7 +1587,7 @@ def areaplot(
                     my_hover.tooltips = [(xlabelname, "@__x__values_original{%F}")] + [
                         (name, "@{%s}" % name) for name in data_cols[::-1]
                     ]
-                    my_hover.formatters = {"__x__values_original": "datetime"}
+                    my_hover.formatters = {"@__x__values_original": "datetime"}
                 else:
                     my_hover.tooltips = [(xlabelname, "@__x__values_original")] + [
                         (name, "@{%s}" % name) for name in data_cols[::-1]
@@ -1603,7 +1607,7 @@ def pieplot(
     hovertool_string,
     figure_options,
     xlabelname,
-    **kwargs
+    **kwargs,
 ):
 
     """Creates a Pieplot from the provided data."""
@@ -1644,12 +1648,10 @@ def pieplot(
         source["inner_radius"] = [inner_radius] * len(source["__x__values"])
         source["outer_radius"] = [outer_radius] * len(source["__x__values"])
 
-        if bokeh.__version__ < "1.4":
-            legend_parameter_name = "legend"
-        else:
-            legend_parameter_name = "legend_label"
+        legend_parameter_name = "legend_field"
         if i == 0:
-            kwargs[legend_parameter_name] = "__x__values"
+            kwargs[legend_parameter_name] = "__x__values_original"
+            print(kwargs[legend_parameter_name])
         else:
             kwargs.pop(legend_parameter_name, None)
 
@@ -1665,7 +1667,7 @@ def pieplot(
             end_angle=cumsum(col + "_angle"),
             fill_color="color",
             source=source,
-            **kwargs
+            **kwargs,
         )
 
         # Add annotation:
@@ -1816,7 +1818,7 @@ class FramePlotMethods(BasePlotMethods):
 
         Returns
         -------
-        
+
         Bokeh.plotting.figure or Bokeh.layouts.row
 
         Examples
@@ -1867,7 +1869,7 @@ class FramePlotMethods(BasePlotMethods):
 
         Returns
         -------
-        
+
         Bokeh.plotting.figure or Bokeh.layouts.row
 
         Examples
@@ -1918,7 +1920,7 @@ class FramePlotMethods(BasePlotMethods):
 
         Returns
         -------
-        
+
         Bokeh.plotting.figure or Bokeh.layouts.row
 
         Examples
@@ -2292,9 +2294,9 @@ class FramePlotMethods(BasePlotMethods):
             The column name or column position to be used as vertical
             coordinates for each point.
 
-        category : str or object 
+        category : str or object
             A column name whose values will be used to color the
-            marker points according to a colormap. 
+            marker points according to a colormap.
 
         **kwds
             Keyword arguments to pass on to :meth:`pandas.DataFrame.plot_bokeh`.
@@ -2416,10 +2418,11 @@ class FramePlotMethods(BasePlotMethods):
         """
         return self(kind="map", x=x, y=y, **kwds)
 
+
 def _initialize_rangetool(p, x_axis_type, source):
     """
     Initializes the range tool chart and slider.
-    
+
     Parameters
     ----------
     p : Bokeh.plotting.figure
@@ -2448,8 +2451,8 @@ def _initialize_rangetool(p, x_axis_type, source):
     )
 
     # Need to explicitly set the initial range of the plot for the range tool.
-    start_index = int(0.75 * len(source['__x__values']))
-    p.x_range = Range1d(source['__x__values'][start_index], source['__x__values'][-1])
+    start_index = int(0.75 * len(source["__x__values"]))
+    p.x_range = Range1d(source["__x__values"][start_index], source["__x__values"][-1])
 
     range_tool = RangeTool(x_range=p.x_range)
     range_tool.overlay.fill_color = "navy"

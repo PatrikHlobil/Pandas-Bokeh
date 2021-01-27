@@ -8,17 +8,15 @@ import pytest
 import pandas_bokeh
 
 directory = os.path.dirname(__file__)
-test_sets_directory = os.path.join(
-    os.path.dirname(directory), "docs", "Testdata"
-)
+test_sets_directory = os.path.join(os.path.dirname(directory), "docs", "Testdata")
 os.makedirs(os.path.join(directory, "Plots"), exist_ok=True)
+
 
 @pytest.fixture
 def df_states():
 
-    return gpd.read_file(
-        os.path.join(test_sets_directory, "states", "states.geojson")
-    )
+    return gpd.read_file(os.path.join(test_sets_directory, "states", "states.geojson"))
+
 
 @pytest.fixture
 def df_cities():
@@ -31,14 +29,13 @@ def df_cities():
         )
     )
 
+
 def test_geolayers_simple(df_states):
     "Tests for simple geoplot"
 
     figure = df_states.plot_bokeh(simplify_shapes=10000, show_figure=False)
 
-    with open(
-        os.path.join(directory, "Plots", "Geolayers_Simple.html"), "w"
-    ) as f:
+    with open(os.path.join(directory, "Plots", "Geolayers_Simple.html"), "w") as f:
         f.write(pandas_bokeh.embedded_html(figure))
 
     assert True
@@ -108,11 +105,12 @@ def test_geolayers_slider(df_states, df_cities):
     ) as f:
         f.write(html_multilayer_slider)
 
+
 def test_hole_geplot():
     "Tests for (multi-)polygones with holes."
 
     df = gpd.GeoDataFrame.from_file(
-        os.path.join(test_sets_directory, 'hole_shapes', 'hole_shapes.geojson')
+        os.path.join(test_sets_directory, "hole_shapes", "hole_shapes.geojson")
     )
     figure = df.plot_bokeh(show_figure=False)
 
@@ -122,4 +120,3 @@ def test_hole_geplot():
         f.write(pandas_bokeh.embedded_html(figure))
 
     assert True
-

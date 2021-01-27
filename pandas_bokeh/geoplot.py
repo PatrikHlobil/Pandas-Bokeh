@@ -1,14 +1,14 @@
 import numbers
 import sys
+from collections import OrderedDict
+from collections.abc import Hashable, Iterable
 
-if sys.version_info >= (3, 0):
-    from collections import OrderedDict
-    from collections.abc import Iterable, Hashable
-else:
-    from collections import OrderedDict, Iterable, Hashable
-
+import bokeh
 import numpy as np
 import pandas as pd
+from bokeh.colors import RGB
+from bokeh.models import NumeralTickFormatter, TickFormatter
+from bokeh.tile_providers import get_provider
 
 from .base import embedded_html
 
@@ -30,45 +30,20 @@ TILE_PROVIDERS = [
 
 
 def _get_background_tile(provider_name):
-    """Returns a Bokeh WTMS Tile Provider Source from <provider_name>. If 
+    """Returns a Bokeh WTMS Tile Provider Source from <provider_name>. If
     <provider_name is not valid, it returns False."""
 
     if provider_name not in TILE_PROVIDERS:
         return False
 
-    if bokeh.__version__ >= "1.1":
-        from bokeh.tile_providers import get_provider
-
-        return get_provider(provider_name)
-    else:
-        from bokeh.tile_providers import (
-            CARTODBPOSITRON,
-            CARTODBPOSITRON_RETINA,
-            STAMEN_TERRAIN,
-            STAMEN_TERRAIN_RETINA,
-            STAMEN_TONER,
-            STAMEN_TONER_BACKGROUND,
-            STAMEN_TONER_LABELS,
-        )
-
-        tile_dict = {
-            "CARTODBPOSITRON": CARTODBPOSITRON,
-            "CARTODBPOSITRON_RETINA": CARTODBPOSITRON_RETINA,
-            "STAMEN_TERRAIN": STAMEN_TERRAIN,
-            "STAMEN_TERRAIN_RETINA": STAMEN_TERRAIN_RETINA,
-            "STAMEN_TONER": STAMEN_TONER,
-            "STAMEN_TONER_BACKGROUND": STAMEN_TONER_BACKGROUND,
-            "STAMEN_TONER_LABELS": STAMEN_TONER_LABELS,
-        }
-
-        return tile_dict[provider_name]
+    return get_provider(provider_name)
 
 
 def _add_backgroundtile(
     p, tile_provider, tile_provider_url, tile_attribution, tile_alpha
 ):
-    """Add a background tile to the plot. Either uses predefined Tiles from Bokeh 
-    (parameter: tile_provider) or user passed a tile_provider_url of the form 
+    """Add a background tile to the plot. Either uses predefined Tiles from Bokeh
+    (parameter: tile_provider) or user passed a tile_provider_url of the form
     '<url>/{Z}/{X}/{Y}*.png' or '<url>/{Z}/{Y}/{X}*.png'."""
 
     from bokeh.models import WMTSTileSource
@@ -91,13 +66,13 @@ def _add_backgroundtile(
     elif not tile_provider is None:
         if not isinstance(tile_provider, str):
             raise ValueError(
-                "<tile_provider> only accepts the values: %s" % TILE_PROVIDERS
+                f"<tile_provider> only accepts the values: {TILE_PROVIDERS}"
             )
         elif _get_background_tile(tile_provider) != False:
             t = p.add_tile(_get_background_tile(tile_provider))
         else:
             raise ValueError(
-                "<tile_provider> only accepts the values: %s" % TILE_PROVIDERS
+                f"<tile_provider> only accepts the values: {TILE_PROVIDERS}"
             )
         t.alpha = tile_alpha
 
@@ -117,15 +92,16 @@ def _get_figure(col):
             return _get_figure(children)
 
 
-def convert_geoDataFrame_to_patches(gdf, geometry_column_name="geometry"):
-    """Creates from a geoDataFrame with Polygons and Multipolygons a Pandas DataFrame with x any y columns specifying the geometry of the Polygons"""
-
-    import geopandas as gpd
+def convert_geoDataFrame_to_patches(gdf, geometry_column):
+    """Creates from a geoDataFrame with Polygons and Multipolygons a Pandas DataFrame
+    with x any y columns specifying the geometry of the Polygons."""
 
     df_new = []
 
-    def extract(row, geometry):
+    def add_x_and_y_columns(row, geometry):
+        row = row.copy()
         x, y = geometry.exterior.xy
+
         # Convert to int for web mercador projection to save space:
         row["__x__"] = [[[int(_) for _ in x]]]
         row["__y__"] = [[[int(_) for _ in y]]]
@@ -138,17 +114,17 @@ def convert_geoDataFrame_to_patches(gdf, geometry_column_name="geometry"):
         return row
 
     for i, row in gdf.iterrows():
-        geometry = row[geometry_column_name]
+        geometry = row[geometry_column]
         if geometry.type == "Polygon":
-            df_new.append(extract(row, geometry))
+            df_new.append(add_x_and_y_columns(row, geometry))
 
         if geometry.type == "MultiPolygon":
             for polygon in geometry:
-                df_new.append(extract(row, polygon))
+                df_new.append(add_x_and_y_columns(row, polygon))
 
     df_new = pd.DataFrame(df_new)
 
-    df_new = df_new.drop(columns=["geometry"])
+    df_new = df_new.drop(columns=[geometry_column])
     return df_new
 
 
@@ -166,6 +142,7 @@ def get_tick_formatter(formatter_arg):
 
 def geoplot(
     gdf_in,
+    geometry_column="geometry",
     figure=None,
     figsize=None,
     title="",
@@ -202,7 +179,7 @@ def geoplot(
     return_html=False,
     legend=True,
     webgl=True,
-    **kwargs
+    **kwargs,
 ):
     """Doc-String: TODO"""
 
@@ -219,7 +196,7 @@ def geoplot(
         ColorBar,
         BasicTicker,
         LogTicker,
-        Dropdown,
+        Select,
         Slider,
         ColumnDataSource,
     )
@@ -242,8 +219,7 @@ def geoplot(
             layertypes.append("Polygon")
         if len(layertypes) > 1:
             raise Exception(
-                "Can only plot GeoDataFrames/Series with single type of geometry (either Point, Line or Polygon). Provided is a GeoDataFrame/Series with types: %s"
-                % layertypes
+                f"Can only plot GeoDataFrames/Series with single type of geometry (either Point, Line or Polygon). Provided is a GeoDataFrame/Series with types: {layertypes}"
             )
     else:
         layertypes = ["Point"]
@@ -270,12 +246,12 @@ def geoplot(
 
     if type(gdf) != pd.DataFrame:
         # Convert GeoDataFrame to Web Mercator Projection:
-        gdf.to_crs({"init": "epsg:3857"}, inplace=True)
+        gdf.to_crs(epsg=3857, inplace=True)
 
         # Simplify shapes if wanted:
         if isinstance(simplify_shapes, numbers.Number):
             if layertypes[0] in ["Line", "Polygon"]:
-                gdf["geometry"] = gdf["geometry"].simplify(simplify_shapes)
+                gdf[geometry_column] = gdf[geometry_column].simplify(simplify_shapes)
         elif not simplify_shapes is None:
             raise ValueError(
                 "<simplify_shapes> parameter only accepts numbers or None."
@@ -308,8 +284,7 @@ def geoplot(
         pass
     else:
         raise ValueError(
-            "Could not find column '%s' in GeoDataFrame. For <category>, please provide an existing single column of the GeoDataFrame."
-            % category
+            f"Could not find column '{category}' in GeoDataFrame. For <category>, please provide an existing single column of the GeoDataFrame."
         )
 
     # Check for dropdown (multiple choropleth plots via dropdown selection):
@@ -323,7 +298,7 @@ def geoplot(
         for col in dropdown:
             if col not in gdf.columns:
                 raise ValueError(
-                    "Could not find column '%s' for <dropdown> in GeoDataFrame. " % col
+                    f"Could not find column '{col}' for <dropdown> in GeoDataFrame. "
                 )
 
     # Check for slider (multiple choropleth plots via slider selection):
@@ -337,7 +312,7 @@ def geoplot(
         for col in slider:
             if col not in gdf.columns:
                 raise ValueError(
-                    "Could not find column '%s' for <slider> in GeoDataFrame. " % col
+                    f"Could not find column '{col}' for <slider> in GeoDataFrame. "
                 )
 
         if not slider_range is None:
@@ -373,8 +348,7 @@ def geoplot(
                 pass
             else:
                 raise ValueError(
-                    "<colormap> only accepts a list/tuple of at least two colors or the name of one of the following predefined colormaps (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): %s"
-                    % (list(all_palettes.keys()))
+                    f"<colormap> only accepts a list/tuple of at least two colors or the name of one of the following predefined colormaps (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): {list(all_palettes.keys())}"
                 )
         elif isinstance(colormap, str):
             if colormap in all_palettes:
@@ -382,13 +356,11 @@ def geoplot(
                 colormap = colormap[max(colormap.keys())]
             else:
                 raise ValueError(
-                    "Could not find <colormap> with name %s. The following predefined colormaps are supported (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): %s"
-                    % (colormap, list(all_palettes.keys()))
+                    f"Could not find <colormap> with name {colormap}. The following predefined colormaps are supported (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): {list(all_palettes.keys())}"
                 )
         else:
             raise ValueError(
-                "<colormap> only accepts a list/tuple of at least two colors or the name of one of the following predefined colormaps (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): %s"
-                % (list(all_palettes.keys()))
+                f"<colormap> only accepts a list/tuple of at least two colors or the name of one of the following predefined colormaps (see also https://bokeh.pydata.org/en/latest/docs/reference/palettes.html ): {list(all_palettes.keys())}"
             )
     else:
         if isinstance(color, str):
@@ -404,10 +376,6 @@ def geoplot(
     if xlim is not None:
         if isinstance(xlim, (tuple, list)):
             if len(xlim) == 2:
-                from pyproj import Proj, transform
-
-                inProj = Proj(init="epsg:4326")
-                outProj = Proj(init="epsg:3857")
                 xmin, xmax = xlim
                 for _ in [xmin, xmax]:
                     if not -180 < _ <= 180:
@@ -416,8 +384,12 @@ def geoplot(
                         )
                 if not xmin < xmax:
                     raise ValueError("xmin has to be smaller than xmax.")
-                xmin = transform(inProj, outProj, xmin, 0)[0]
-                xmax = transform(inProj, outProj, xmax, 0)[0]
+
+                from pyproj import Transformer
+
+                transformer = Transformer.from_crs("epsg:4326", "epsg:3857")
+                xmin = transformer.transform(0, xmin)[0]
+                xmax = transformer.transform(0, xmax)[0]
                 figure_options["x_range"] = (xmin, xmax)
             else:
                 raise ValueError(
@@ -430,10 +402,6 @@ def geoplot(
     if ylim is not None:
         if isinstance(ylim, (tuple, list)):
             if len(ylim) == 2:
-                from pyproj import Proj, transform
-
-                inProj = Proj(init="epsg:4326")
-                outProj = Proj(init="epsg:3857")
                 ymin, ymax = ylim
                 for _ in [ymin, ymax]:
                     if not -90 < _ <= 90:
@@ -442,8 +410,12 @@ def geoplot(
                         )
                 if not ymin < ymax:
                     raise ValueError("ymin has to be smaller than ymax.")
-                ymin = transform(inProj, outProj, 0, ymin)[1]
-                ymax = transform(inProj, outProj, 0, ymax)[1]
+
+                from pyproj import Transformer
+
+                transformer = Transformer.from_crs("epsg:4326", "epsg:3857")
+                ymin = transformer.transform(ymin, 0)[1]
+                ymax = transformer.transform(ymax, 0)[1]
                 figure_options["y_range"] = (ymin, ymax)
             else:
                 raise ValueError(
@@ -507,8 +479,7 @@ def geoplot(
         # Check if category column is numerical:
         if not issubclass(gdf[category].dtype.type, np.number):
             raise NotImplementedError(
-                "<category> plot only yet implemented for numerical columns. Column '%s' is not numerical."
-                % category
+                f"<category> plot only yet implemented for numerical columns. Column '{category}' is not numerical."
             )
 
         field = category
@@ -537,8 +508,7 @@ def geoplot(
         for col in dropdown:
             if not issubclass(gdf[col].dtype.type, np.number):
                 raise NotImplementedError(
-                    "<dropdown> plot only yet implemented for numerical columns. Column '%s' is not numerical."
-                    % col
+                    f"<dropdown> plot only yet implemented for numerical columns. Column '{col}' is not numerical."
                 )
 
         field = dropdown[0]
@@ -566,8 +536,7 @@ def geoplot(
         for col in slider:
             if not issubclass(gdf[col].dtype.type, np.number):
                 raise NotImplementedError(
-                    "<slider> plot only yet implemented for numerical columns. Column '%s' is not numerical."
-                    % col
+                    f"<slider> plot only yet implemented for numerical columns. Column '{col}' is not numerical."
                 )
 
         field = slider[0]
@@ -610,7 +579,7 @@ def geoplot(
         if not isinstance(hovertool_columns, (list, tuple)):
             if hovertool_columns == "all":
                 hovertool_columns = list(
-                    filter(lambda col: col != "geometry", gdf.columns)
+                    filter(lambda col: col != geometry_column, gdf.columns)
                 )
             else:
                 raise ValueError(
@@ -629,8 +598,7 @@ def geoplot(
             for col in hovertool_columns:
                 if col not in gdf.columns:
                     raise ValueError(
-                        "Could not find columns '%s' in GeoDataFrame. <hovertool_columns> has to be a list of columns of the GeoDataFrame or the string 'all'."
-                        % col
+                        f"Could not find columns '{col}' in GeoDataFrame. <hovertool_columns> has to be a list of columns of the GeoDataFrame or the string 'all'."
                     )
     else:
         if category is None:
@@ -643,7 +611,7 @@ def geoplot(
         gdf["Geometry"] = 0
         additional_columns = ["x", "y"]
     else:
-        additional_columns = ["geometry"]
+        additional_columns = [geometry_column]
     for kwarg, value in kwargs.items():
         if isinstance(value, Hashable):
             if value in gdf.columns:
@@ -670,14 +638,16 @@ def geoplot(
     if "Point" in layertypes:
         if "line_color" not in kwargs:
             kwargs["line_color"] = kwargs["fill_color"]
-        glyph = p.scatter(x="x", y="y", source=geo_source, legend=legend, **kwargs)
+        glyph = p.scatter(
+            x="x", y="y", source=geo_source, legend_label=legend, **kwargs
+        )
 
     if "Line" in layertypes:
         if "line_color" not in kwargs:
             kwargs["line_color"] = kwargs["fill_color"]
             del kwargs["fill_color"]
         glyph = p.multi_line(
-            xs="xs", ys="ys", source=geo_source, legend=legend, **kwargs
+            xs="xs", ys="ys", source=geo_source, legend_label=legend, **kwargs
         )
 
     if "Polygon" in layertypes:
@@ -687,11 +657,13 @@ def geoplot(
 
         # Creates from a geoDataFrame with Polygons and Multipolygons a Pandas DataFrame
         # with x any y columns specifying the geometry of the Polygons:
-        geo_source = ColumnDataSource(convert_geoDataFrame_to_patches(gdf))
+        geo_source = ColumnDataSource(
+            convert_geoDataFrame_to_patches(gdf, geometry_column)
+        )
 
         # Plot polygons:
         glyph = p.multi_polygons(
-            xs="__x__", ys="__y__", source=geo_source, legend=legend, **kwargs
+            xs="__x__", ys="__y__", source=geo_source, legend_label=legend, **kwargs
         )
 
     # Add hovertool:
@@ -724,8 +696,8 @@ def geoplot(
     # Add Dropdown Widget:
     if not dropdown is None:
         # Define Dropdown widget:
-        dropdown_widget = Dropdown(
-            label="Select Choropleth Layer", menu=list(zip(dropdown, dropdown))
+        dropdown_widget = Select(
+            title="Select Choropleth Layer", options=list(zip(dropdown, dropdown))
         )
 
         # Define Callback for Dropdown widget:
@@ -791,6 +763,7 @@ def geoplot(
 
                 //Change selection of field for Colormapper for choropleth plot:
                 var slider_value = slider_widget.value;
+                var i;
                 for(i=0; i<value2name.data["Names"].length; i++)
                     {
                     if (value2name.data["Values"][i] == slider_value)

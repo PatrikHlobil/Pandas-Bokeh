@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
+import warnings
+
 from .base import output_notebook, output_file, plot_grid, show, embedded_html
 from .plot import plot, FramePlotMethods
 from .geoplot import geoplot
@@ -8,9 +11,8 @@ from .geoplot import geoplot
 from bokeh.layouts import column, row, layout
 from bokeh.io import save
 
-import warnings
 
-__version__ = "0.4.2"
+__version__ = "0.5.2"
 
 
 # Register plot_bokeh accessor for Pandas DataFrames and Series:
@@ -41,23 +43,28 @@ if pd.__version__ >= "0.25":
     # Define additional plotting APIs (not default in pandas.core.plotting defined)
     def mapplot(self, **kwargs):
         return self(kind="map", **kwargs)
+
     pd.DataFrame.plot.map = mapplot
 
     def pointplot(self, **kwargs):
         return self(kind="point", **kwargs)
+
     pd.DataFrame.plot.point = pointplot
 
     def stepplot(self, **kwargs):
         return self(kind="step", **kwargs)
+
     pd.DataFrame.plot.step = stepplot
 
     for kind in ["map", "point", "step"]:
-        getattr(pd.DataFrame.plot, kind).__doc__ = getattr(FramePlotMethods, kind).__doc__
+        getattr(pd.DataFrame.plot, kind).__doc__ = getattr(
+            FramePlotMethods, kind
+        ).__doc__
 
     # Define API methods on pandas.plotting:
     pd.plotting.output_notebook = output_notebook
     pd.plotting.output_file = output_file
-    pd.plotting.plot_grid = plot_grid 
+    pd.plotting.plot_grid = plot_grid
     pd.plotting.show = show
     pd.plotting.embedded_html = embedded_html
     pd.plotting.column = column
@@ -78,10 +85,11 @@ except ImportError:
 
 
 # Define Bokeh-plot method for PySpark DataFrames:
-try:
-    import pyspark
+if sys.version_info[1] < 8:  # TODO: pyspark currently does not support Python 3.8!
+    try:
+        import pyspark
 
-    plot_bokeh = CachedAccessor("plot_bokeh", FramePlotMethods)
-    pyspark.sql.dataframe.DataFrame.plot_bokeh = plot_bokeh
-except ImportError:
-    pass
+        plot_bokeh = CachedAccessor("plot_bokeh", FramePlotMethods)
+        pyspark.sql.dataframe.DataFrame.plot_bokeh = plot_bokeh
+    except ImportError:
+        pass

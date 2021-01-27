@@ -31,13 +31,13 @@ You can install **Pandas-Bokeh** from [PyPI](https://pypi.org/project/pandas-bok
 
 or *conda*:
 
-    conda install -c patrikhlobil pandas-bokeh 
+    conda install -c patrikhlobil pandas-bokeh
 
-With the current release 0.4, **Pandas-Bokeh** officially supports **Python 3.5** and newer. It will probably still work for older Python versions, but is not tested against these.
+With the current release 0.5, **Pandas-Bokeh** officially supports **Python 3.6** and newer. It will probably still work for older Python versions, but is not tested against these.
 
 <br>
 
-The current release is **0.4**. For more details, see [Release Notes](#releasenotes).
+The current release is **0.5**. For more details, see [Release Notes](#releasenotes).
 
 <br>
 
@@ -191,6 +191,7 @@ There are various optional parameters to tune the plots, for example:
 * **toolbar_location**: Specify the position of the toolbar location (None, "above", "below", "left" or "right"). Default: *"right"*
 * **zooming**: Enables/Disables zooming. Default: *True*
 * **panning**: Enables/Disables panning. Default: *True*
+* **fontsize_label/fontsize_ticks/fontsize_title/fontsize_legend**: Set fontsize of labels, ticks, title or legend (int or string of form "15pt")
 * **rangetool** Enables a range tool scroller. Default *False*
 
 
@@ -296,7 +297,6 @@ df.plot_bokeh.point(
 With a similar API as the line- & pointplots, one can generate a stepplot. Additional keyword arguments for this plot type are passes to [bokeh.plotting.figure.step](bokeh.plotting.figure.scatter), e.g. **mode** (before, after, center), see the following example 
 
 ```python
-
 import numpy as np
 
 x = np.arange(-3, 3, 1)
@@ -308,7 +308,11 @@ df.plot_bokeh.step(
     xticks=range(-1, 1),
     colormap=["#009933", "#ff3399"],
     title="Pointplot (Parabula vs. Cube)",
-    figsize=(800,300)
+    figsize=(800,300),
+    fontsize_title=30,
+    fontsize_label=25,
+    fontsize_ticks=15,
+    fontsize_legend=5,
     )
 
 df.plot_bokeh.step(
@@ -755,6 +759,7 @@ df_states.plot_bokeh(simplify_shapes=10000)
 We also passed the optional parameter **simplify_shapes** (~meter) to improve plotting performance (for a reference see [shapely.object.simplify](https://shapely.readthedocs.io/en/stable/manual.html#object.simplify)). The above geolayer thus has an accuracy of about 10km.
 
 Many keyword arguments like *xlabel, ylabel, xlim, ylim, title, colormap, hovertool, zooming, panning, ...* for costumizing the plot are also available for the geoplotting API and can be uses as in the examples shown above. There are however also many other options especially for plotting geodata:
+* **geometry_column**: Specify the column that stores the geometry-information (default: "geometry")
 * **hovertool_columns**: Specify column names, for which values should be shown in hovertool
 * **hovertool_string**: If specified, this string will be used for the hovertool (@{column} will be replaced by the value of the column for the element the mouse hovers over, see also [Bokeh documentation](https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#custom-tooltip))
 * **colormap_uselog**: If set *True*, the colormapper is using a logscale. *Default: False*
@@ -1333,7 +1338,30 @@ Plots like scatterplot or histogram also have many more additional customization
 
 * speedup when plotting GeoDataFrames
 
-## 0.5 
+## 0.4.2
+
+* Bugfixes
+
+## 0.4.3
+
+* Bugfixes (#55-Multipolygon plotting error)
+* Improvements with sizing & zooming (#61)
+
+## 0.5
+
+* Implementation of **geometry_column**-parameter for geoplots (#14 Plotting LineString)
+* Fix of deprecation warnings for Bokeh >= 2.0 and future minimum requirement Bokeh>=2.0 (#51-BokehDeprecationWarnings with Bokeh v1.4.0, #59-Bokeh 2.0 is imminent)
+* Fix of Problem with Datetime Hovertool columns with Bokeh>=2.0 (#60-Hovertool datetime shows as percentage.)
+* Fix broken Dropdown and Slider for Geoplots (#68 Not compatible with Bokeh 2.x)
+* Added fontsize settings for Labels, Title and Ticks
+
+## 0.5.1
+
+* bugfixes
+
+## 0.5.2
+
+* bugfixes
 
 ## 0.5.3
 
