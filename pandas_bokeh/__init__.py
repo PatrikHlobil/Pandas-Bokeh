@@ -2,15 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import warnings
 
-from .base import output_notebook, output_file, plot_grid, show, embedded_html
-from .plot import plot, FramePlotMethods
-from .geoplot import geoplot
-
-from bokeh.layouts import column, row, layout
 from bokeh.io import save
+from bokeh.layouts import column, layout, row
 
+from .base import embedded_html, output_file, output_notebook, plot_grid, show
+from .geoplot import geoplot
+from .plot import FramePlotMethods, plot
 
 __version__ = "0.5.3"
 

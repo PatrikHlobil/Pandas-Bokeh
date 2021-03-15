@@ -22,7 +22,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install openjdk-8-jre icedtea-8-plugin
+        sudo apt-get install openjdk-8-jre
         python -m pip install --upgrade pip
         python -m pip install black pypandoc
         pip install -r Tests/requirements_test.txt

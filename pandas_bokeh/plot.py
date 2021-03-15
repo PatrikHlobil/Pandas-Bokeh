@@ -2,34 +2,19 @@
 # -*- coding: utf-8 -*-
 
 import datetime
-import math
 import numbers
 import re
 import warnings
 from copy import deepcopy
 
-import bokeh
 import numpy as np
 import pandas as pd
 from bokeh.core.properties import value as _value
-from bokeh.events import Tap
 from bokeh.layouts import column
-from bokeh.models import (
-    CategoricalColorMapper,
-    ColorBar,
-    ColumnDataSource,
-    DatetimeTickFormatter,
-    FuncTickFormatter,
-    HoverTool,
-    LinearColorMapper,
-    LogColorMapper,
-    RangeTool,
-    WheelZoomTool,
-)
-from bokeh.models.callbacks import CustomJS
-from bokeh.models.glyphs import Text
-from bokeh.models.ranges import FactorRange, Range1d
-from bokeh.models.tickers import FixedTicker
+from bokeh.models import (ColorBar, ColumnDataSource, DatetimeTickFormatter,
+                          FuncTickFormatter, HoverTool, LinearColorMapper,
+                          RangeTool)
+from bokeh.models.ranges import Range1d
 from bokeh.palettes import Inferno256, all_palettes
 from bokeh.plotting import figure
 from bokeh.transform import cumsum, dodge

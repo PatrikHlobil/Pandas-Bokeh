@@ -1,9 +1,6 @@
 import numbers
-import sys
-from collections import OrderedDict
 from collections.abc import Hashable, Iterable
 
-import bokeh
 import numpy as np
 import pandas as pd
 from bokeh.colors import RGB
@@ -11,10 +8,6 @@ from bokeh.models import NumeralTickFormatter, TickFormatter
 from bokeh.tile_providers import get_provider
 
 from .base import embedded_html
-
-from bokeh.colors import RGB
-import bokeh
-from bokeh.models import TickFormatter, NumeralTickFormatter
 
 blue_colormap = [RGB(255 - i, 255 - i, 255) for i in range(256)]
 
@@ -185,25 +178,25 @@ def geoplot(
 
     # Imports:
     import bokeh.plotting
-    from bokeh.plotting import show
+    from bokeh.layouts import column, row
     from bokeh.models import (
-        HoverTool,
-        LogColorMapper,
-        LinearColorMapper,
-        GeoJSONDataSource,
-        WheelZoomTool,
+        BasicTicker,
         BoxZoomTool,
         ColorBar,
-        BasicTicker,
+        ColumnDataSource,
+        GeoJSONDataSource,
+        HoverTool,
+        LinearColorMapper,
+        LogColorMapper,
         LogTicker,
         Select,
         Slider,
-        ColumnDataSource,
+        WheelZoomTool,
     )
     from bokeh.models.callbacks import CustomJS
     from bokeh.models.widgets import Dropdown
     from bokeh.palettes import all_palettes
-    from bokeh.layouts import row, column
+    from bokeh.plotting import show
 
     # Make a copy of the input geodataframe:
     gdf = gdf_in.copy()

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from bokeh.layouts import gridplot
 import bokeh.plotting
 from bokeh.embed import components
+from bokeh.layouts import gridplot
 from bokeh.resources import CDN
 
 OUTPUT_TYPE = "file"
