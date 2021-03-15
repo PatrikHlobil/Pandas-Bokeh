@@ -748,7 +748,8 @@ def plot(
             v_min, v_max = values.min(), values.max()
             bins = np.linspace(v_min, v_max, bins + 1)
 
-        bins = list(bins)
+        if not isinstance(bins, str):
+            bins = list(bins)
 
         if not weights is None:
             if weights not in df.columns:
