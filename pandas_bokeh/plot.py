@@ -6,6 +6,7 @@ import numbers
 import re
 import warnings
 from copy import deepcopy
+from typing import Iterable, List, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -25,6 +26,7 @@ from bokeh.palettes import Inferno256, all_palettes
 from bokeh.plotting import figure
 from bokeh.transform import cumsum, dodge
 from pandas.core.base import PandasObject
+from pandas.errors import ParserError
 
 from .base import embedded_html, set_fontsizes_of_figure, show
 from .geoplot import geoplot
@@ -105,7 +107,7 @@ def _times_to_string(times):
         return [pd.to_datetime(t).strftime("%Y/%m/%d") for t in times]
 
 
-def plot(
+def plot(  # noqa C901
     df_in,
     x=None,
     y=None,
@@ -258,7 +260,7 @@ def plot(
     # Initializing rangetool plot variable:
     p_rangetool = None
 
-    if not figsize is None:
+    if figsize is not None:
         width, height = figsize
         figure_options["plot_width"] = width
         figure_options["plot_height"] = height
@@ -266,18 +268,18 @@ def plot(
         figure_options["x_axis_type"] = "log"
     if logy:
         figure_options["y_axis_type"] = "log"
-    if not xlabel is None:
+    if xlabel is not None:
         figure_options["x_axis_label"] = xlabel
-    if not ylabel is None:
+    if ylabel is not None:
         figure_options["y_axis_label"] = ylabel
-    if not xlim is None:
+    if xlim is not None:
         if not isinstance(xlim, (tuple, list)):
             raise ValueError("<xlim> must be a list/tuple of form (x_min, x_max).")
         elif len(xlim) != 2:
             raise ValueError("<xlim> must be a list/tuple of form (x_min, x_max).")
         else:
             figure_options["x_range"] = xlim
-    if not ylim is None:
+    if ylim is not None:
         if not isinstance(ylim, (tuple, list)):
             raise ValueError("<ylim> must be a list/tuple of form (y_min, y_max).")
         elif len(ylim) != 2:
@@ -312,7 +314,7 @@ def plot(
 
     # Get x-axis Name and Values:
     delete_in_y = None
-    if not x is None:
+    if x is not None:
         if issubclass(x.__class__, pd.Index) or issubclass(x.__class__, pd.Series):
             if x.name is not None:
                 name = str(x.name)
@@ -338,7 +340,7 @@ def plot(
     else:
         if use_index:
             x = df.index.values
-            if not df.index.name is None:
+            if df.index.name is not None:
                 name = str(df.index.name)
             else:
                 name = ""
@@ -360,15 +362,15 @@ def plot(
     if check_type(x) == "datetime":
         figure_options["x_axis_type"] = "datetime"
         xaxis_type = "datetime"
-        if not xlim is None:
+        if xlim is not None:
             starttime, endtime = xlim
             try:
                 starttime = pd.to_datetime(starttime)
-            except:
+            except ParserError:
                 raise ValueError("Could not parse x_min input of <xlim> as datetime.")
             try:
                 endtime = pd.to_datetime(endtime)
-            except:
+            except ParserError:
                 raise ValueError("Could not parse x_max input of <xlim> as datetime.")
             figure_options["x_range"] = (starttime, endtime)
 
@@ -394,29 +396,14 @@ def plot(
             del figure_options["x_axis_type"]
 
     # Determine data cols to plot (only plot numeric data):
-    if y is None:
-        cols = df.columns
-    elif not isinstance(y, (list, tuple)):
-        cols = [y]
-    else:
-        cols = y
-    data_cols = []
-    for i, col in enumerate(cols):
-        if col not in df.columns:
-            raise Exception(
-                f"Could not find '{col}' in the columns of the provided DataFrame/Series. Please provide for the <y> parameter either a column name of the DataFrame/Series or an array of the same length."
-            )
-        if np.issubdtype(df[col].dtype, np.number):
-            data_cols.append(col)
-    if len(data_cols) == 0:
-        raise Exception("No numeric data columns found for plotting.")
+    data_cols = _determine_data_columns(y, df)
 
     # Convert y-column names into string representation:
     df.rename(columns={col: str(col) for col in data_cols}, inplace=True)
     data_cols = [str(col) for col in data_cols]
 
     # Delete x column if it appears in y columns:
-    if not delete_in_y is None:
+    if delete_in_y is not None:
         if delete_in_y in data_cols:
             data_cols.remove(delete_in_y)
     N_cols = len(data_cols)
@@ -478,7 +465,7 @@ def plot(
     if kind not in ["scatter", "pie"]:
         colormap = get_colormap(colormap, N_cols)
 
-    if not color is None:
+    if color is not None:
         colormap = get_colormap([color], N_cols)
 
     # Add Glyphs to Plot:
@@ -554,7 +541,7 @@ def plot(
         category_values = None
         if category in df.columns:
             category_values = df[category].values
-        elif not category is None:
+        elif category is not None:
             raise Exception(
                 "<category> parameter has to be either None or the name of a single column of the DataFrame"
             )
@@ -666,7 +653,6 @@ def plot(
                     p.add_tools(my_hover)
 
         if stacked:
-            legend_ref = [_value(col) for col in data_cols]
 
             if kind == "bar":
                 glyph = p.vbar_stack(
@@ -705,9 +691,9 @@ def plot(
     if kind == "hist":
 
         # Disable line_color (for borders of histogram bins) per default:
-        if not "line_color" in kwargs:
+        if "line_color" not in kwargs:
             kwargs["line_color"] = None
-        elif kwargs["line_color"] == True:
+        elif kwargs["line_color"] is True:
             del kwargs["line_color"]
 
         if "by" in kwargs and y is None:
@@ -751,7 +737,7 @@ def plot(
         if not isinstance(bins, str):
             bins = list(bins)
 
-        if not weights is None:
+        if weights is not None:
             if weights not in df.columns:
                 raise ValueError(
                     "Columns '%s' for <weights> is not in provided DataFrame."
@@ -763,7 +749,7 @@ def plot(
         averages = []
         for col in data_cols:
             values = df[col].values
-            if not weights is None:
+            if weights is not None:
                 not_nan = ~(np.isnan(values) | np.isnan(weights))
                 values_not_nan = values[not_nan]
                 weights_not_nan = weights[not_nan]
@@ -844,7 +830,7 @@ def plot(
         )
 
     # Set xticks:
-    if not xticks is None:
+    if xticks is not None:
         p.xaxis[0].ticker = list(xticks)
     elif (xaxis_type == "numerical" and kind not in ["hist", "scatter"]) or (
         x_labels_dict is not None and kind != "barh"
@@ -852,7 +838,7 @@ def plot(
         p.xaxis.ticker = x
     elif kind == "barh":
         p.yaxis.ticker = x
-    if not yticks is None:
+    if yticks is not None:
         p.yaxis.ticker = yticks
 
     # Format datetime ticks correctly:
@@ -946,6 +932,32 @@ def plot(
 
     # Return plot:
     return p
+
+
+def _determine_data_columns(
+    y: Optional[Union[str, Iterable[str]]], df: pd.DataFrame
+) -> List[str]:
+    if y is None:
+        cols = df.columns
+    elif not isinstance(y, (list, tuple)):
+        cols = [y]
+    else:
+        cols = y
+    data_cols = []
+    for col in cols:
+        if col not in df.columns:
+            raise ValueError(
+                f"Could not find '{col}' in the columns of the provided DataFrame/Series. Please provide for the <y> parameter either a column name of the DataFrame/Series or an array of the same length."
+            )
+        if hasattr(df[col].dtype, "_is_numeric") and df[col].dtype._is_numeric:
+            data_cols.append(col)
+        elif hasattr(df[col].dtype, "_is_numeric") and not df[col].dtype._is_numeric:
+            continue
+        elif np.issubdtype(df[col].dtype, np.number):
+            data_cols.append(col)
+    if len(data_cols) == 0:
+        raise ValueError("No numeric data columns found for plotting.")
+    return data_cols
 
 
 def _base_lineplot(
@@ -1157,7 +1169,7 @@ def pointplot(
     return p
 
 
-def scatterplot(
+def scatterplot(  # noqa C901
     p,
     df,
     x,
@@ -1202,7 +1214,7 @@ def scatterplot(
             kwargs["legend_label"] = category + " "
 
             # Define colormapper for numerical scatterplot:
-            if colormap == None:
+            if colormap is None:
                 colormap = Inferno256
             elif isinstance(colormap, str):
                 if colormap in all_palettes:
@@ -1669,7 +1681,7 @@ def pieplot(
                 "y": [0.5 - 0.3 * i],
                 "text": [col],
             }
-            ann = p.text(
+            p.text(
                 x="__x__values",
                 y="y",
                 text="text",
@@ -1699,13 +1711,12 @@ def pieplot(
 
 
 def mapplot(df, x, y, **kwargs):
-
     # Get data of x and y columns:
-    if not x in df.columns:
+    if x not in df.columns:
         raise ValueError(
             "<x> parameter has to be a column name of the provided dataframe."
         )
-    if not y in df.columns:
+    if y not in df.columns:
         raise ValueError(
             "<y> parameter has to be a column name of the provided dataframe."
         )
@@ -2331,10 +2342,10 @@ class FramePlotMethods(BasePlotMethods):
 
     def map(self, x, y, **kwds):
         """
-        Create a plot of geographic points stored in a Pandas DataFrame on an 
+        Create a plot of geographic points stored in a Pandas DataFrame on an
         interactive map.
 
-        The coordinates (latitude/longitude) of each point are defined by two 
+        The coordinates (latitude/longitude) of each point are defined by two
         dataframe columns.
 
         Parameters
@@ -2349,28 +2360,26 @@ class FramePlotMethods(BasePlotMethods):
 
         hovertool_string : str
             If specified, this string will be used for the hovertool (@{column}
-            will be replaced by the value of the column for the element the 
+            will be replaced by the value of the column for the element the
             mouse hovers over, see also Bokeh documentation). This can be
             used to display additional information on the map.
 
         tile_provider : None or str (default: 'CARTODBPOSITRON_RETINA')
-            Define build-in tile provider for background maps. Possible 
-            values: None, 'CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA', 
-            'STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 
-            'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS'. 
-            
+            Define build-in tile provider for background maps. Possible
+            values: None, 'CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA',
+            'STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER',
+            'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS'.
+
         tile_provider_url : str
-            An arbitraty tile_provider_url of the form '/{Z}/{X}/{Y}*.png' 
+            An arbitraty tile_provider_url of the form '/{Z}/{X}/{Y}*.png'
             can be passed to be used as background map.
 
-        
-        tile_attribution : str 
+        tile_attribution : str
             String (also HTML accepted) for showing attribution
             for tile source in the lower right corner.
 
         tile_alpha : float (Default: 1)
-            Sets the alpha value of the background tile between [0, 1]. 
-        
+            Sets the alpha value of the background tile between [0, 1].
 
         **kwds
             Keyword arguments to pass on to :meth:`pandas.DataFrame.plot_bokeh`.
@@ -2387,7 +2396,7 @@ class FramePlotMethods(BasePlotMethods):
         Examples
         --------
         Let's see how to draw a scatter plot using coordinates from the values
-        in a DataFrame's columns. Below an example of plotting all cities 
+        in a DataFrame's columns. Below an example of plotting all cities
         for more than 1 million inhabitants:
 
         .. plot::
@@ -2403,7 +2412,7 @@ class FramePlotMethods(BasePlotMethods):
             ...     hovertool_string="<h2> @{name} </h2> \n\n \
             ...                       <h3> Population: @{pop_max} </h3>",
             ...     tile_provider='STAMEN_TERRAIN_RETINA',
-            ...     size="size", 
+            ...     size="size",
             ...     figsize=(900, 600),
             ...     title="World cities with more than 1.000.000 inhabitants")
 
@@ -2428,8 +2437,6 @@ def _initialize_rangetool(p, x_axis_type, source):
     -------
         Bokeh.plotting.figure
     """
-
-    max_y_range = 0
     # Initialize range tool plot
     p_rangetool = figure(
         title="Drag the box to change the range above.",

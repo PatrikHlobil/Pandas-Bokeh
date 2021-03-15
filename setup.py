@@ -21,7 +21,7 @@ You can install **Pandas Bokeh** from *PyPI* via **pip**:
 
 or *conda*:
 
-    conda install -c patrikhlobil pandas-bokeh 
+    conda install -c patrikhlobil pandas-bokeh
 
 **Pandas Bokeh** is officially supported on Python 3.5 and above.
 

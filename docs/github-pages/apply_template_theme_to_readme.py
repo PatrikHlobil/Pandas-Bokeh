@@ -1,7 +1,6 @@
 """This script takes the README.md file of the currrent working directory or
 given via the parameter --readme_file and inserts this into the Bootstrap template."""
 import argparse
-import re
 import os
 
 CUR_DIR = os.path.dirname(os.path.realpath(__file__))
