@@ -11,9 +11,15 @@ import numpy as np
 import pandas as pd
 from bokeh.core.properties import value as _value
 from bokeh.layouts import column
-from bokeh.models import (ColorBar, ColumnDataSource, DatetimeTickFormatter,
-                          FuncTickFormatter, HoverTool, LinearColorMapper,
-                          RangeTool)
+from bokeh.models import (
+    ColorBar,
+    ColumnDataSource,
+    DatetimeTickFormatter,
+    FuncTickFormatter,
+    HoverTool,
+    LinearColorMapper,
+    RangeTool,
+)
 from bokeh.models.ranges import Range1d
 from bokeh.palettes import Inferno256, all_palettes
 from bokeh.plotting import figure
