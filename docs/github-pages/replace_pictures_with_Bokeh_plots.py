@@ -1,8 +1,7 @@
 """This script takes the README.md file of the currrent working directory or
-given via the parameter --readme_file and replaces 
+given via the parameter --readme_file and replaces
 all Bokeh images with interactivet Bokeh plots."""
 import argparse
-import pathlib
 import re
 import sys
 from os.path import dirname, join, realpath

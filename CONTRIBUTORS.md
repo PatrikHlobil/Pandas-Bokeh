@@ -25,4 +25,8 @@
 
 [lamourj](https://github.com/lamourj)
 
- * Pull request[#49](https://github.com/PatrikHlobil/Pandas-Bokeh/pull/49) * Speedup GeoDaraframe Plotting*
+ * Pull request[#49](https://github.com/PatrikHlobil/Pandas-Bokeh/pull/49) *Speedup GeoDaraframe Plotting*
+
+[verdimrc](https://github.com/verdimrc)
+
+ * Pull request[#96](https://github.com/PatrikHlobil/Pandas-Bokeh/pull/96) *fix problem when passing string-values to `bins`*

@@ -19,6 +19,9 @@ TILE_PROVIDERS = [
     "STAMEN_TONER",
     "STAMEN_TONER_BACKGROUND",
     "STAMEN_TONER_LABELS",
+    "OSM",
+    "WIKIMEDIA",
+    "ESRI_IMAGERY",
 ]
 
 
@@ -41,7 +44,7 @@ def _add_backgroundtile(
 
     from bokeh.models import WMTSTileSource
 
-    if not tile_provider_url is None:
+    if tile_provider_url is not None:
         if (
             "/{Z}/{X}/{Y}" not in tile_provider_url
             and "/{Z}/{Y}/{X}" not in tile_provider_url
@@ -56,12 +59,12 @@ def _add_backgroundtile(
         )
         t.alpha = tile_alpha
 
-    elif not tile_provider is None:
+    elif tile_provider is not None:
         if not isinstance(tile_provider, str):
             raise ValueError(
                 f"<tile_provider> only accepts the values: {TILE_PROVIDERS}"
             )
-        elif _get_background_tile(tile_provider) != False:
+        elif _get_background_tile(tile_provider):
             t = p.add_tile(_get_background_tile(tile_provider))
         else:
             raise ValueError(
@@ -133,7 +136,7 @@ def get_tick_formatter(formatter_arg):
         )
 
 
-def geoplot(
+def geoplot(  # noqa C901
     gdf_in,
     geometry_column="geometry",
     figure=None,
@@ -230,7 +233,7 @@ def geoplot(
         "y_axis_type": "mercator",
         "match_aspect": True,
     }
-    if not figsize is None:
+    if figsize is not None:
         width, height = figsize
         figure_options["plot_width"] = width
         figure_options["plot_height"] = height
@@ -245,20 +248,20 @@ def geoplot(
         if isinstance(simplify_shapes, numbers.Number):
             if layertypes[0] in ["Line", "Polygon"]:
                 gdf[geometry_column] = gdf[geometry_column].simplify(simplify_shapes)
-        elif not simplify_shapes is None:
+        elif simplify_shapes is not None:
             raise ValueError(
                 "<simplify_shapes> parameter only accepts numbers or None."
             )
 
     # Check for category, dropdown or slider (choropleth map column):
     category_options = 0
-    if not category is None:
+    if category is not None:
         category_options += 1
         category_columns = [category]
-    if not dropdown is None:
+    if dropdown is not None:
         category_options += 1
         category_columns = dropdown
-    if not slider is None:
+    if slider is not None:
         category_options += 1
         category_columns = slider
     if category_options > 1:
@@ -308,7 +311,7 @@ def geoplot(
                     f"Could not find column '{col}' for <slider> in GeoDataFrame. "
                 )
 
-        if not slider_range is None:
+        if slider_range is not None:
             if not isinstance(slider_range, Iterable):
                 raise ValueError(
                     "<slider_range> has to be a type that is iterable like list, tuple, range, ..."
@@ -468,7 +471,7 @@ def geoplot(
     if len(colormap) == 1:
         kwargs["fill_color"] = colormap[0]
 
-    elif not category is None:
+    elif category is not None:
         # Check if category column is numerical:
         if not issubclass(gdf[category].dtype.type, np.number):
             raise NotImplementedError(
@@ -477,7 +480,7 @@ def geoplot(
 
         field = category
         colormapper_options = {"palette": colormap}
-        if not colormap_range is None:
+        if colormap_range is not None:
             if not isinstance(colormap_range, (tuple, list)):
                 raise ValueError(
                     "<colormap_range> can only be 'None' or a tuple/list of form (min, max)."
@@ -496,7 +499,7 @@ def geoplot(
         if not isinstance(legend, str):
             legend = str(field)
 
-    elif not dropdown is None:
+    elif dropdown is not None:
         # Check if all columns in dropdown selection are numerical:
         for col in dropdown:
             if not issubclass(gdf[col].dtype.type, np.number):
@@ -506,7 +509,7 @@ def geoplot(
 
         field = dropdown[0]
         colormapper_options = {"palette": colormap}
-        if not colormap_range is None:
+        if colormap_range is not None:
             if not isinstance(colormap_range, (tuple, list)):
                 raise ValueError(
                     "<colormap_range> can only be 'None' or a tuple/list of form (min, max)."
@@ -524,7 +527,7 @@ def geoplot(
         kwargs["fill_color"] = {"field": "Colormap", "transform": colormapper}
         legend = " " + field
 
-    elif not slider is None:
+    elif slider is not None:
         # Check if all columns in dropdown selection are numerical:
         for col in slider:
             if not issubclass(gdf[col].dtype.type, np.number):
@@ -534,7 +537,7 @@ def geoplot(
 
         field = slider[0]
         colormapper_options = {"palette": colormap}
-        if not colormap_range is None:
+        if colormap_range is not None:
             if not isinstance(colormap_range, (tuple, list)):
                 raise ValueError(
                     "<colormap_range> can only be 'None' or a tuple/list of form (min, max)."
@@ -579,11 +582,11 @@ def geoplot(
                     "<hovertool_columns> has to be a list of columns of the GeoDataFrame or the string 'all'."
                 )
         elif len(hovertool_columns) == 0:
-            if not category is None:
+            if category is not None:
                 hovertool_columns = [category]
-            elif not dropdown is None:
+            elif dropdown is not None:
                 hovertool_columns = dropdown
-            elif not slider is None:
+            elif slider is not None:
                 hovertool_columns = slider
             else:
                 hovertool_columns = []
@@ -687,7 +690,7 @@ def geoplot(
         p.add_layout(colorbar, "right")
 
     # Add Dropdown Widget:
-    if not dropdown is None:
+    if dropdown is not None:
         # Define Dropdown widget:
         dropdown_widget = Select(
             title="Select Choropleth Layer", options=list(zip(dropdown, dropdown))
@@ -720,7 +723,7 @@ def geoplot(
             layout = column(dropdown_widget, old_layout)
 
     # Add Slider Widget:
-    if not slider is None:
+    if slider is not None:
 
         if slider_range is None:
             slider_start = 0

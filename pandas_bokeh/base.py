@@ -138,9 +138,9 @@ def detect_notebook_server():
     "Autodetects if user is in Jupyter or Zeppelin notebook."
 
     try:
-        get_ipython()
+        get_ipython()  # noqa F821
         return "jupyter"
-    except:
+    except NameError:
         return "zeppelin"
 
 
@@ -197,7 +197,7 @@ def embedded_html(fig, resources="CDN"):
         html_embedded += js_css_resources
     elif resources == "raw":
         raise NotImplementedError("<resources> = raw has to be implemented by Thomas!")
-    elif resources == None:
+    elif resources is None:
         pass
     else:
         raise ValueError("<resources> only accept 'CDN', 'raw' or None.")

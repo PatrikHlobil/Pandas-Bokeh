@@ -1,10 +1,12 @@
 import json
-import pandas as pd
-import numpy as np
-import pandas_bokeh
-import sys
 import os
+import sys
+
+import numpy as np
+import pandas as pd
 import pytest
+
+import pandas_bokeh
 
 # only run tests for Python <= 3.7 due to pyspark support:
 if sys.version_info[1] < 8:

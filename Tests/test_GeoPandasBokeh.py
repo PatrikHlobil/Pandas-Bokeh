@@ -1,10 +1,12 @@
 import json
-import pandas as pd
+import os
+import sys
+
 import geopandas as gpd
 import numpy as np
-import sys
-import os
+import pandas as pd
 import pytest
+
 import pandas_bokeh
 
 directory = os.path.dirname(__file__)

@@ -22,7 +22,3 @@ python -m markdown -x fenced_code github-pages-tmp/README.md -f github-pages-tmp
 python docs/github-pages/apply_template_theme_to_readme.py --readme_file github-pages-tmp/README.html
 
 rm -rf 
-
-
-
-

@@ -143,9 +143,7 @@ def plot_Startimage():
     )
 
     # Make Dashboard with Grid Layout:
-    plot = pandas_bokeh.plot_grid(
-        [[p_line, p_bar], [p_scatter, p_hist]], plot_width=450
-    )
+    pandas_bokeh.plot_grid([[p_line, p_bar], [p_scatter, p_hist]], plot_width=450)
 
 
 def plot_ApplevsGoogle_1():
@@ -154,7 +152,7 @@ def plot_ApplevsGoogle_1():
     pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
 
     df = df_stocks()
-    plot = df.plot_bokeh(kind="line")
+    df.plot_bokeh(kind="line")
 
 
 def plot_ApplevsGoogle_2():
@@ -163,7 +161,7 @@ def plot_ApplevsGoogle_2():
     pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
 
     df = df_stocks()
-    plot = df.plot_bokeh(
+    df.plot_bokeh(
         figsize=(800, 450),
         y="Apple",
         title="Apple vs Google",
@@ -185,7 +183,7 @@ def plot_ApplevsGoogle_3():
     pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
 
     df = df_stocks()
-    plot = df.plot_bokeh(
+    df.plot_bokeh(
         figsize=(800, 450),
         title="Apple vs Google",
         xlabel="Date",
@@ -218,7 +216,7 @@ def plot_Pointplot():
     pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
 
     df = df_parabula_cube()
-    plot = df.plot_bokeh.point(
+    df.plot_bokeh.point(
         x="x",
         xticks=range(-3, 4),
         size=5,
@@ -234,7 +232,7 @@ def plot_Stepplot():
     pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
 
     df = df_parabula_cube()
-    plot = df.plot_bokeh.step(
+    df.plot_bokeh.step(
         x="x",
         xticks=range(-1, 1),
         colormap=["#009933", "#ff3399"],
@@ -253,8 +251,8 @@ def plot_Scatterplot():
     df = df.sample(frac=1)
 
     # Create Bokeh-Table with DataFrame:
-    from bokeh.models.widgets import DataTable, TableColumn
     from bokeh.models import ColumnDataSource
+    from bokeh.models.widgets import DataTable, TableColumn
 
     data_table = DataTable(
         columns=[TableColumn(field=Ci, title=Ci) for Ci in df.columns],
