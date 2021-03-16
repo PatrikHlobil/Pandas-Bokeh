@@ -1367,3 +1367,8 @@ Plots like scatterplot or histogram also have many more additional customization
 
 * keep aspect ratio for map-plots
 * add support for Bokeh 2.3
+
+## 0.5.4
+
+* fix problem with Pandas Extension-Datatypes (#94)
+* fix problem when passing string-values to `bins` (#96)
