@@ -829,17 +829,15 @@ def plot(  # noqa C901
             **kwargs,
         )
 
-    # Set xticks:
+    # Set xticks and yticks:
     if xticks is not None:
         p.xaxis[0].ticker = list(xticks)
-    elif (xaxis_type == "numerical" and kind not in ["hist", "scatter"]) or (
-        x_labels_dict is not None and kind != "barh"
-    ):
+    elif x_labels_dict is not None and kind != "barh":
         p.xaxis.ticker = x
     elif kind == "barh":
         p.yaxis.ticker = x
     if yticks is not None:
-        p.yaxis.ticker = yticks
+        p.yaxis.ticker = list(yticks)
 
     # Format datetime ticks correctly:
     if figure_options["x_axis_type"] == "datetime":

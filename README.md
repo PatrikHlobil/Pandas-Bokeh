@@ -33,7 +33,7 @@ or *conda*:
 
     conda install -c patrikhlobil pandas-bokeh
 
-With the current release 0.5, **Pandas-Bokeh** officially supports **Python 3.6** and newer. It will probably still work for older Python versions, but is not tested against these.
+With the current release 0.5.5, **Pandas-Bokeh** officially supports **Python 3.6** and newer. It will probably still work for older Python versions, but is not tested against these.
 
 <br>
 
@@ -1372,3 +1372,7 @@ Plots like scatterplot or histogram also have many more additional customization
 
 * fix problem with Pandas Extension-Datatypes (#94)
 * fix problem when passing string-values to `bins` (#96)
+
+## 0.5.5
+
+* Display adaptive xticks per default
