@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pandas_bokeh.plot import _determine_data_columns
+from pandas_bokeh.utils import _determine_data_columns
 
 
 class TestDetermineDataColumns:

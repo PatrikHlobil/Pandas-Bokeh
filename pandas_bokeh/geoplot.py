@@ -9,7 +9,7 @@ from bokeh.tile_providers import get_provider
 
 from .base import embedded_html
 
-blue_colormap = [RGB(255 - i, 255 - i, 255) for i in range(256)]
+BLUE_COLORMAP = [RGB(255 - i, 255 - i, 255) for i in range(256)]
 
 TILE_PROVIDERS = [
     "CARTODBPOSITRON",
@@ -338,7 +338,7 @@ def geoplot(  # noqa C901
     # Check colormap if either <category>, <dropdown> or <slider> is choosen:
     if category_options == 1:
         if colormap is None:
-            colormap = blue_colormap
+            colormap = BLUE_COLORMAP
         elif isinstance(colormap, (tuple, list)):
             if len(colormap) > 1:
                 pass
