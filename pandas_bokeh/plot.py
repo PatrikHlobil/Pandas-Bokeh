@@ -3,14 +3,12 @@
 
 import datetime
 import numbers
-import re
 import warnings
 from copy import deepcopy
 from typing import Iterable, List, Optional, Union
 
 import numpy as np
 import pandas as pd
-from bokeh.core.properties import value as _value
 from bokeh.layouts import column
 from bokeh.models import (
     ColorBar,
@@ -30,6 +28,7 @@ from pandas.errors import ParserError
 
 from .base import embedded_html, set_fontsizes_of_figure, show
 from .geoplot import geoplot
+from .utils import _extract_additional_columns
 
 
 def check_type(data):
@@ -294,19 +293,7 @@ def plot(  # noqa C901
         number_format = "{%s}" % number_format
 
     # Check hovertool_string and define additional columns to keep in source:
-    additional_columns = []
-    if hovertool_string is not None:
-        if not isinstance(hovertool_string, str):
-            raise ValueError("<hovertool_string> can only be None or a string.")
-        # Search for hovertool_string columns in DataFrame:
-        for s in re.findall(r"@[^\s\{]+", hovertool_string):
-            s = s[1:]
-            if s in df.columns:
-                additional_columns.append(s)
-        for s in re.findall(r"@\{.+\}", hovertool_string):
-            s = s[2:-1]
-            if s in df.columns:
-                additional_columns.append(s)
+    additional_columns = _extract_additional_columns(df, hovertool_string)
 
     # Set standard linewidth:
     if "line_width" not in kwargs:
