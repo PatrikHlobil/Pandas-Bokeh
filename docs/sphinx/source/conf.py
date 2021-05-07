@@ -27,7 +27,7 @@ copyright = "2021, Patrik Hlobil"
 author = "Patrik Hlobil"
 
 # The short X.Y version
-version = ""
+version = pandas_bokeh.__version__
 # The full version, including alpha/beta/rc tags
 
 release = pandas_bokeh.__version__

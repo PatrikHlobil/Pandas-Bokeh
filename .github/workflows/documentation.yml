@@ -22,4 +22,4 @@ jobs:
     - name: Create documentation
       run: |
         bash docs/sphinx/build_docs.sh
-        # mv 
+        cp -r docs/sphinx/sources
