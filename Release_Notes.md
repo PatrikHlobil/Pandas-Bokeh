@@ -1,3 +1,5 @@
+# Release Notes
+
 ## 0.0.1
 
 In this early version, the following plot types are supported:
