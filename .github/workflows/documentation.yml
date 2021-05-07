@@ -19,6 +19,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install python3-sphinx
+        pip install .
     - name: Create documentation
       run: |
         bash docs/sphinx/build_docs.sh
