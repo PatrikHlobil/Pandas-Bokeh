@@ -22,4 +22,5 @@ jobs:
     - name: Create documentation
       run: |
         bash docs/sphinx/build_docs.sh
-        cp -r docs/sphinx/sources
+        git checkout gh-pages
+        cp -r docs/sphinx/build/html/ .
