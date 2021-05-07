@@ -19,3 +19,4 @@ conda/
 github-pages-tmp/
 !index.html
 !template.html
+docs/sphinx/source/index.md

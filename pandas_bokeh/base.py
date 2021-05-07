@@ -196,7 +196,7 @@ def embedded_html(fig, resources="CDN"):
         js_css_resources = get_bokeh_resources()
         html_embedded += js_css_resources
     elif resources == "raw":
-        raise NotImplementedError("<resources> = raw has to be implemented by Thomas!")
+        raise NotImplementedError("<resources> is not yet implemented")
     elif resources is None:
         pass
     else:
