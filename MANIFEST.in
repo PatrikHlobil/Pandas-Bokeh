@@ -1,6 +1,0 @@
-include LICENSE
-include CONTRIBUTORS.md
-include tox.ini
-
-graft Tests
-graft docs

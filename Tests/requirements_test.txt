@@ -1,7 +1,0 @@
-bokeh
-geopandas
-markdown
-pandas
-pyspark==2.4.2
-pytest==4.6.3
-pytest-cov==2.7.1
