@@ -1,6 +1,8 @@
 import inspect
 import os
 import re
+from functools import wraps
+from pathlib import Path
 from shutil import rmtree
 from typing import Callable
 
@@ -9,16 +11,19 @@ import pandas as pd
 
 import pandas_bokeh
 
-BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-PLOT_DIR = os.path.join(BASE_DIR, "plots")
-TEST_SETS_DIRECTORY = os.path.join(os.path.dirname(BASE_DIR), "Testdata")
+BASE_DIR = Path(__file__).parent
+TEST_SETS_DIRECTORY = BASE_DIR / "Testdata"
 
-rmtree(PLOT_DIR, ignore_errors=True)
-os.makedirs(PLOT_DIR, exist_ok=True)
+
+def embeddable(func):
+    @wraps(func)
+    def embedder(*args, **kwargs):
+        return pandas_bokeh.embedded_html(func(*args, **kwargs))
+
+    return embedder
 
 
 def df_stocks() -> pd.DataFrame:
-
     np.random.seed(42)
     df = pd.DataFrame(
         {"Google": np.random.randn(1000) + 0.2, "Apple": np.random.randn(1000) + 0.17},
@@ -31,7 +36,6 @@ def df_stocks() -> pd.DataFrame:
 
 
 def df_parabula_cube() -> pd.DataFrame:
-
     x = np.arange(-3, 3, 0.1)
     y2 = x ** 2
     y3 = x ** 3
@@ -41,7 +45,6 @@ def df_parabula_cube() -> pd.DataFrame:
 
 
 def df_iris():
-
     # Load Iris Dataset:
     df_iris = pd.read_csv(os.path.join(TEST_SETS_DIRECTORY, "iris", "iris.csv"))
 
@@ -49,7 +52,6 @@ def df_iris():
 
 
 def df_fruits():
-
     data = {
         "fruits": ["Apples", "Pears", "Nectarines", "Plums", "Grapes", "Strawberries"],
         "2015": [2, 1, 4, 3, 2, 4],
@@ -61,7 +63,6 @@ def df_fruits():
 
 
 def df_hist():
-
     return pd.DataFrame(
         {
             "a": np.random.randn(1000) + 1,
@@ -72,11 +73,8 @@ def df_hist():
     )
 
 
+@embeddable
 def plot_Startimage():
-
-    plotname = inspect.stack()[0][3][5:]
-    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
-
     # Barplot:
     data = {
         "fruits": ["Apples", "Pears", "Nectarines", "Plums", "Grapes", "Strawberries"],
@@ -143,25 +141,21 @@ def plot_Startimage():
     )
 
     # Make Dashboard with Grid Layout:
-    pandas_bokeh.plot_grid([[p_line, p_bar], [p_scatter, p_hist]], plot_width=450)
+    return pandas_bokeh.plot_grid(
+        [[p_line, p_bar], [p_scatter, p_hist]], plot_width=450, show_plot=False
+    )
 
 
+@embeddable
 def plot_ApplevsGoogle_1():
-
-    plotname = inspect.stack()[0][3][5:]
-    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
-
     df = df_stocks()
-    df.plot_bokeh(kind="line")
+    return df.plot_bokeh(kind="line", show_figure=False)
 
 
+@embeddable
 def plot_ApplevsGoogle_2():
-
-    plotname = inspect.stack()[0][3][5:]
-    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
-
     df = df_stocks()
-    df.plot_bokeh(
+    return df.plot_bokeh(
         figsize=(800, 450),
         y="Apple",
         title="Apple vs Google",
@@ -174,16 +168,14 @@ def plot_ApplevsGoogle_2():
         hovertool_string=r"<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/170px-Apple_logo_black.svg.png' height='42' alt='@imgs' width='42' style='float: left; margin: 0px 15px 15px 0px;' border='2' ></img> Apple \n\n<h4> Stock Price: </h4> @{Apple}",
         panning=False,
         zooming=False,
+        show_figure=False,
     )
 
 
+@embeddable
 def plot_ApplevsGoogle_3():
-
-    plotname = inspect.stack()[0][3][5:]
-    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
-
     df = df_stocks()
-    df.plot_bokeh(
+    return df.plot_bokeh(
         figsize=(800, 450),
         title="Apple vs Google",
         xlabel="Date",
@@ -195,58 +187,49 @@ def plot_ApplevsGoogle_3():
         plot_data_points=True,
         plot_data_points_size=10,
         marker="asterisk",
+        show_figure=False,
     )
 
 
+@embeddable
 def plot_rangetool():
-
-    plotname = inspect.stack()[0][3][5:]
-    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
-
     ts = pd.Series(np.random.randn(1000), index=pd.date_range("1/1/2000", periods=1000))
     df = pd.DataFrame(np.random.randn(1000, 4), index=ts.index, columns=list("ABCD"))
     df = df.cumsum()
 
-    df.plot_bokeh(rangetool=True)
+    return df.plot_bokeh(rangetool=True, show_figure=False)
 
 
+@embeddable
 def plot_Pointplot():
-
-    plotname = inspect.stack()[0][3][5:]
-    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
-
     df = df_parabula_cube()
-    df.plot_bokeh.point(
+    return df.plot_bokeh.point(
         x="x",
         xticks=range(-3, 4),
         size=5,
         colormap=["#009933", "#ff3399"],
         title="Pointplot (Parabula vs. Cube)",
         marker="x",
+        show_figure=False,
     )
 
 
+@embeddable
 def plot_Stepplot():
-
-    plotname = inspect.stack()[0][3][5:]
-    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
-
     df = df_parabula_cube()
-    df.plot_bokeh.step(
+    return df.plot_bokeh.step(
         x="x",
         xticks=range(-1, 1),
         colormap=["#009933", "#ff3399"],
         title="Pointplot (Parabula vs. Cube)",
         mode="after",
         figsize=(800, 300),
+        show_figure=False,
     )
 
 
+@embeddable
 def plot_Scatterplot():
-
-    plotname = inspect.stack()[0][3][5:]
-    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
-
     df = df_iris()
     df = df.sample(frac=1)
 
@@ -269,41 +252,38 @@ def plot_Scatterplot():
     )
 
     # Combine Div and Scatterplot via grid layout:
-    pandas_bokeh.plot_grid([[data_table, p_scatter]], plot_width=400, plot_height=350)
-
-
-def plot_Barplot():
-
-    plotname = inspect.stack()[0][3][5:]
-    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
-
-    df = df_fruits()
-
-    df.plot_bokeh.bar(
-        ylabel="Price per Unit [€]", title="Fruit prices per Year", alpha=0.6
+    return pandas_bokeh.plot_grid(
+        [[data_table, p_scatter]], plot_width=400, plot_height=350, show_plot=False
     )
 
 
-def plot_Barplot2():
-
-    plotname = inspect.stack()[0][3][5:]
-    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
-
+@embeddable
+def plot_Barplot():
     df = df_fruits()
 
-    df.plot_bokeh.bar(
+    return df.plot_bokeh.bar(
+        ylabel="Price per Unit [€]",
+        title="Fruit prices per Year",
+        alpha=0.6,
+        show_figure=False,
+    )
+
+
+@embeddable
+def plot_Barplot2():
+    df = df_fruits()
+
+    return df.plot_bokeh.bar(
         ylabel="Price per Unit [€]",
         title="Fruit prices per Year",
         stacked=True,
         alpha=0.6,
+        show_figure=False,
     )
 
 
+@embeddable
 def plot_Barplot3():
-
-    plotname = inspect.stack()[0][3][5:]
-    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
-
     df = df_fruits()
 
     p_bar = df.plot_bokeh.bar(
@@ -346,16 +326,15 @@ def plot_Barplot3():
         show_figure=False,
     )
 
-    pandas_bokeh.plot_grid(
-        [[p_bar, p_stacked_bar], [p_hbar, p_stacked_hbar]], plot_width=450
+    return pandas_bokeh.plot_grid(
+        [[p_bar, p_stacked_bar], [p_hbar, p_stacked_hbar]],
+        plot_width=450,
+        show_plot=False,
     )
 
 
+@embeddable
 def plot_Histogram():
-
-    plotname = inspect.stack()[0][3][5:]
-    pandas_bokeh.output_file(os.path.join(PLOT_DIR, f"{plotname}.html"))
-
     df = df_hist()
 
     # Top-on-Top Histogram (Default):
@@ -392,42 +371,30 @@ def plot_Histogram():
         show_figure=False,
     )
 
-    pandas_bokeh.plot_grid([[p1], [p2], [p3]])
+    return pandas_bokeh.plot_grid([[p1], [p2], [p3]], show_plot=False)
 
 
-def extract_bokeh_html_from_file(plotname: str) -> str:
-
-    with open(os.path.join(PLOT_DIR, f"{plotname}.html")) as f:
-        s = f.read()
-        header_content = re.search(r"<head>(.+)</head>", s, re.DOTALL).groups(1)[0]
-        body = re.search(r"<body>(.+)</body>", s, re.DOTALL).groups(1)[0]
-        bokeh_html = header_content + body
-
-    return bokeh_html
-
-
-def make_plots() -> dict:
-
+def make_and_return_plots() -> dict:
     plots = {}
     for func in _return_plot_functions():
         plotname = func.__name__[5:]
         print(f"Create plot {plotname}")
-        func()
-        plots[plotname] = extract_bokeh_html_from_file(plotname)
+        plots[plotname] = func()
 
     return plots
 
 
 def _return_plot_functions() -> Callable:
+    plot_functions = [
+        value
+        for key, value in globals().items()
+        if callable(value) and value.__module__ == __name__ and key.startswith("plot_")
+    ]
 
-    functions = []
-    for key, value in globals().items():
-        if callable(value) and value.__module__ == __name__ and key.startswith("plot_"):
-            functions.append(value)
-
-    return functions
+    return plot_functions
 
 
 if __name__ == "__main__":
 
-    make_plots()
+    plots = make_and_return_plots()
+    print(list(plots.keys()))

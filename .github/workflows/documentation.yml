@@ -1,0 +1,29 @@
+# Publish documentation on Github Pages
+
+name: Documentation
+on: 
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install python3-sphinx
+    - name: Create documentation
+      run: |
+        bash docs/sphinx/build_docs.sh
+        git checkout gh-pages
+        cp -r docs/sphinx/build/html/ .
+        git add . 
+        git commit -m "Update documentation for '${GITHUB_SHA}'"
+        git push
