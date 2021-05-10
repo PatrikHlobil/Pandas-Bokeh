@@ -1,0 +1,4 @@
+The states_population geojson is a combination of 2 sources:
+
+1. Shapefile of US states from https://www.arcgis.com/home/item.html?id=f7f805eb65eb4ab787a0a3e1116ca7e5
+2. US Census Data https://www2.census.gov/programs-surveys/popest/datasets/2010-2017/national/totals/nst-est2017-alldata.csv
