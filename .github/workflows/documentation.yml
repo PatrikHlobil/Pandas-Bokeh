@@ -23,6 +23,8 @@ jobs:
         pip install .
     - name: Create documentation
       run: |
+        git config --global user.email "patrik.hlobil@gmail.com"
+        git config --global user.name "Patrik Hlobil"
         git fetch
         bash docs/sphinx/build_docs.sh
         git checkout gh-pages
