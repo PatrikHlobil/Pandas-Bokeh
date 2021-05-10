@@ -30,7 +30,7 @@ jobs:
         git checkout gh-pages
         mv docs/sphinx/build/html/ html/
         rm -rf docs
-        mv html docd
+        mv html docs
         git add . 
         git commit -m "Update documentation for '${GITHUB_SHA}'"
         git push
