@@ -28,7 +28,9 @@ jobs:
         git fetch
         bash docs/sphinx/build_docs.sh
         git checkout gh-pages
-        cp -r docs/sphinx/build/html/ .
+        mv docs/sphinx/build/html/ html/
+        rm -rf docs
+        mv html docd
         git add . 
         git commit -m "Update documentation for '${GITHUB_SHA}'"
         git push
