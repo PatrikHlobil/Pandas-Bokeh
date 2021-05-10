@@ -16,7 +16,15 @@ df.plot_bokeh()
 More details about the new Pandas backend can be found [below.](#pandas_backend)
 
 ---
+## Interactive Documentation
 
+Please visit:
+
+https://patrikhlobil.github.io/Pandas-Bokeh/
+
+for an interactive version of the documentation below, where you can **play with the dynamic Bokeh plots**.
+
+---
 For more information have a look at the [Examples](#Examples) below or at notebooks on the [Github Repository](https://github.com/PatrikHlobil/Pandas-Bokeh/tree/master/docs) of this project. 
 
 ![Startimage](docs/Images/Startimage.gif)
@@ -36,6 +44,7 @@ or *conda*:
 With the current release 0.5.5, **Pandas-Bokeh** officially supports **Python 3.6** and newer. For more details, see [Release Notes](#releasenotes).
 
 <br>
+
 
 ## How To Use
 

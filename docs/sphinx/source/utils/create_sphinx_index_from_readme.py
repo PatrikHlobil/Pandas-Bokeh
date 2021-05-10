@@ -26,6 +26,22 @@ def _replace_images_with_bokeh_plots(plots, readme):
     return readme
 
 
+def remove_interactive_docs_section(readme):
+    readme = readme.replace(
+        r"""---
+## Interactive Documentation
+
+Please visit:
+
+https://patrikhlobil.github.io/Pandas-Bokeh/
+
+for an interactive version of the documentation below, where you can **play with the dynamic Bokeh plots**.
+""",
+        "",
+    )
+    return readme
+
+
 @click.command()
 @click.option(
     "--input-directory",
@@ -44,6 +60,7 @@ def main(input_directory, output_directory):
         readme = f.read()
     plots = make_and_return_plots()
     readme = _replace_images_with_bokeh_plots(plots, readme)
+    readme = remove_interactive_docs_section(readme)
     readme = readme.replace(r"](docs/Images/", "](_static/Images/")
     with open(Path(output_directory) / "index.md", "w") as f:
         f.write(readme)
