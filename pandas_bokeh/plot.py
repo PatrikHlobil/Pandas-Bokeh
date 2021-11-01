@@ -1719,11 +1719,11 @@ def mapplot(df, x, y, **kwargs):
         raise ValueError(
             "<x> and <y> have to be numeric columns of the DataFrame. Further they correspond to longitude, latitude in WGS84 projection."
         )
-    if not (np.min(latitude) > -90 and np.max(latitude) < 90):
+    if not (np.min(latitude) >= -90 and np.max(latitude) <= 90):
         raise ValueError(
             "All values of the y-column have to be restricted to (-90, 90). The <y> value corresponds to the latitude in WGS84 projection."
         )
-    if not (np.min(longitude) > -180 and np.max(longitude) < 180):
+    if not (np.min(longitude) >= -180 and np.max(longitude) <= 180):
         raise ValueError(
             "All values of the x-column have to be restricted to (-180, 180). The <x> value corresponds to the longitude in WGS84 projection."
         )
