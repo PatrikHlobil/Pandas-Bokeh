@@ -8,6 +8,7 @@ from bokeh.models import NumeralTickFormatter, TickFormatter
 from bokeh.tile_providers import get_provider
 
 from .base import embedded_html
+from .utils import _get_figure
 
 blue_colormap = [RGB(255 - i, 255 - i, 255) for i in range(256)]
 
@@ -73,19 +74,6 @@ def _add_backgroundtile(
         t.alpha = tile_alpha
 
     return p
-
-
-def _get_figure(col):
-    """Gets the bokeh.plotting.figure from a bokeh.layouts.column."""
-
-    from bokeh.layouts import column
-    from bokeh.plotting import figure
-
-    for children in col.children:
-        if isinstance(children, type(figure())):
-            return children
-        elif isinstance(children, type(column())):
-            return _get_figure(children)
 
 
 def convert_geoDataFrame_to_patches(gdf, geometry_column):
