@@ -18,3 +18,16 @@ def _extract_additional_columns(df: DataFrame, hovertool_string: str):
             if s in df.columns:
                 additional_columns.append(s)
     return additional_columns
+
+
+def _get_figure(col):
+    """Gets the bokeh.plotting.figure from a bokeh.layouts.column."""
+
+    from bokeh.layouts import column
+    from bokeh.plotting import figure
+
+    for children in col.children:
+        if isinstance(children, type(figure())):
+            return children
+        elif isinstance(children, type(column())):
+            return _get_figure(children)
