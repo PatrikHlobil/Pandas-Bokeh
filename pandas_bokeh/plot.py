@@ -2458,7 +2458,7 @@ def _initialize_rangetool(p, x_axis_type, source):
         Bokeh.plotting.figure
     """
     # Initialize range tool plot
-    p_rangetool = figure(
+    p_rangetool = bokeh.plotting.figure(
         title="Drag the box to change the range above.",
         plot_height=130,
         plot_width=p.plot_width,
