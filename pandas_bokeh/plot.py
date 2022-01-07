@@ -7,6 +7,7 @@ import warnings
 from copy import deepcopy
 from typing import Iterable, List, Optional, Union
 
+import bokeh.plotting
 import numpy as np
 import pandas as pd
 from bokeh.layouts import column
@@ -21,7 +22,6 @@ from bokeh.models import (
 )
 from bokeh.models.ranges import Range1d
 from bokeh.palettes import Inferno256, all_palettes
-import bokeh.plotting
 from bokeh.transform import cumsum, dodge
 from pandas.core.base import PandasObject
 from pandas.errors import ParserError
