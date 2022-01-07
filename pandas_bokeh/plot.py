@@ -1656,16 +1656,6 @@ def pieplot(
         p.axis.visible = False
         p.grid.grid_line_color = None
 
-    elif isinstance(figure, type(bokeh.plotting.figure())):
-        p = figure
-    elif isinstance(figure, type(column())):
-        old_layout = figure
-        p = _get_figure(old_layout)
-    else:
-        raise ValueError(
-            "Parameter <figure> has to be of type bokeh.plotting.figure or bokeh.layouts.column."
-        )
-
     # Calculate angles for Pieplot:
     for col in data_cols:
         source[col + "_angle"] = source[col] / source[col].sum() * 2 * np.pi
