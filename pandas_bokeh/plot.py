@@ -1642,7 +1642,6 @@ def pieplot(
     toolbar_location = None
     x_range = (-1.4 - 0.05 * max_col_stringlength, 2)
     y_range = (-1.2, 1.2)
-    old_layout = None
     if p is None:
         p = bokeh.plotting.figure(
             plot_width=plot_width,
