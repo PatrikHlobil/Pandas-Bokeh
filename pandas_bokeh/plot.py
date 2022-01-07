@@ -430,6 +430,16 @@ def plot(  # noqa C901
             p = None
         else:
             p = bokeh.plotting.figure(**figure_options)
+            # For categorical plots, set the xticks:
+            if x_labels_dict is not None:
+                p.xaxis.formatter = FuncTickFormatter(
+                    code="""
+                                        var labels = %s;
+                                        return labels[tick];
+                                        """
+                    % x_labels_dict
+                )
+
     elif isinstance(figure, type(bokeh.plotting.figure())):
         p = figure
     elif isinstance(figure, type(column())):
@@ -441,16 +451,6 @@ def plot(  # noqa C901
         )
     if "x_axis_type" not in figure_options:
         figure_options["x_axis_type"] = None
-
-    # For categorical plots, set the xticks:
-    if x_labels_dict is not None:
-        p.xaxis.formatter = FuncTickFormatter(
-            code="""
-                                var labels = %s;
-                                return labels[tick];
-                                """
-            % x_labels_dict
-        )
 
     # Define ColumnDataSource for Plot if kind != "hist":
     if kind != "hist":
