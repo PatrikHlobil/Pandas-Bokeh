@@ -426,7 +426,10 @@ def plot(  # noqa C901
     # Create Figure for plotting:
     old_layout = None
     if figure is None:
-        p = bokeh.plotting.figure(**figure_options)
+        if kind == "pie":
+            p = None
+        else:
+            p = bokeh.plotting.figure(**figure_options)
     elif isinstance(figure, type(bokeh.plotting.figure())):
         p = figure
     elif isinstance(figure, type(column())):
@@ -829,6 +832,7 @@ def plot(  # noqa C901
 
         source["__x__values"] = x_old
         p = pieplot(
+            p,
             source,
             data_cols,
             colormap,
@@ -1612,6 +1616,7 @@ def areaplot(
 
 
 def pieplot(
+    p,
     source,
     data_cols,
     colormap,
@@ -1638,7 +1643,7 @@ def pieplot(
     x_range = (-1.4 - 0.05 * max_col_stringlength, 2)
     y_range = (-1.2, 1.2)
     old_layout = None
-    if figure is None:
+    if p is None:
         p = bokeh.plotting.figure(
             plot_width=plot_width,
             plot_height=plot_height,
