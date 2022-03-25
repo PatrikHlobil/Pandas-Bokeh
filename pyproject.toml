@@ -88,7 +88,6 @@ bokeh = "^2.4.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.1"
-pyspark = "^3.2.1"
 pytest-cov = "^3.0.0"
 geopandas = "^0.10.2"
 ipdb = "^0.13.9"

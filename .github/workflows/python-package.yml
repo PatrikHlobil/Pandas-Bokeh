@@ -23,6 +23,8 @@ jobs:
         sudo apt-get install openjdk-8-jre
         python -m pip install --upgrade pip
         python -m pip install poetry
+        # Only Test Pyspark API for supported Python versions:
+        if ["${{ matrix.python-version }}" != "3.10" ]; then echo "Install Pyspark" && poetry add pyspark; fi
         poetry install
     - name: Test with pytest
       run: |

@@ -1,4 +1,3 @@
-import json
 import os
 import sys
 
@@ -23,7 +22,7 @@ def spark():
 
 
 @pytest.mark.skipif(
-    sys.version_info >= (3, 8), reason="Pyspark 2.4.2 requires Python <= 3.7"
+    sys.version_info >= (3, 10), reason="Pyspark 3.2.1 requires Python <= 3.9"
 )
 def test_basic_lineplot_pyspark(spark):
     """Test for basic lineplot with Pyspark"""

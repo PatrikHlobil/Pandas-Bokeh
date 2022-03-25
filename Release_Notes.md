@@ -145,4 +145,5 @@ Plots like scatterplot or histogram also have many more additional customization
 # 0.6.0
 
 * Drop support for Python 3.6
+* Rename **plot_height -> height, plot_width -> width** in `pandas_bokeh.plot_grid` interface
 * Bugfixes (i.e. fix of lattitude/longitude checking -> thanks @vroger11)
