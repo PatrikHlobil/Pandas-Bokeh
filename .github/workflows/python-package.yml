@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9']
+        python-version: ['3.7', '3.8', '3.9', '3.10']
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -26,4 +26,4 @@ jobs:
         poetry install
     - name: Test with pytest
       run: |
-        pytest --color=yes -s -x -vv --cov-report term-missing --cov=pandas_bokeh Tests/
+        poetry run pytest --color=yes -s -x -vv --cov-report term-missing --cov=pandas_bokeh Tests/
