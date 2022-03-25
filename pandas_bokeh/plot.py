@@ -2434,7 +2434,14 @@ def _initialize_rangetool(p, x_axis_type, source):
 
     # Need to explicitly set the initial range of the plot for the range tool.
     start_index = int(0.75 * len(source["__x__values"]))
-    p.x_range = Range1d(source["__x__values"][start_index], source["__x__values"][-1])
+    start = source["__x__values"][start_index]
+    end = source["__x__values"][-1]
+    # Explicitly cast to python datetime object due to a bug in numpy
+    # (see https://github.com/bokeh/bokeh/blob/branch-3.0/bokeh/core/property/bases.py#L251):
+    if source["__x__values"].dtype.name == "datetime64[ns]":
+        start = datetime.datetime.fromtimestamp(int(start) / 1_000_000_000)
+        end = datetime.datetime.fromtimestamp(int(end) / 1_000_000_000)
+    p.x_range = Range1d(start, end)
 
     range_tool = RangeTool(x_range=p.x_range)
     range_tool.overlay.fill_color = "navy"
