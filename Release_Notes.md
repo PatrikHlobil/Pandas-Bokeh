@@ -141,3 +141,8 @@ Plots like scatterplot or histogram also have many more additional customization
 ## 0.5.5
 
 * Display adaptive xticks per default
+
+# 0.6.0
+
+* Drop support for Python 3.6
+* Bugfixes (i.e. fix of lattitude/longitude checking -> thanks @vroger11)

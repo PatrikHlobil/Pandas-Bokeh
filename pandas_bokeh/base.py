@@ -70,9 +70,9 @@ def plot_grid(children, show_plot=True, return_html=False, **kwargs):
     -ncols (int, optional) – Specify the number of columns you would like in your grid.
         You must only pass an un-nested list of plots (as opposed to a list of lists of
         plots) when using ncols.
-    - plot_width (int, optional) – The width you would like all your
+    - width (int, optional) – The width you would like all your
         plots to be
-    - plot_height (int, optional) – The height you would like all your
+    - height (int, optional) – The height you would like all your
         plots to be.
     - toolbar_options (dict, optional) – A dictionary of options that
         will be used to construct the grid’s toolbar (an instance of ToolbarBox). If

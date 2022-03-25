@@ -62,10 +62,24 @@ Furthermore, also **GeoPandas** and **Pyspark** have a new plotting backend as c
 
 Each plot type like scatterplot or histogram further has many more additional customization options that is described [here](https://github.com/PatrikHlobil/Pandas-Bokeh)."""
 authors = ["Patrik Hlobil <patrik.hlobil@gmail.com>"]
+readme = "README.md"
+homepage = "https://patrikhlobil.github.io/Pandas-Bokeh/"
+repository = "https://github.com/PatrikHlobil/Pandas-Bokeh"
 license = "MIT"
 packages = [
     { include = "pandas_bokeh" }
 ]
+classifiers = [
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Visualization"
+    ]
 
 [tool.poetry.dependencies]
 python = ">=3.7,<4.0"
