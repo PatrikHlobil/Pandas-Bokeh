@@ -22,9 +22,8 @@ jobs:
         sudo apt-get update
         sudo apt-get install openjdk-8-jre
         python -m pip install --upgrade pip
-        python -m pip install black pypandoc
-        pip install -r Tests/requirements_test.txt
+        python -m pip install poetry
+        poetry install
     - name: Test with pytest
       run: |
-        pip install .
         pytest --color=yes -s -x -vv --cov-report term-missing --cov=pandas_bokeh Tests/
