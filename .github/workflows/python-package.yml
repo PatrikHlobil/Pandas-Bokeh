@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.7', '3.8', '3.9']
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -24,7 +24,6 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install poetry
         # Only Test Pyspark API for supported Python versions:
-        echo "${{ matrix.python-version }}"
         if [ "${{ matrix.python-version }}" != "3.10" ]; then echo "Install Pyspark" && poetry add pyspark; fi
         poetry install
     - name: Test with pytest
