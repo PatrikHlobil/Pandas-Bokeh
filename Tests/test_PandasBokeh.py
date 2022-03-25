@@ -1,4 +1,3 @@
-import json
 import os
 
 import numpy as np
@@ -18,6 +17,7 @@ pd.set_option("plotting.backend", "pandas_bokeh")
 ##############################################################################
 #################################FIXTURES#####################################
 ##############################################################################
+pytestmark = pytest.mark.filterwarnings("error")
 
 
 @pytest.fixture(scope="function")
@@ -547,7 +547,7 @@ def test_barplot_layout(df_fruits):
                 p_stacked_hbar_pandas_backend,
             ],
         ],
-        plot_width=450,
+        width=450,
         show_plot=False,
         return_html=True,
     )
@@ -681,8 +681,8 @@ def test_histogram_average_diplay(df_hist):
 
     p_average = pandas_bokeh.plot_grid(
         [[p_hist, p_hist_cum, p_hist_cum_pandas_backend]],
-        plot_width=450,
-        plot_height=300,
+        width=450,
+        height=300,
         show_plot=False,
     )
 
@@ -746,8 +746,8 @@ def test_area_plots(df_energy):
             [p_area, p_area_normed],
             [p_area_pandas_backend, p_area_normed_pandas_backend],
         ],
-        plot_width=450,
-        plot_height=300,
+        width=450,
+        height=300,
         show_plot=False,
     )
 
@@ -797,8 +797,8 @@ def test_pieplot(df_election):
             [p_pie, p_pie_multiple],
             [p_pie_pandas_backend, p_pie_multiple_pandas_backend],
         ],
-        plot_width=450,
-        plot_height=300,
+        width=450,
+        height=300,
         show_plot=False,
     )
 
@@ -833,8 +833,8 @@ def test_mapplot(df_mapplot):
             [p_map, p_map_accessor],
             [p_map_pandas_backend, p_map_accessor_pandas_backend],
         ],
-        plot_width=450,
-        plot_height=300,
+        width=450,
+        height=300,
         show_plot=False,
     )
 

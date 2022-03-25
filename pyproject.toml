@@ -1,10 +1,7 @@
-import setuptools
-
-import pandas_bokeh
-
-version = pandas_bokeh.__version__
-
-long_description = f"""# Pandas Bokeh
+[tool.poetry]
+name = "pandas-bokeh"
+version = "0.5.6"
+description = """# Pandas Bokeh
 
 **Pandas Bokeh** provides a [Bokeh](https://bokeh.pydata.org/en/latest/) plotting backend for [Pandas](https://pandas.pydata.org/) and [GeoPandas](http://geopandas.org/), similar to the already existing [Visualization](https://pandas.pydata.org/pandas-docs/stable/visualization.html) feature of Pandas. Importing the library adds a complementary plotting method ***plot_bokeh()*** on **DataFrames** and **Series**. It also has native plotting backend support for Pandas >= 0.25.
 
@@ -34,7 +31,7 @@ With **Pandas Bokeh**, creating stunning, interactive, HTML-based visualization 
 df.plot_bokeh()
 ```
 
-In release **{version}**, the following plot types are supported:
+The following plot types are supported:
 
 * line
 * step
@@ -63,31 +60,37 @@ Furthermore, also **GeoPandas** and **Pyspark** have a new plotting backend as c
 * **colormap**: Defines the colors to plot. Can be either a list of colors or the name of a [Bokeh color palette](https://bokeh.pydata.org/en/latest/docs/reference/palettes.html)
 * **hovertool_string**: For customization of hovertool content
 
-Each plot type like scatterplot or histogram further has many more additional customization options that is described [here](https://github.com/PatrikHlobil/Pandas-Bokeh).
+Each plot type like scatterplot or histogram further has many more additional customization options that is described [here](https://github.com/PatrikHlobil/Pandas-Bokeh)."""
+authors = ["Patrik Hlobil <patrik.hlobil@gmail.com>"]
+readme = "README.md"
+homepage = "https://patrikhlobil.github.io/Pandas-Bokeh/"
+repository = "https://github.com/PatrikHlobil/Pandas-Bokeh"
+license = "MIT"
+packages = [
+    { include = "pandas_bokeh" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Visualization"
+    ]
 
-"""
+[tool.poetry.dependencies]
+python = ">=3.7,<4.0"
+pandas = "^1.0"
+bokeh = "^2.4.2"
 
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.1"
+pytest-cov = "^3.0.0"
+geopandas = "^0.10.2"
+ipdb = "^0.13.9"
 
-setuptools.setup(
-    name="pandas-bokeh",
-    version=version,
-    author="Patrik Hlobil",
-    author_email="patrik.hlobil@googlemail.com",
-    description="Bokeh plotting backend for Pandas, GeoPandas & Pyspark",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/PatrikHlobil/Pandas-Bokeh",
-    packages=setuptools.find_packages(),
-    install_requires=["bokeh>=2.0", "pandas>=0.22.0"],
-    classifiers=[
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-        "Intended Audience :: Science/Research",
-        "Topic :: Scientific/Engineering",
-        "Topic :: Scientific/Engineering :: Visualization",
-    ],
-    python_requires=">=3.6",
-)
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

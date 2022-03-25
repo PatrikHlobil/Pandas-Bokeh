@@ -250,8 +250,8 @@ def plot(  # noqa C901
         "title": title,
         "toolbar_location": toolbar_location,
         "active_scroll": "wheel_zoom",
-        "plot_width": 600,
-        "plot_height": 400,
+        "width": 600,
+        "height": 400,
         "output_backend": "webgl",
         "sizing_mode": sizing_mode,
         "x_axis_location": x_axis_location,
@@ -261,8 +261,8 @@ def plot(  # noqa C901
 
     if figsize is not None:
         width, height = figsize
-        figure_options["plot_width"] = width
-        figure_options["plot_height"] = height
+        figure_options["width"] = width
+        figure_options["height"] = height
     if logx:
         figure_options["x_axis_type"] = "log"
     if logy:
@@ -1608,15 +1608,13 @@ def pieplot(
     max_col_stringlength = max([len(col) for col in data_cols])
 
     # Create Figure for Pieplot:
-    plot_width = figure_options["plot_width"]
-    plot_height = figure_options["plot_height"]
     title = figure_options["title"]
     toolbar_location = None
     x_range = (-1.4 - 0.05 * max_col_stringlength, 2)
     y_range = (-1.2, 1.2)
     p = figure(
-        plot_width=plot_width,
-        plot_height=plot_height,
+        width=figure_options["width"],
+        height=figure_options["height"],
         title=title,
         toolbar_location=toolbar_location,
         x_range=x_range,
@@ -2425,8 +2423,8 @@ def _initialize_rangetool(p, x_axis_type, source):
     # Initialize range tool plot
     p_rangetool = figure(
         title="Drag the box to change the range above.",
-        plot_height=130,
-        plot_width=p.plot_width,
+        height=130,
+        width=p.width,
         y_range=p.y_range,
         x_axis_type=x_axis_type,
         y_axis_type=None,
@@ -2436,7 +2434,14 @@ def _initialize_rangetool(p, x_axis_type, source):
 
     # Need to explicitly set the initial range of the plot for the range tool.
     start_index = int(0.75 * len(source["__x__values"]))
-    p.x_range = Range1d(source["__x__values"][start_index], source["__x__values"][-1])
+    start = source["__x__values"][start_index]
+    end = source["__x__values"][-1]
+    # Explicitly cast to python datetime object due to a bug in numpy
+    # (see https://github.com/bokeh/bokeh/blob/branch-3.0/bokeh/core/property/bases.py#L251):
+    if source["__x__values"].dtype.name == "datetime64[ns]":
+        start = datetime.datetime.fromtimestamp(int(start) / 1_000_000_000)
+        end = datetime.datetime.fromtimestamp(int(end) / 1_000_000_000)
+    p.x_range = Range1d(start, end)
 
     range_tool = RangeTool(x_range=p.x_range)
     range_tool.overlay.fill_color = "navy"

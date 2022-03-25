@@ -379,7 +379,7 @@ p_scatter = df.plot_bokeh.scatter(
 )
 
 # Combine Table and Scatterplot via grid layout:
-pandas_bokeh.plot_grid([[data_table, p_scatter]], plot_width=400, plot_height=350)
+pandas_bokeh.plot_grid([[data_table, p_scatter]], width=400, height=350)
 ```
 <p id="scatterplot_picture"> </p>
 
@@ -468,7 +468,7 @@ p_stacked_hbar = df.plot_bokeh.barh(
 #Plot all barplot examples in a grid:
 pandas_bokeh.plot_grid([[p_bar, p_stacked_bar],
                         [p_hbar, p_stacked_hbar]], 
-                       plot_width=450)
+                       width=450)
 ```
 
 ![Barplot3](docs/Images/Barplot3.png)
@@ -556,7 +556,7 @@ p_hist_cum = df_hist.plot_bokeh.hist(
     title="Normal distributions (normed & cumulative)",
     show_figure=False)
 
-pandas_bokeh.plot_grid([[p_hist, p_hist_cum]], plot_width=450, plot_height=300)
+pandas_bokeh.plot_grid([[p_hist, p_hist_cum]], width=450, height=300)
 ```
 
 ![Histogram2](docs/Images/Histogram2.png)
@@ -1124,7 +1124,7 @@ df = pd.DataFrame({"Animal": ["Mouse", "Rabbit", "Dog", "Tiger", "Elefant", "Wal
                    "Weight [g]": [19, 3000, 40000, 200000, 6000000, 50000000]})
 p_scientific = df.plot_bokeh(x="Animal", y="Weight [g]", show_figure=False)
 p_non_scientific = df.plot_bokeh(x="Animal", y="Weight [g]", disable_scientific_axes="y", show_figure=False,)
-pandas_bokeh.plot_grid([[p_scientific, p_non_scientific]], plot_width = 450)
+pandas_bokeh.plot_grid([[p_scientific, p_non_scientific]], width = 450)
 ```
 
 ![Number format](docs/Images/Scientific_axes.png)
@@ -1209,7 +1209,7 @@ p_hist = df_hist.plot_bokeh(
 
 #Make Dashboard with Grid Layout:
 pandas_bokeh.plot_grid([[p_line, p_bar], 
-                        [p_scatter, p_hist]], plot_width=450)
+                        [p_scatter, p_hist]], width=450)
 ```
 
 ![Dashboard Layout](docs/Images/Startimage.gif)
@@ -1217,8 +1217,8 @@ pandas_bokeh.plot_grid([[p_line, p_bar],
 Using a combination of *row* and *column* elements (see also [Bokeh Layouts](https://bokeh.pydata.org/en/latest/docs/user_guide/layout.html)) allow for a very easy general arrangement of elements. An alternative layout to the one above is:
 
 ```python
-p_line.plot_width = 900
-p_hist.plot_width = 900
+p_line.width = 900
+p_hist.width = 900
 
 layout = pandas_bokeh.column(p_line,
                 pandas_bokeh.row(p_scatter, p_bar),
