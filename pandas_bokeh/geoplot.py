@@ -103,7 +103,7 @@ def convert_geoDataFrame_to_patches(gdf, geometry_column):
             df_new.append(add_x_and_y_columns(row, geometry))
 
         if geometry.type == "MultiPolygon":
-            for polygon in geometry:
+            for polygon in geometry.geoms:
                 df_new.append(add_x_and_y_columns(row, polygon))
 
     df_new = pd.DataFrame(df_new)
@@ -113,7 +113,6 @@ def convert_geoDataFrame_to_patches(gdf, geometry_column):
 
 
 def get_tick_formatter(formatter_arg):
-
     if issubclass(formatter_arg.__class__, TickFormatter):
         return formatter_arg
     elif isinstance(formatter_arg, str):
@@ -213,8 +212,8 @@ def geoplot(  # noqa C901
         "title": title,
         "x_axis_label": xlabel,
         "y_axis_label": ylabel,
-        "plot_width": 600,
-        "plot_height": 400,
+        "width": 600,
+        "height": 400,
         "toolbar_location": toolbar_location,
         "active_scroll": "wheel_zoom",
         "x_axis_type": "mercator",
@@ -223,8 +222,8 @@ def geoplot(  # noqa C901
     }
     if figsize is not None:
         width, height = figsize
-        figure_options["plot_width"] = width
-        figure_options["plot_height"] = height
+        figure_options["width"] = width
+        figure_options["height"] = height
     if webgl:
         figure_options["output_backend"] = "webgl"
 

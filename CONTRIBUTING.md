@@ -69,3 +69,7 @@ Now, before every commit you make to your repository, it will automatically appl
 [verdimrc](https://github.com/verdimrc)
 
  * Pull request[#96](https://github.com/PatrikHlobil/Pandas-Bokeh/pull/96) *fix problem when passing string-values to `bins`*
+
+[vroger11](https://github.com/vroger11)
+
+ * Pull request[#115](https://github.com/PatrikHlobil/Pandas-Bokeh/pull/115)  *Fix longitude and latitude values checking*

@@ -82,12 +82,11 @@ except ImportError:
     pass
 
 
-# Define Bokeh-plot method for PySpark DataFrames:
-if sys.version_info[1] < 8:  # TODO: pyspark currently does not support Python 3.8!
-    try:
-        import pyspark
+# Define Bokeh-plot method for PySpark DataFrames:¥
+try:
+    import pyspark
 
-        plot_bokeh = CachedAccessor("plot_bokeh", FramePlotMethods)
-        pyspark.sql.dataframe.DataFrame.plot_bokeh = plot_bokeh
-    except ImportError:
-        pass
+    plot_bokeh = CachedAccessor("plot_bokeh", FramePlotMethods)
+    pyspark.sql.dataframe.DataFrame.plot_bokeh = plot_bokeh
+except ImportError:
+    pass
