@@ -22,7 +22,6 @@ pytestmark = pytest.mark.filterwarnings("error")
 
 @pytest.fixture(scope="function")
 def df_stock():
-
     np.random.seed(42)
     df_stock = pd.DataFrame(
         {"Google": np.random.randn(1000) + 0.2, "Apple": np.random.randn(1000) + 0.17},
@@ -37,7 +36,6 @@ def df_stock():
 
 @pytest.fixture(scope="function")
 def df_iris():
-
     # Load Iris Dataset:
     df_iris = pd.read_csv(os.path.join(TEST_SETS_DIRECTORY, "iris", "iris.csv"))
 
@@ -46,7 +44,6 @@ def df_iris():
 
 @pytest.fixture(scope="function")
 def df_fruits():
-
     data = {
         "fruits": ["Apples", "Pears", "Nectarines", "Plums", "Grapes", "Strawberries"],
         "2015": [2, 1, 4, 3, 2, 4],
@@ -61,7 +58,6 @@ def df_fruits():
 
 @pytest.fixture(scope="function")
 def df_hist():
-
     np.random.seed(42)
 
     df_hist = pd.DataFrame(
@@ -78,7 +74,6 @@ def df_hist():
 
 @pytest.fixture(scope="function")
 def df_energy():
-
     df_energy = pd.read_csv(
         os.path.join(TEST_SETS_DIRECTORY, "energy", "energy.csv"), parse_dates=["Year"]
     )
@@ -88,7 +83,6 @@ def df_energy():
 
 @pytest.fixture(scope="function")
 def df_election():
-
     df_election = pd.read_csv(
         os.path.join(TEST_SETS_DIRECTORY, "Bundestagswahl", "Bundestagswahl.csv")
     )
@@ -98,7 +92,6 @@ def df_election():
 
 @pytest.fixture(scope="function")
 def df_mapplot():
-
     df_mapplot = pd.read_csv(
         os.path.join(TEST_SETS_DIRECTORY, "populated places", "populated_places.csv")
     )
@@ -279,8 +272,8 @@ def test_pointplot():
     "Test for pointplot"
 
     x = np.arange(-3, 3, 0.1)
-    y2 = x ** 2
-    y3 = x ** 3
+    y2 = x**2
+    y3 = x**3
     df = pd.DataFrame({"x": x, "Parabula": y2, "Cube": y3})
 
     arguments = dict(

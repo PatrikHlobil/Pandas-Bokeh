@@ -37,8 +37,8 @@ def df_stocks() -> pd.DataFrame:
 
 def df_parabula_cube() -> pd.DataFrame:
     x = np.arange(-3, 3, 0.1)
-    y2 = x ** 2
-    y3 = x ** 3
+    y2 = x**2
+    y3 = x**3
     df = pd.DataFrame({"x": x, "Parabula": y2, "Cube": y3})
 
     return df
@@ -395,6 +395,5 @@ def _return_plot_functions() -> Callable:
 
 
 if __name__ == "__main__":
-
     plots = make_and_return_plots()
     print(list(plots.keys()))

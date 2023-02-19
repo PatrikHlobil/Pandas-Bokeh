@@ -4,15 +4,15 @@ repos:
     hooks:
     - id: isort
   - repo: https://github.com/ambv/black
-    rev: 20.8b1
+    rev: 23.1.0
     hooks:
     - id: black
-  - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.9.0 
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
     hooks:
     - id: flake8
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.4.0
+    rev: v4.4.0
     hooks:
       - id: check-json
       - id: check-merge-conflict

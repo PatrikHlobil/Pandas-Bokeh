@@ -16,13 +16,11 @@ os.makedirs(os.path.join(directory, "Plots"), exist_ok=True)
 
 @pytest.fixture
 def df_states():
-
     return gpd.read_file(os.path.join(test_sets_directory, "states", "states.geojson"))
 
 
 @pytest.fixture
 def df_cities():
-
     return gpd.read_file(
         os.path.join(
             test_sets_directory,

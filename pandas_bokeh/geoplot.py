@@ -646,7 +646,6 @@ def geoplot(  # noqa C901
         )
 
     if "Polygon" in layertypes:
-
         if "line_color" not in kwargs:
             kwargs["line_color"] = "black"
 
@@ -723,7 +722,6 @@ def geoplot(  # noqa C901
 
     # Add Slider Widget:
     if slider is not None:
-
         if slider_range is None:
             slider_start = 0
             slider_end = len(slider) - 1
