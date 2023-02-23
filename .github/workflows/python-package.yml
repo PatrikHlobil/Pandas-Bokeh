@@ -19,12 +19,11 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install openjdk-8-jre
+        sudo apt update
+        sudo apt install proj-bin
+        sudo apt install openjdk-8-jre
         python -m pip install --upgrade pip
         python -m pip install poetry
-        # Only Test Pyspark API for supported Python versions:
-        if [ "${{ matrix.python-version }}" != "3.10" ]; then echo "Install Pyspark" && poetry add pyspark; fi
         poetry install
     - name: Test with pytest
       run: |
