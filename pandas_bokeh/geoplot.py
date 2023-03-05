@@ -111,11 +111,11 @@ def convert_geoDataFrame_to_patches(gdf, geometry_column):
 
     for i, row in gdf.iterrows():
         geometry = row[geometry_column]
-        if geometry.type == "Polygon":
+        if geometry.geom_type == "Polygon":
             df_new.append(add_x_and_y_columns(row, geometry))
 
-        if geometry.type == "MultiPolygon":
-            for polygon in geometry.geoms:
+        if geometry.geom_type == "MultiPolygon":
+            for polygon in list(geometry.geoms):
                 df_new.append(add_x_and_y_columns(row, polygon))
 
     df_new = pd.DataFrame(df_new)
