@@ -1,10 +1,6 @@
-import json
 import os
 import sys
 
-import geopandas as gpd
-import numpy as np
-import pandas as pd
 import pytest
 
 import pandas_bokeh
@@ -13,16 +9,20 @@ directory = os.path.dirname(__file__)
 test_sets_directory = os.path.join(os.path.dirname(directory), "docs", "Testdata")
 os.makedirs(os.path.join(directory, "Plots"), exist_ok=True)
 
+# Pyspark requires Python < 3.9:
+if sys.version_info < (3, 9):
+    import geopandas as gpd
+else:
+    pytestmark = pytest.mark.skip
+
 
 @pytest.fixture
 def df_states():
-
     return gpd.read_file(os.path.join(test_sets_directory, "states", "states.geojson"))
 
 
 @pytest.fixture
 def df_cities():
-
     return gpd.read_file(
         os.path.join(
             test_sets_directory,

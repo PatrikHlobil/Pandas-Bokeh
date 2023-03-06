@@ -171,7 +171,6 @@ def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
 def show(
     obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888"
 ):
-
     global SUPPRESS_OUTPUT
     if SUPPRESS_OUTPUT:
         return obj

@@ -10,7 +10,7 @@ from .base import embedded_html, output_file, output_notebook, plot_grid, show
 from .geoplot import geoplot
 from .plot import FramePlotMethods, plot
 
-__version__ = "0.5.5"
+__version__ = "0.6.0"
 
 
 # Register plot_bokeh accessor for Pandas DataFrames and Series:

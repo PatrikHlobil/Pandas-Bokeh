@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import datetime
 import numbers
 import warnings
@@ -45,7 +42,6 @@ def check_type(data):
 
 
 def get_colormap(colormap, N_cols):
-
     """Returns a colormap with <N_cols> colors. <colormap> can be either None,
     a string with the name of a Bokeh color palette or a list/tuple of colors."""
 
@@ -83,7 +79,6 @@ def get_colormap(colormap, N_cols):
 
 
 def _times_to_string(times):
-
     types = []
     for t in times:
         t = pd.to_datetime(t)
@@ -505,7 +500,6 @@ def plot(  # noqa C901
         )
 
     if kind == "scatter":
-
         if N_cols > 2:
             raise Exception(
                 "For scatterplots <x> and <y> values can only be a single column of the DataFrame, not a list of columns. Please specify both <x> and <y> columns for a scatterplot uniquely."
@@ -552,7 +546,6 @@ def plot(  # noqa C901
         )
 
     if kind == "bar" or kind == "barh":
-
         # Define data source for barplot:
         data = {col: df[col].values for col in data_cols}
         data["__x__values"] = x
@@ -640,7 +633,6 @@ def plot(  # noqa C901
                     p.add_tools(my_hover)
 
         if stacked:
-
             if kind == "bar":
                 glyph = p.vbar_stack(
                     data_cols,
@@ -676,7 +668,6 @@ def plot(  # noqa C901
                 p.add_tools(my_hover)
 
     if kind == "hist":
-
         # Disable line_color (for borders of histogram bins) per default:
         if "line_color" not in kwargs:
             kwargs["line_color"] = None
@@ -787,7 +778,6 @@ def plot(  # noqa C901
         )
 
     if kind == "area":
-
         p = areaplot(
             p,
             source,
@@ -803,7 +793,6 @@ def plot(  # noqa C901
         )
 
     if kind == "pie":
-
         source["__x__values"] = x_old
         p = pieplot(
             source,
@@ -1011,7 +1000,6 @@ def _base_lineplot(
             p.add_tools(my_hover)
 
         if rangetool:
-
             p_rangetool.line("__x__values", name, source=source, color=color)
 
     return p, p_rangetool
@@ -1123,7 +1111,6 @@ def pointplot(
 
     # Add scatter/point glyphs to figure:
     for name, color, marker in zip(data_cols, colormap, markers):
-
         glyph = p.scatter(
             x="__x__values",
             y=name,
@@ -1189,13 +1176,11 @@ def scatterplot(  # noqa C901
 
     # Define Colormapper for categorical scatterplot:
     if category is not None:
-
         category = str(category)
         source.data[category] = category_values
 
         # Make numerical categorical scatterplot:
         if check_type(category_values) == "numeric":
-
             kwargs["legend_label"] = category + " "
 
             # Define colormapper for numerical scatterplot:
@@ -1257,7 +1242,6 @@ def scatterplot(  # noqa C901
 
         # Make categorical scatterplot:
         elif check_type(category_values) == "object":
-
             # Define colormapper for categorical scatterplot:
             labels, categories = pd.factorize(category_values)
             colormap = get_colormap(colormap, len(categories))
@@ -1265,7 +1249,6 @@ def scatterplot(  # noqa C901
             # Draw each category as separate glyph:
             x, y = source.data["__x__values"], source.data["y"]
             for cat, color in zip(categories, colormap):
-
                 # Define reduced source for this categorx:
                 x_cat = x[category_values == cat]
                 x_old_cat = x_old[category_values == cat]
@@ -1384,7 +1367,6 @@ def histogram(
     for i, name, color, aggregate, average in zip(
         range(len(data_cols)), data_cols, colormap, aggregates, averages
     ):
-
         if histogram_type is None:
             histogram_type = "topontop"
 
@@ -1466,7 +1448,6 @@ def histogram(
 
         # Plot average line if wanted:
         if show_average:
-
             for sign in [1, -1]:
                 g1 = p.ray(
                     x=[average],
@@ -1530,7 +1511,6 @@ def areaplot(
             list(source["__x__values"]) + list(source["__x__values"])[::-1]
         )
         for j, col in enumerate(data_cols):
-
             # Stack lines:
             line_source[col + "_plot"] = baseline + np.array(source[col])
             line_source[col] = np.array(source[col])
@@ -1554,7 +1534,6 @@ def areaplot(
 
         # Add hovertool:
         if hovertool and int(len(data_cols) / 2) == j + 1:
-
             # Add single line for displaying hovertool:
             if stacked:
                 y = name + "_plot"
@@ -1598,7 +1577,6 @@ def pieplot(
     xlabelname,
     **kwargs,
 ):
-
     """Creates a Pieplot from the provided data."""
 
     # Determine Colormap for Pieplot:
@@ -1771,7 +1749,6 @@ class FramePlotMethods(BasePlotMethods):
 
     @property
     def df(self):
-
         dataframe = self._parent
 
         # Convert PySpark Dataframe to Pandas Dataframe:

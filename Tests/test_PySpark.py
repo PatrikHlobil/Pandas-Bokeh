@@ -10,20 +10,20 @@ import pandas_bokeh
 BASE_DIR = os.path.dirname(__file__)
 os.makedirs(os.path.join(BASE_DIR, "Plots"), exist_ok=True)
 
+# Pyspark requires Python < 3.11:
+if sys.version_info < (3, 11):
+    from pyspark.sql import SparkSession
+else:
+    pytestmark = pytest.mark.skip
+
 
 @pytest.fixture
 def spark():
-    # Start PySpark
-    from pyspark.sql import SparkSession
-
     spark = SparkSession.builder.getOrCreate()
     yield spark
     spark.stop()
 
 
-@pytest.mark.skipif(
-    sys.version_info >= (3, 10), reason="Pyspark 3.2.1 requires Python <= 3.9"
-)
 def test_basic_lineplot_pyspark(spark):
     """Test for basic lineplot with Pyspark"""
 

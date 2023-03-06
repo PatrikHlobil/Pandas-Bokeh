@@ -1,68 +1,9 @@
 [tool.poetry]
 name = "pandas-bokeh"
-version = "0.5.6"
-description = """# Pandas Bokeh
-
-**Pandas Bokeh** provides a [Bokeh](https://bokeh.pydata.org/en/latest/) plotting backend for [Pandas](https://pandas.pydata.org/) and [GeoPandas](http://geopandas.org/), similar to the already existing [Visualization](https://pandas.pydata.org/pandas-docs/stable/visualization.html) feature of Pandas. Importing the library adds a complementary plotting method ***plot_bokeh()*** on **DataFrames** and **Series**. It also has native plotting backend support for Pandas >= 0.25.
-
-For more information and examples have a look at the [Github Repository](https://github.com/PatrikHlobil/Pandas-Bokeh).
-
----
-
-## Installation
-
-
-You can install **Pandas Bokeh** from *PyPI* via **pip**:
-
-    pip install pandas-bokeh
-
-or *conda*:
-
-    conda install -c patrikhlobil pandas-bokeh
-
-**Pandas Bokeh** is officially supported on Python 3.5 and above.
-
----
-
-## Description
-
-With **Pandas Bokeh**, creating stunning, interactive, HTML-based visualization is as easy as calling:
-```python
-df.plot_bokeh()
-```
-
-The following plot types are supported:
-
-* line
-* step
-* point
-* scatter
-* bar
-* histogram
-* area
-* pie
-* mapplot
-
-<br>
-
-Furthermore, also **GeoPandas** and **Pyspark** have a new plotting backend as can be seen in the provided [examples](https://github.com/PatrikHlobil/Pandas-Bokeh#geoplots).
-
-<br>
-
-**Pandas Bokeh** is a high-level API for **Bokeh** on top of **Pandas** and **GeoPandas** that tries to figure out best, what the user wants to plot. Nevertheless, there are many options for customizing the plots, for example:
-
-* **figsize**: Choose width & height of the plot
-* **title**: Sets title of the plot
-* **xlim**/**ylim**: Set visible range of plot for x- and y-axis (also works for *datetime x-axis*)
-* **xlabel**/**ylabel**: Set x- and y-labels
-* **logx**/**logy**: Set log-scale on x-/y-axis
-* **xticks**/**yticks**: Explicitly set the ticks on the axes
-* **colormap**: Defines the colors to plot. Can be either a list of colors or the name of a [Bokeh color palette](https://bokeh.pydata.org/en/latest/docs/reference/palettes.html)
-* **hovertool_string**: For customization of hovertool content
-
-Each plot type like scatterplot or histogram further has many more additional customization options that is described [here](https://github.com/PatrikHlobil/Pandas-Bokeh)."""
+version = "0.6.0"
+description = "Pandas Bokeh provides a Bokeh plotting backend for Pandas and GeoPandas, similar to the already existing Visualization feature of Pandas."
 authors = ["Patrik Hlobil <patrik.hlobil@gmail.com>"]
-readme = "README.md"
+readme = "description.md"
 homepage = "https://patrikhlobil.github.io/Pandas-Bokeh/"
 repository = "https://github.com/PatrikHlobil/Pandas-Bokeh"
 license = "MIT"
@@ -73,6 +14,8 @@ classifiers = [
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Intended Audience :: Science/Research",
@@ -80,17 +23,17 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Visualization"
     ]
 
-[tool.poetry.dependencies]
-python = ">=3.7,<4.0"
-pandas = "^1.0"
-bokeh = "^2.4.2"
 
-[tool.poetry.dev-dependencies]
-pytest = "^7.1.1"
-pytest-cov = "^3.0.0"
-geopandas = "^0.10.2"
-ipdb = "^0.13.9"
+[tool.poetry.dependencies]
+python = ">=3.8,<4.0"
+bokeh = ">=2.4.2,<3.0.0"
+pandas = ">=1.0.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.2"
+pytest-cov = "^4.0.0"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
