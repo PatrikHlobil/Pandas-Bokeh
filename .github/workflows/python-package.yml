@@ -26,8 +26,8 @@ jobs:
         python -m pip install poetry
         poetry install
         # Only Test GeoPandas and Pyspark API for supported Python versions:
-        if [ "${{ matrix.python-version }}" -lt "3.11" ]; then echo "Install Pyspark" && poetry add pyspark; fi
-        if [ "${{ matrix.python-version }}" -eq "3.8" ]; then echo "Install GeoPandas" && poetry add geopandas; fi
+        if [ ${{ matrix.python-version }} -lt 3.11 ]; then echo "Install Pyspark" && poetry add pyspark; fi
+        if [ ${{ matrix.python-version }} -eq 3.8 ]; then echo "Install GeoPandas" && poetry add geopandas; fi
     - name: Test with pytest
       run: |
         poetry run pytest --color=yes -s -x -vv --cov-report term-missing --cov=pandas_bokeh Tests/
