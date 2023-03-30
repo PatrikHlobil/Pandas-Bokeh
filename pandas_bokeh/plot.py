@@ -4,6 +4,7 @@ import warnings
 from copy import deepcopy
 from typing import Iterable, List, Optional, Union
 
+import bokeh.plotting
 import numpy as np
 import pandas as pd
 from bokeh.layouts import column
@@ -18,14 +19,13 @@ from bokeh.models import (
 )
 from bokeh.models.ranges import Range1d
 from bokeh.palettes import Inferno256, all_palettes
-from bokeh.plotting import figure
 from bokeh.transform import cumsum, dodge
 from pandas.core.base import PandasObject
 from pandas.errors import ParserError
 
 from .base import embedded_html, set_fontsizes_of_figure, show
 from .geoplot import geoplot
-from .utils import _extract_additional_columns
+from .utils import _extract_additional_columns, _get_figure
 
 
 def check_type(data):
@@ -148,6 +148,7 @@ def plot(  # noqa C901
     vertical_xlabel=False,
     x_axis_location="below",
     webgl=True,
+    figure=None,
     reuse_plot=None,  # This keyword is not used by Pandas-Bokeh, but pandas plotting API adds it for series object calls
     **kwargs,
 ):
@@ -418,19 +419,33 @@ def plot(  # noqa C901
         )
 
     # Create Figure for plotting:
-    p = figure(**figure_options)
+    old_layout = None
+    if figure is None:
+        if kind == "pie":
+            p = None
+        else:
+            p = bokeh.plotting.figure(**figure_options)
+            # For categorical plots, set the xticks:
+            if x_labels_dict is not None:
+                p.xaxis.formatter = FuncTickFormatter(
+                    code="""
+                                        var labels = %s;
+                                        return labels[tick];
+                                        """
+                    % x_labels_dict
+                )
+
+    elif isinstance(figure, type(bokeh.plotting.figure())):
+        p = figure
+    elif isinstance(figure, type(column())):
+        old_layout = figure
+        p = _get_figure(old_layout)
+    else:
+        raise ValueError(
+            "Parameter <figure> has to be of type bokeh.plotting.figure or bokeh.layouts.column."
+        )
     if "x_axis_type" not in figure_options:
         figure_options["x_axis_type"] = None
-
-    # For categorical plots, set the xticks:
-    if x_labels_dict is not None:
-        p.xaxis.formatter = FuncTickFormatter(
-            code="""
-                                var labels = %s;
-                                return labels[tick];
-                                """
-            % x_labels_dict
-        )
 
     # Define ColumnDataSource for Plot if kind != "hist":
     if kind != "hist":
@@ -561,7 +576,18 @@ def plot(  # noqa C901
         del figure_options["x_axis_type"]
         if "y_axis_label" not in figure_options and kind == "barh":
             figure_options["y_axis_label"] = xlabelname
-        p = figure(**figure_options)
+        old_layout = None
+        if figure is None:
+            p = bokeh.plotting.figure(**figure_options)
+        elif isinstance(figure, type(bokeh.plotting.figure())):
+            p = figure
+        elif isinstance(figure, type(column())):
+            old_layout = figure
+            p = _get_figure(old_layout)
+        else:
+            raise ValueError(
+                "Parameter <figure> has to be of type bokeh.plotting.figure or bokeh.layouts.column."
+            )
         figure_options["x_axis_type"] = None
 
         # Set xticks:
@@ -795,6 +821,7 @@ def plot(  # noqa C901
     if kind == "pie":
         source["__x__values"] = x_old
         p = pieplot(
+            p,
             source,
             data_cols,
             colormap,
@@ -1568,6 +1595,7 @@ def areaplot(
 
 
 def pieplot(
+    p,
     source,
     data_cols,
     colormap,
@@ -1590,17 +1618,18 @@ def pieplot(
     toolbar_location = None
     x_range = (-1.4 - 0.05 * max_col_stringlength, 2)
     y_range = (-1.2, 1.2)
-    p = figure(
-        width=figure_options["width"],
-        height=figure_options["height"],
-        title=title,
-        toolbar_location=toolbar_location,
-        x_range=x_range,
-        y_range=y_range,
-    )
-    p.axis.axis_label = None
-    p.axis.visible = False
-    p.grid.grid_line_color = None
+    if p is None:
+        p = bokeh.plotting.figure(
+              width=figure_options["width"],
+              height=figure_options["height"],
+              title=title,
+              toolbar_location=toolbar_location,
+              x_range=x_range,
+              y_range=y_range,
+          )
+        p.axis.axis_label = None
+        p.axis.visible = False
+        p.grid.grid_line_color = None
 
     # Calculate angles for Pieplot:
     for col in data_cols:
@@ -2398,7 +2427,7 @@ def _initialize_rangetool(p, x_axis_type, source):
         Bokeh.plotting.figure
     """
     # Initialize range tool plot
-    p_rangetool = figure(
+    p_rangetool = bokeh.plotting.figure(
         title="Drag the box to change the range above.",
         height=130,
         width=p.width,
