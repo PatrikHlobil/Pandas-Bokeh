@@ -828,8 +828,10 @@ def plot(  # noqa C901
         )
 
     # Rotate xlabel if wanted:
-    if vertical_xlabel:
+    if vertical_xlabel is True:
         p.xaxis.major_label_orientation = np.pi / 2
+    elif vertical_xlabel is not False:
+        p.xaxis.major_label_orientation = vertical_xlabel
 
     # Set panning option:
     if panning is False:
