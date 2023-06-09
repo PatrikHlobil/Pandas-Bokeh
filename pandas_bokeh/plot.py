@@ -147,6 +147,7 @@ def plot(  # noqa C901
     rangetool=False,
     vertical_xlabel=False,
     x_axis_location="below",
+    x_range=None,
     webgl=True,
     reuse_plot=None,  # This keyword is not used by Pandas-Bokeh, but pandas plotting API adds it for series object calls
     **kwargs,
@@ -282,6 +283,8 @@ def plot(  # noqa C901
             figure_options["y_range"] = ylim
     if webgl:
         figure_options["output_backend"] = "webgl"
+    if x_range is not None:
+        figure_options["x_range"] = x_range
     if number_format is None:
         number_format = ""
     else:
@@ -367,13 +370,17 @@ def plot(  # noqa C901
     x_old = x
     x_labels_dict = None
     if xaxis_type == "categorical":
-        if check_type(x) == "datetime":
-            x = _times_to_string(x)
+        if stacked and x_range and (kind == "bar" or kind == "barh"):
+            # For a grouped stacked bar
+            pass
         else:
-            x = [str(el) for el in x]
-        if kind != "hist":
-            x_labels_dict = dict(zip(range(len(x)), x))
-            x = list(range(len(x)))
+            if check_type(x) == "datetime":
+                x = _times_to_string(x)
+            else:
+                x = [str(el) for el in x]
+            if kind != "hist":
+                x_labels_dict = dict(zip(range(len(x)), x))
+                x = list(range(len(x)))
         if "x_axis_type" in figure_options:
             del figure_options["x_axis_type"]
 
@@ -565,7 +572,7 @@ def plot(  # noqa C901
         figure_options["x_axis_type"] = None
 
         # Set xticks:
-        if kind == "bar":
+        if kind == "bar" and x_labels_dict is not None:
             p.xaxis.formatter = FuncTickFormatter(
                 code="""
                                     var labels = %s;
@@ -573,7 +580,7 @@ def plot(  # noqa C901
                                     """
                 % x_labels_dict
             )
-        elif kind == "barh":
+        elif kind == "barh" and x_labels_dict is not None:
             p.yaxis.formatter = FuncTickFormatter(
                 code="""
                                     var labels = %s;
