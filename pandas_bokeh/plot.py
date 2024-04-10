@@ -146,6 +146,8 @@ def plot(  # noqa C901
     hovertool_string=None,
     rangetool=False,
     vertical_xlabel=False,
+    group_xlabel=False,
+    subgroup_xlabel=False,
     x_axis_location="below",
     webgl=True,
     reuse_plot=None,  # This keyword is not used by Pandas-Bokeh, but pandas plotting API adds it for series object calls
@@ -828,8 +830,18 @@ def plot(  # noqa C901
         )
 
     # Rotate xlabel if wanted:
-    if vertical_xlabel:
+    if vertical_xlabel is True:
         p.xaxis.major_label_orientation = np.pi / 2
+    elif vertical_xlabel is not False:
+        p.xaxis.major_label_orientation = vertical_xlabel
+
+    # Group level xlabel rotation if wanted:
+    if group_xlabel is not False:
+        p.xaxis.group_label_orientation = group_xlabel
+
+    # Subgroup level xlabel rotation if wanted:
+    if subgroup_xlabel is not False:
+        p.xaxis.subgroup_label_orientation = subgroup_xlabel
 
     # Set panning option:
     if panning is False:
